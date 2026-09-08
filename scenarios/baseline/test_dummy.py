@@ -1,4 +1,4 @@
-""" This module contains a set of dummy tests which are
+"""This module contains a set of dummy tests which are
 supposed to trigger pytest hooks"""
 
 import pytest

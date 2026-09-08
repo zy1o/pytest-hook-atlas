@@ -1,0 +1,10 @@
+id = "baseline"
+title = "Baseline"
+order = 1
+args = ["-q"]
+summary = "A plain test suite with no conftest and no plugins."
+description = """
+The reference shape of a pytest run: parametrised tests, a yield fixture, a
+finalizer fixture, a skip, and one intentional failure. Every other scenario
+should be read as a diff against this one.
+"""

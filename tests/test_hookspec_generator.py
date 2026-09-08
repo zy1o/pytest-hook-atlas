@@ -1,19 +1,26 @@
-import pytest
-import _pytest.hookspec
-from doc_pytest_flow_chart import hookspec_generator
+"""Tests for the conftest generator.
+
+No longer used for capture - the tracer does that - but it builds the
+``every-hook-conftest`` scenario, whose whole point is a conftest that
+implements every declared hook.
+"""
+
+from pytest_hook_atlas import hookspec_generator
 
 
-def test_hookspec(monkeypatch):
-    def pytest_cmdline_preparse(
-        plugin: "_PluggyPlugin", manager: "PytestPluginManager"
-    ) -> None:
-        pass
+def test_get_hooks_finds_known_hooks():
+    hooks = hookspec_generator.get_hooks()
 
-    monkeypatch.setattr(
-        _pytest.hookspec, "pytest_cmdline_preparse", pytest_cmdline_preparse
-    )
+    assert "pytest_collection_modifyitems" in hooks
+    assert "pytest_runtest_setup" in hooks
+    assert all(name.startswith("pytest_") for name in hooks)
 
-    assert (
-        "def pytest_cmdline_preparse(plugin, manager)"
-        in hookspec_generator.get_conftest_file()
-    )
+
+def test_generated_conftest_reproduces_hook_signature():
+    conftest = hookspec_generator.get_conftest_file()
+
+    assert "def pytest_collection_modifyitems(session, config, items)" in conftest
+
+
+def test_generated_conftest_is_valid_python():
+    compile(hookspec_generator.get_conftest_file(), "<generated conftest>", "exec")
