@@ -1,9 +1,10 @@
-""" Generates a dummy implementation for all pytest hooks as found
+"""Generates a dummy implementation for all pytest hooks as found
 in pytest hookspec.
 """
 
-import _pytest.hookspec as hs
 import inspect
+
+import _pytest.hookspec as hs
 
 
 def get_hooks() -> list:

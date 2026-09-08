@@ -1,0 +1,14 @@
+id = "every-hook-conftest"
+title = "A conftest implementing every hook"
+order = 2
+args = ["-q"]
+generated_conftest = true
+summary = "What actually happens when a conftest.py implements all 52 declared hooks."
+description = """
+The `conftest.py` here is generated: it implements every hook pytest declares.
+
+This is the scenario that shows which hooks a `conftest.py` can and cannot
+serve. Some hooks have already fired by the time a conftest is imported, so
+implementing them there does nothing at all - the implementation is registered,
+and never called.
+"""

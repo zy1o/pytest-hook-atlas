@@ -1,5 +1,53 @@
 [build-system]
-requires = ["setuptools>=42", "wheel", "setuptools_scm[toml]>=3.4"]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
 
-[tool.setuptools_scm]
-write_to = "VERSION.txt"
+[project]
+name = "pytest-hook-atlas"
+version = "0.1.0"
+description = "A versioned, multi-scenario visual reference for pytest's hook execution flow"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{ name = "Andrzej Ostrowski", email = "a.ostrowski@outlook.com" }]
+keywords = ["pytest", "pluggy", "hooks", "documentation", "visualisation"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Documentation",
+    "Private :: Do Not Upload",
+]
+dependencies = [
+    "pytest>=8.0",
+    "graphviz>=0.20",
+]
+
+[project.optional-dependencies]
+dev = ["ruff>=0.6"]
+docs = ["mkdocs>=1.6,<2", "mkdocs-material>=9.5,<10", "pymdown-extensions>=10.8"]
+
+[project.urls]
+Homepage = "https://zy1o.github.io/pytest-hook-atlas/"
+Source = "https://github.com/zy1o/pytest-hook-atlas"
+
+[project.scripts]
+hook-atlas = "pytest_hook_atlas.console_scripts:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# deliberately-failing fixtures: these exist to drive pytest, not to pass review
+"scenarios/*" = ["B011"]
