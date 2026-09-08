@@ -1,93 +1,90 @@
-"""Tests for the Mermaid and Graphviz renderers."""
+"""Tests for the Graphviz flow renderer."""
 
 from __future__ import annotations
 
 import pytest
 
-from pytest_hook_atlas.analysis import Hook, HookGraph
-from pytest_hook_atlas.render import dot, mermaid
+from pytest_hook_atlas.flow import FlowNode
+from pytest_hook_atlas.render import dot
 
 BASE = "https://docs.pytest.org/en/stable/reference/reference.html"
 
+HOOKSPECS = {
+    "pytest_runtest_protocol": {"firstresult": True, "historic": False},
+    "pytest_configure": {"firstresult": False, "historic": True},
+    "pytest_runtest_setup": {"firstresult": False, "historic": False},
+}
+
 
 @pytest.fixture
-def graph():
-    hooks = {
-        "pytest_configure": Hook("pytest_configure", historic=True, summary="Cfg.", call_count=1),
-        "pytest_runtestloop": Hook("pytest_runtestloop", firstresult=True, call_count=1),
-        "pytest_runtest_setup": Hook("pytest_runtest_setup", call_count=8),
-        "pytest_addoption": Hook("pytest_addoption", historic=True, firstresult=True),
-    }
-    return HookGraph(
-        key="t",
-        title="T",
-        hooks=hooks,
-        edges=[
-            ("pytest_runtestloop", "pytest_runtest_setup"),
-            ("pytest_runtestloop", "pytest_runtestloop"),
-        ],
-        roots=["pytest_configure", "pytest_runtestloop"],
-    )
+def nodes():
+    return [
+        FlowNode("pytest_configure"),
+        FlowNode(
+            "pytest_runtest_protocol",
+            count=5,
+            children=[FlowNode("pytest_runtest_setup", count=2)],
+        ),
+    ]
 
 
-def test_shape_encodes_hook_semantics(graph):
-    output = mermaid.render(graph, BASE)
-
-    assert '[/"pytest_configure"/]' in output  # historic
-    assert '{{"pytest_runtestloop"}}' in output  # firstresult
-    assert '["pytest_runtest_setup"]' in output  # plain
-    assert '[["pytest_addoption"]]' in output  # both
+def test_semantics_are_words_not_shapes():
+    assert dot.semantics_of("pytest_configure", HOOKSPECS) == ["historic"]
+    assert dot.semantics_of("pytest_runtest_protocol", HOOKSPECS) == ["firstresult"]
+    assert dot.semantics_of("pytest_runtest_setup", HOOKSPECS) == []
+    assert dot.semantics_of("unknown_hook", HOOKSPECS) == []
 
 
-def test_self_recursion_uses_a_dotted_edge(graph):
-    lines = mermaid.render(graph, BASE).splitlines()
-    ids = mermaid.node_ids(graph)
-    loop = ids["pytest_runtestloop"]
+def test_repeat_counts_appear_in_labels(nodes):
+    svg = dot.render_inline_svg(nodes, HOOKSPECS, BASE)
 
-    assert f"    {loop} -.-> {loop}" in lines
-
-
-def test_every_node_links_to_its_documentation(graph):
-    output = mermaid.render(graph, BASE)
-
-    for name in graph.hooks:
-        assert f"#pytest.hookspec.{name}" in output
-    assert output.count("click ") == len(graph.hooks)
+    assert "x5" in svg
+    assert "x2" in svg
 
 
-def test_node_ids_are_stable_across_runs(graph):
-    assert mermaid.node_ids(graph) == mermaid.node_ids(graph)
+def test_every_hook_links_to_its_documentation(nodes):
+    svg = dot.render_inline_svg(nodes, HOOKSPECS, BASE)
+
+    for name in ("pytest_configure", "pytest_runtest_protocol", "pytest_runtest_setup"):
+        assert f"#pytest.hookspec.{name}" in svg
 
 
-def test_tooltips_are_stripped_of_rst_and_quotes():
-    hook = Hook(
-        name="x",
-        summary="Process the :class:`~pytest.TestReport` for ``item``.",
-        call_count=3,
-    )
-    tooltip = mermaid._tooltip(hook)
+def test_inline_svg_is_embeddable(nodes):
+    """No XML declaration or doctype, or it cannot be inlined into a page."""
+    svg = dot.render_inline_svg(nodes, HOOKSPECS, BASE)
 
-    assert ":class:" not in tooltip
-    assert "``" not in tooltip
-    assert '"' not in tooltip
-    assert "TestReport" in tooltip
-    assert "(called 3x)" in tooltip
+    assert svg.startswith("<svg")
+    assert "<?xml" not in svg
+    assert "DOCTYPE" not in svg
 
 
-def test_long_tooltips_truncate_on_a_word_boundary():
-    hook = Hook(name="x", summary="word " * 100)
-    tooltip = mermaid._tooltip(hook)
+def test_svg_keeps_its_natural_size(nodes):
+    """Sizing is capped by CSS, not by scaling each diagram to its container."""
+    svg = dot.render_inline_svg(nodes, HOOKSPECS, BASE)
 
-    assert len(tooltip) <= mermaid.MAX_TOOLTIP + 20
-    assert tooltip.endswith("…")
-
-
-def test_graphviz_shapes_mirror_the_mermaid_vocabulary():
-    assert set(dot.SHAPES) == set(mermaid.SHAPES)
+    assert 'width="' in svg[:200]
+    assert 'height="' in svg[:200]
 
 
-def test_svg_renders_with_clickable_nodes(graph, tmp_path):
-    written = dot.render_svg(graph, BASE, tmp_path / "g.svg")
+def test_diagram_is_not_absurdly_offset(nodes):
+    """Guards the graph-margin-is-inches trap that produced an 864pt offset."""
+    svg = dot.render_inline_svg(nodes, HOOKSPECS, BASE)
+    viewbox = svg.split('viewBox="')[1].split('"')[0].split()
 
-    assert written.exists()
-    assert "pytest.hookspec.pytest_configure" in written.read_text()
+    assert float(viewbox[0]) < 50
+    assert float(viewbox[1]) < 50
+
+
+def test_nesting_becomes_a_cluster(nodes):
+    svg = dot.render_inline_svg(nodes, HOOKSPECS, BASE)
+
+    assert "cluster" in svg
+
+
+def test_styling_hooks_are_present_for_css_theming(nodes):
+    """Colours come from CSS so the site's dark mode restyles the diagram."""
+    svg = dot.render_inline_svg(nodes, HOOKSPECS, BASE)
+
+    assert 'class="node' in svg
+    assert 'class="edge' in svg
+    assert 'fill="transparent"' in svg or "transparent" in svg

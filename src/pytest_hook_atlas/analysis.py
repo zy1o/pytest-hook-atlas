@@ -85,11 +85,12 @@ PHASES: tuple[Phase, ...] = (
     ),
     Phase(
         key="runtest",
-        title="The run-test loop",
-        anchors=("pytest_runtestloop",),
+        title="The run-test protocol",
+        anchors=("pytest_runtest_protocol",),
         description=(
-            "The per-test protocol: setup, call, teardown, each reported "
-            "separately. This subtree repeats once per collected test."
+            "`pytest_runtestloop` runs this once per collected test. Note the "
+            "rhythm: setup, call and teardown are each followed by their own "
+            "`makereport` and `logreport` pair - three reports per test, not one."
         ),
     ),
     Phase(

@@ -58,24 +58,42 @@ def test_build_writes_pages_and_assets(captured, tmp_path):
     (traces_dir / f"{scenario.id}.json").write_text(json.dumps(trace))
 
     docs = tmp_path / "docs"
-    pages = build.build(REPO_ROOT, docs, traces_dir)
+    pages = build.build(REPO_ROOT, docs, traces_dir, verify_links=False)
 
     assert (docs / "index.md").exists()
     assert (docs / "scenarios" / f"{scenario.id}.md").exists()
-    assert (docs / "assets" / f"{scenario.id}-full.svg").exists()
+    assert (docs / "assets" / "atlas.css").exists()
     assert len(pages) >= 2
 
 
-def test_scenario_page_carries_provenance(captured, tmp_path):
+def test_scenario_page_carries_provenance(captured):
     """A reader must be able to get from a diagram to the code behind it."""
     scenario, trace = captured
-    page = build.scenario_page(scenario, trace, tmp_path)
+    page = build.scenario_page(scenario, trace, verify_links=False)
 
     assert scenario.source_url in page
     assert "## How this was produced" in page
-    assert "```mermaid" in page
     for source in scenario.source_files():
         assert source.name in page
+
+
+def test_scenario_page_inlines_diagrams_so_links_stay_clickable(captured):
+    """An <img>-referenced SVG has dead links and cannot be themed by CSS."""
+    scenario, trace = captured
+    page = build.scenario_page(scenario, trace, verify_links=False)
+
+    assert '<div class="ha-diagram">' in page
+    assert "<svg" in page
+    assert ".svg)" not in page  # no markdown image references to SVG files
+
+
+def test_scenario_page_shows_how_other_paths_differed(captured):
+    """The baseline suite has a failing and a skipped test, which diverge."""
+    scenario, trace = captured
+    page = build.scenario_page(scenario, trace, verify_links=False)
+
+    assert "The others differed" in page
+    assert "pytest_exception_interact" in page
 
 
 def test_index_lists_every_scenario(captured):

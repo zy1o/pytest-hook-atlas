@@ -10,29 +10,61 @@ import shutil
 from pathlib import Path
 from typing import Any
 
-from . import analysis, doclinks
-from .render import dot, mermaid
+from . import analysis, doclinks, flow
+from .render import dot
 from .scenarios import Scenario, discover
 
 LANGUAGE_BY_SUFFIX = {".py": "python", ".toml": "toml", ".ini": "ini", ".cfg": "ini"}
+
+OUTLINE_DEPTH = 2
+
+LEGEND = """
+| In a diagram | Meaning |
+| --- | --- |
+| a box | one hook call |
+| a box inside another | called *during* the enclosing hook |
+| an arrow | what happened *next*, in the order the trace recorded |
+| `firstresult` | the first non-`None` return wins; later implementations are skipped |
+| `historic` | replays for plugins registered later |
+| `xN` | the same step repeated N times in a row, collapsed |
+
+Every box links to that hook's entry in the pytest reference documentation.
+"""
 
 
 def _fence(path: Path) -> str:
     language = LANGUAGE_BY_SUFFIX.get(path.suffix, "")
     body = path.read_text().strip()
-    return (
-        f'??? example "{path.name}"\n\n    ```{language}\n'
-        + "\n".join(f"    {line}" if line else "" for line in body.splitlines())
-        + "\n    ```\n"
-    )
+    indented = "\n".join(f"    {line}" if line else "" for line in body.splitlines())
+    return f'??? example "{path.name}"\n\n    ```{language}\n{indented}\n    ```\n'
+
+
+def _diagram(nodes: list[flow.FlowNode], hookspecs: dict[str, Any], base_url: str) -> str:
+    """Inline the SVG so its links stay clickable and CSS can theme it."""
+    if not nodes:
+        return ""
+    svg = dot.render_inline_svg(nodes, hookspecs, base_url)
+    return f'<div class="ha-diagram">\n{svg}\n</div>\n'
+
+
+def _variant_notes(variants: list[flow.Variant]) -> list[str]:
+    """Describe how the other observed paths differed from the one drawn."""
+    notes: list[str] = []
+    for variant in variants[1:]:
+        if not variant.differs:
+            continue
+        tests = "test" if variant.count == 1 else "tests"
+        parts = []
+        if variant.added:
+            parts.append("also called " + ", ".join(f"`{n}`" for n in variant.added))
+        if variant.missing:
+            parts.append("skipped " + ", ".join(f"`{n}`" for n in variant.missing))
+        notes.append(f"- {variant.count} {tests} {' and '.join(parts)}")
+    return notes
 
 
 def _provenance(scenario: Scenario, trace: dict[str, Any]) -> str:
-    """The 'inspect the code that generated this' block.
-
-    Diagrams differ between scenarios; that is the whole point, so a reader has
-    to be able to get from any diagram to the exact project that produced it.
-    """
+    """The 'inspect the code that generated this' block."""
     environment = trace["environment"]
     invocation = " ".join(["pytest", *scenario.args])
     lines = [
@@ -46,52 +78,59 @@ def _provenance(scenario: Scenario, trace: dict[str, Any]) -> str:
         f"- **Observed:** {trace['stats']['total_calls']} hook calls, "
         f"{trace['stats']['unique_hooks']} distinct hooks\n",
     ]
-    for path in scenario.source_files():
-        lines.append(_fence(path))
+    lines.extend(_fence(path) for path in scenario.source_files())
     return "\n".join(lines)
 
 
 def _hook_table(graph: analysis.HookGraph, base_url: str) -> str:
-    rows = ["| Hook | Calls | Semantics | Implemented by |", "| --- | --: | --- | --: |"]
+    rows = ["| Hook | Calls | Semantics | Implementations |", "| --- | --: | --- | --: |"]
+    labels = {
+        "plain": "",
+        "historic": "historic",
+        "firstresult": "firstresult",
+        "both": "historic, firstresult",
+    }
     for name in sorted(graph.hooks):
         hook = graph.hooks[name]
-        semantics = {
-            "plain": "",
-            "historic": "historic",
-            "firstresult": "firstresult",
-            "both": "historic, firstresult",
-        }[hook.semantics]
         url = doclinks.hook_url(name, base_url)
         rows.append(
-            f"| [`{name}`]({url}) | {hook.call_count} | {semantics} | {len(hook.plugins)} |"
+            f"| [`{name}`]({url}) | {hook.call_count} | "
+            f"{labels[hook.semantics]} | {len(hook.plugins)} |"
         )
     return "\n".join(rows)
 
 
-def scenario_page(
-    scenario: Scenario, trace: dict[str, Any], assets: Path, verify_links: bool = True
-) -> str:
-    # verified by default: an unverified pinned URL can point at docs that
-    # were never built, which is how the links broke last time
+def scenario_page(scenario: Scenario, trace: dict[str, Any], verify_links: bool = True) -> str:
     base_url = doclinks.resolve_base_url(trace["environment"]["pytest"], verify=verify_links)
+    hookspecs = trace["hookspecs"]
     parts = [f"# {scenario.title}\n", f"{scenario.summary}\n", f"{scenario.description}\n"]
     parts.append(_provenance(scenario, trace))
 
-    for graph in analysis.phase_graphs(trace):
-        parts.append(f"## {graph.title}\n")
-        parts.append(f"{graph.description}\n")
-        parts.append(mermaid.render_block(graph, base_url, direction="TB") + "\n")
+    parts.append("## Session outline\n")
+    parts.append(
+        "The whole run, top two levels only. Each phase below expands one of these steps.\n"
+    )
+    outline = flow.prune(flow.collapse(trace["calls"]), OUTLINE_DEPTH)
+    parts.append(_diagram(outline, hookspecs, base_url))
+
+    for phase in analysis.PHASES:
+        variants = flow.phase_variants(analysis.find_subtrees(trace["calls"], phase.anchors))
+        if not variants:
+            continue
+        parts.append(f"## {phase.title}\n")
+        parts.append(f"{phase.description}\n")
+        parts.append(_diagram(variants[0].flow, hookspecs, base_url))
+
+        total = sum(variant.count for variant in variants)
+        if total > 1:
+            parts.append(f"*The path {variants[0].count} of {total} took.*\n")
+        notes = _variant_notes(variants)
+        if notes:
+            parts.append("**The others differed:**\n")
+            parts.extend(notes)
+            parts.append("")
 
     full = analysis.full_graph(trace)
-    svg_name = f"{scenario.id}-full.svg"
-    dot.render_svg(full, base_url, assets / svg_name)
-    parts.append("## The full map\n")
-    parts.append(
-        "Every hook observed in this scenario, in one graph. Rendered with "
-        "Graphviz, which stays readable at this size where Mermaid does not.\n"
-    )
-    parts.append(f"![Full hook flow for {scenario.title}](../assets/{svg_name})\n")
-
     if scenario.generated_conftest:
         blind = analysis.conftest_blind_spots(full)
         if blind:
@@ -104,52 +143,82 @@ def scenario_page(
                 "below the level the hook applies to.\n"
             )
             parts.append(
-                "This is the practical reason some behaviour can only be "
-                "provided by a plugin, never by a `conftest.py`.\n"
+                "This is the practical reason some behaviour can only come from "
+                "a plugin, never from a `conftest.py`.\n"
             )
-            for name in blind:
-                url = doclinks.hook_url(name, base_url)
-                parts.append(f"- [`{name}`]({url})")
+            parts.extend(f"- [`{name}`]({doclinks.hook_url(name, base_url)})" for name in blind)
             parts.append("")
 
-    parts.append("## Hooks observed\n")
+    parts.append("## Every hook observed\n")
     parts.append(_hook_table(full, base_url) + "\n")
     return "\n".join(parts)
 
 
-def index_page(scenarios: list[tuple[Scenario, dict[str, Any]]]) -> str:
-    environment = scenarios[0][1]["environment"] if scenarios else {}
+def index_page(captured: list[tuple[Scenario, dict[str, Any]]]) -> str:
+    environment = captured[0][1]["environment"] if captured else {}
     parts = [
         "# pytest hook atlas\n",
-        "A visual reference for the order and nesting of **pytest's hooks** - "
+        "A visual reference for the **order and nesting of pytest's hooks** - "
         "captured from real pytest runs, not transcribed from prose.\n",
-        "Each diagram below is traced with pluggy's hook monitoring, so it "
-        "reflects what pytest actually did, including which plugin supplied "
-        "each implementation.\n",
+        "Every diagram is traced with pluggy's hook monitoring, so it shows "
+        "what pytest actually did: the sequence, what ran inside what, and "
+        "which plugin supplied each implementation.\n",
         "## Scenarios\n",
-        "The flow genuinely changes with your project layout. Every scenario "
-        "links to the code it was produced from.\n",
+        "The flow genuinely changes with your project layout. Each scenario "
+        "links back to the code it was traced from.\n",
         "| Scenario | What it shows | Hook calls |",
         "| --- | --- | --: |",
     ]
-    for scenario, trace in scenarios:
-        parts.append(
-            f"| [{scenario.title}](scenarios/{scenario.id}.md) "
-            f"| {scenario.summary} | {trace['stats']['total_calls']} |"
-        )
-    parts.append("\n## How to read the diagrams\n")
-    parts.append(mermaid.LEGEND)
-    parts.append(
-        "\nNode shape carries meaning rather than colour, so the diagrams "
-        "survive dark mode, printing and colour-blindness.\n"
+    parts.extend(
+        f"| [{scenario.title}](scenarios/{scenario.id}.md) "
+        f"| {scenario.summary} | {trace['stats']['total_calls']} |"
+        for scenario, trace in captured
     )
-    parts.append("## Captured with\n")
+    parts.append("\n## How to read the diagrams\n")
+    parts.append(LEGEND)
     if environment:
+        parts.append("## Captured with\n")
         parts.append(
             f"pytest **{environment['pytest']}**, pluggy **{environment['pluggy']}**, "
             f"Python **{environment['python']}**.\n"
         )
     return "\n".join(parts)
+
+
+STYLESHEET = """/* Diagrams are inlined SVG so they stay clickable and follow the theme. */
+.ha-diagram {
+  overflow-x: auto;
+  margin: 1.2rem 0;
+}
+.ha-diagram svg {
+  max-width: 100%;
+  height: auto;
+}
+.ha-diagram .node path,
+.ha-diagram .node polygon,
+.ha-diagram .cluster path {
+  fill: transparent;
+  stroke: var(--md-default-fg-color--lighter);
+}
+.ha-diagram text {
+  fill: var(--md-default-fg-color);
+}
+/* the muted subtitle graphviz emits for hook semantics and repeat counts */
+.ha-diagram text[fill="#8a8a8a"] {
+  fill: var(--md-default-fg-color--light);
+}
+.ha-diagram .edge path {
+  stroke: var(--md-default-fg-color--light);
+  fill: none;
+}
+.ha-diagram .edge polygon {
+  fill: var(--md-default-fg-color--light);
+  stroke: var(--md-default-fg-color--light);
+}
+.ha-diagram a:hover text {
+  fill: var(--md-accent-fg-color);
+}
+"""
 
 
 def build(
@@ -158,21 +227,20 @@ def build(
     """Render every captured scenario into ``docs_dir``. Returns pages written."""
     if docs_dir.exists():
         shutil.rmtree(docs_dir)
-    assets = docs_dir / "assets"
     (docs_dir / "scenarios").mkdir(parents=True, exist_ok=True)
-    assets.mkdir(parents=True, exist_ok=True)
+    (docs_dir / "assets").mkdir(parents=True, exist_ok=True)
+    (docs_dir / "assets" / "atlas.css").write_text(STYLESHEET)
 
     captured: list[tuple[Scenario, dict[str, Any]]] = []
     for scenario in discover(repo_root / "scenarios"):
         trace_path = traces_dir / f"{scenario.id}.json"
-        if not trace_path.exists():
-            continue
-        captured.append((scenario, analysis.load_trace(trace_path)))
+        if trace_path.exists():
+            captured.append((scenario, analysis.load_trace(trace_path)))
 
     written = []
     for scenario, trace in captured:
         page = docs_dir / "scenarios" / f"{scenario.id}.md"
-        page.write_text(scenario_page(scenario, trace, assets, verify_links))
+        page.write_text(scenario_page(scenario, trace, verify_links))
         written.append(page)
 
     index = docs_dir / "index.md"

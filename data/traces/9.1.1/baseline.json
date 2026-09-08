@@ -11,12 +11,12 @@
     "argv": [
       "-p",
       "pytest_hook_atlas.tracer",
-      "/tmp/hook-atlas-5o4uf170/baseline",
+      "/tmp/hook-atlas-ufldyq07/baseline",
       "-q",
       "-p",
       "no:cacheprovider"
     ],
-    "invocation_dir": "/tmp/hook-atlas-5o4uf170/baseline"
+    "invocation_dir": "/tmp/hook-atlas-ufldyq07/baseline"
   },
   "stats": {
     "total_calls": 279,
@@ -666,7 +666,7 @@
               "trylast": true
             },
             {
-              "plugin": "125162704677360",
+              "plugin": "126351957833200",
               "module": "_pytest.config",
               "function": "PytestPluginManager.pytest_configure",
               "wrapper": false,
