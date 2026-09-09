@@ -53,57 +53,73 @@ def test_capture_produces_a_usable_trace(captured):
     assert trace["scenario"]["id"] == "baseline"
 
 
+def _one_build(tmp_path, scenario, trace):
+    """A ScenarioBuild for a single captured version, grouped as the site does."""
+    traces_dir = tmp_path / "traces" / trace["environment"]["pytest"]
+    traces_dir.mkdir(parents=True)
+    (traces_dir / f"{scenario.id}.json").write_text(json.dumps(trace))
+    return build, traces_dir.parent
+
+
 def test_build_writes_pages_and_assets(captured, tmp_path):
     scenario, trace = captured
-    traces_dir = tmp_path / "traces"
-    traces_dir.mkdir()
-    (traces_dir / f"{scenario.id}.json").write_text(json.dumps(trace))
+    _, traces_root = _one_build(tmp_path, scenario, trace)
 
     docs = tmp_path / "docs"
-    pages = build.build(REPO_ROOT, docs, traces_dir, verify_links=False)
+    pages = build.build(REPO_ROOT, docs, traces_root, verify_links=False)
 
     assert (docs / "index.md").exists()
-    assert (docs / "scenarios" / f"{scenario.id}.md").exists()
+    assert (docs / "design-notes.md").exists()
     assert (docs / "assets" / "atlas.css").exists()
-    assert len(pages) >= 2
+    assert len(pages) >= 4
 
 
-def test_scenario_page_carries_provenance(captured):
+def test_group_page_carries_provenance(captured, tmp_path):
     """A reader must be able to get from a diagram to the code behind it."""
     scenario, trace = captured
-    page = build.scenario_page(scenario, trace, verify_links=False)
+    _, traces_root = _one_build(tmp_path, scenario, trace)
+    item = build.collect(REPO_ROOT, traces_root)[0]
 
-    assert scenario.source_url in page
+    page = build.group_page(item, item.groups[0], verify_links=False)
+
+    assert item.scenario.source_url in page
     assert "## How this was produced" in page
-    for source in scenario.source_files():
+    for source in item.scenario.source_files():
         assert source.name in page
 
 
-def test_scenario_page_inlines_diagrams_so_links_stay_clickable(captured):
+def test_group_page_inlines_diagrams_so_links_stay_clickable(captured, tmp_path):
     """An <img>-referenced SVG has dead links and cannot be themed by CSS."""
     scenario, trace = captured
-    page = build.scenario_page(scenario, trace, verify_links=False)
+    _, traces_root = _one_build(tmp_path, scenario, trace)
+    item = build.collect(REPO_ROOT, traces_root)[0]
+
+    page = build.group_page(item, item.groups[0], verify_links=False)
 
     assert '<div class="ha-diagram">' in page
     assert "<svg" in page
     assert ".svg)" not in page  # no markdown image references to SVG files
 
 
-def test_scenario_page_shows_how_other_paths_differed(captured):
+def test_group_page_shows_how_other_paths_differed(captured, tmp_path):
     """The baseline suite has a failing and a skipped test, which diverge."""
     scenario, trace = captured
-    page = build.scenario_page(scenario, trace, verify_links=False)
+    _, traces_root = _one_build(tmp_path, scenario, trace)
+    item = build.collect(REPO_ROOT, traces_root)[0]
+
+    page = build.group_page(item, item.groups[0], verify_links=False)
 
     assert "The others differed" in page
     assert "pytest_exception_interact" in page
 
 
-def test_index_lists_every_scenario(captured):
-    scenario, trace = captured
-    page = build.index_page([(scenario, trace)])
+def test_site_index_lists_every_scenario():
+    builds = build.collect(REPO_ROOT, REPO_ROOT / "data" / "traces")
+    page = build.site_index(builds)
 
-    assert f"scenarios/{scenario.id}.md" in page
-    assert "How to read the diagrams" in page
+    for item in builds:
+        assert f"scenarios/{item.scenario.id}/index.md" in page
+    assert "design-notes.md" in page
 
 
 def test_conftest_generator_runs_as_a_standalone_script():

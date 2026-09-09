@@ -121,3 +121,6 @@ data/traces/*/.tmp*
 
 # local visual experiments, never committed
 prototypes/
+
+# generated from mkdocs.base.yml by `hook-atlas build`
+mkdocs.yml

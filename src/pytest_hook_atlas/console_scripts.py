@@ -27,19 +27,19 @@ def _version_dirs(traces_dir: Path) -> list[Path]:
 
 
 def cmd_build(args: argparse.Namespace) -> int:
-    """Render the MkDocs source tree from captured traces."""
+    """Render the MkDocs source tree from every captured trace.
+
+    All versions are passed in together: the builder groups them by flow and
+    decides which get their own page, so it needs the whole set rather than
+    one version's directory.
+    """
     versions = _version_dirs(TRACES_DIR)
     if not versions:
-        print("no traces captured yet; run 'hook-atlas capture' first", file=sys.stderr)
+        print("no traces captured yet; run 'hook-atlas capture-missing'", file=sys.stderr)
         return 1
 
-    traces = TRACES_DIR / args.pytest_version if args.pytest_version else versions[-1]
-    if not traces.exists():
-        print(f"no traces for pytest {args.pytest_version}", file=sys.stderr)
-        return 1
-
-    pages = build.build(Path("."), DOCS_DIR, traces, verify_links=not args.no_verify_links)
-    print(f"built {len(pages)} pages from {traces} into {DOCS_DIR}/")
+    pages = build.build(Path("."), DOCS_DIR, TRACES_DIR, verify_links=not args.no_verify_links)
+    print(f"built {len(pages)} pages from {len(versions)} captured releases")
     return 0
 
 
@@ -154,7 +154,6 @@ def main(argv: list[str] | None = None) -> int:
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     build_parser = subparsers.add_parser("build", help="generate the docs tree")
-    build_parser.add_argument("--pytest-version", default=None)
     build_parser.add_argument(
         "--no-verify-links",
         action="store_true",

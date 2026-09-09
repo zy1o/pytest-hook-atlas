@@ -137,6 +137,29 @@ BASE = """/* Diagrams are inlined SVG so their links stay clickable and CSS can 
 .ha-diagram .ha-column > path {
   fill: none;
 }
+
+/* Version picker. Readers think in pytest versions; the site is organised by
+   distinct flows, so picking any version lands on the flow covering it. */
+.ha-version-picker {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0 0 1.2rem;
+  font-size: 0.75rem;
+}
+.ha-version-picker label {
+  color: var(--md-default-fg-color--light);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.ha-version-picker select {
+  font: inherit;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.2rem;
+  border: 1px solid var(--md-default-fg-color--lighter);
+  background: var(--md-default-bg-color);
+  color: var(--md-default-fg-color);
+}
 """
 
 #: The muted subtitle colour graphviz bakes in as a fill attribute. Overridden
