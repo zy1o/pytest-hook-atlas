@@ -1,63 +1,112 @@
 """Generate the diagram stylesheet.
 
-Colours are computed here rather than baked into the SVG so that one rendered
-diagram serves both the light and dark themes, and so the palette can be
-changed without recapturing or re-rendering anything.
+Colours are computed here rather than baked into the SVG so one rendered
+diagram serves both the light and dark themes, and so the palette can change
+without recapturing or re-rendering anything.
 
 Two channels, kept strictly separate:
 
 * **hue = phase.** Which part of the run a hook belongs to.
-* **lightness = frequency.** How often the hook was called, on a log scale
+* **lightness = frequency.** How often the hook was called, log-scaled and
   bucketed into discrete steps.
 
-Nothing else uses colour. In particular, changes between pytest versions do
-*not* get a colour: presence changes are answerable with ctrl-F, and ordering
-changes - the ones ctrl-F cannot help with - are surfaced by grouping instead,
-which is where they belong.
+Nothing else uses colour. Changes between pytest versions deliberately do not:
+presence changes are answerable with ctrl-F, and ordering changes - the ones
+ctrl-F cannot help with - are surfaced by grouping instead.
+
+**Contrast is computed, not eyeballed.** A hue that reads well on white is
+usually invisible on the dark theme and vice versa: raw ``#DDCC77`` scores
+1.6:1 on white, ``#332288`` scores 1.3:1 on the slate background. So every
+colour used for text or strokes is pushed toward or away from the background
+until it clears a WCAG target, per theme.
 """
 
 from __future__ import annotations
 
 from .dot import PHASE_HUES, SHADE_STEPS
 
-#: How far the palest and darkest fills travel from the page background toward
-#: the hue. Capped well short of full saturation so body text stays readable on
-#: the darkest step without needing a second text colour.
-MAX_TINT_LIGHT = 0.42
-MAX_TINT_DARK = 0.52
+#: How far the darkest fill travels from the page background toward the hue.
+#: Capped so the muted subtitle text still clears 3:1 on the darkest step -
+#: raising these is what made subtitles unreadable at 1.9:1.
+MAX_TINT_LIGHT = 0.26
+MAX_TINT_DARK = 0.34
+
+#: WCAG AA for normal text; strokes and titles are held to the same bar.
+TARGET_CONTRAST = 4.5
 
 LIGHT_BACKGROUND = (255, 255, 255)
 DARK_BACKGROUND = (30, 33, 41)
 
+Rgb = tuple[int, int, int]
 
-def _rgb(colour: str) -> tuple[int, int, int]:
+
+def _rgb(colour: str) -> Rgb:
     return tuple(int(colour[i : i + 2], 16) for i in (1, 3, 5))  # type: ignore[return-value]
 
 
-def _mix(hue: tuple[int, int, int], background: tuple[int, int, int], strength: float) -> str:
-    channels = (round(bg + (h - bg) * strength) for h, bg in zip(hue, background, strict=True))
-    return "#{:02X}{:02X}{:02X}".format(*channels)
+def _hex(colour: Rgb) -> str:
+    return "#{:02X}{:02X}{:02X}".format(*colour)
 
 
-def _fills(hue: str, background: tuple[int, int, int], ceiling: float) -> list[str]:
+def _relative_luminance(colour: Rgb) -> float:
+    def channel(value: int) -> float:
+        srgb = value / 255
+        return srgb / 12.92 if srgb <= 0.03928 else ((srgb + 0.055) / 1.055) ** 2.4
+
+    red, green, blue = (channel(c) for c in colour)
+    return 0.2126 * red + 0.7152 * green + 0.0722 * blue
+
+
+def contrast(first: Rgb, second: Rgb) -> float:
+    """WCAG contrast ratio, 1.0 (identical) to 21.0 (black on white)."""
+    a, b = _relative_luminance(first), _relative_luminance(second)
+    lighter, darker = max(a, b), min(a, b)
+    return (lighter + 0.05) / (darker + 0.05)
+
+
+def _mix(colour: Rgb, target: Rgb, strength: float) -> Rgb:
+    return tuple(  # type: ignore[return-value]
+        round(c + (t - c) * strength) for c, t in zip(colour, target, strict=True)
+    )
+
+
+def readable_on(hue: str, background: Rgb, target: float = TARGET_CONTRAST) -> str:
+    """Push ``hue`` away from ``background`` until it clears ``target``.
+
+    Darkens against a light background and lightens against a dark one, in
+    small steps, so the result stays recognisably the same hue. Used for column
+    titles and node borders, which are the elements that failed outright.
+    """
+    colour = _rgb(hue)
+    extreme: Rgb = (0, 0, 0) if _relative_luminance(background) > 0.5 else (255, 255, 255)
+    for step in range(21):
+        candidate = _mix(colour, extreme, step * 0.05)
+        if contrast(candidate, background) >= target:
+            return _hex(candidate)
+    return _hex(extreme)
+
+
+def _fills(hue: str, background: Rgb, ceiling: float) -> list[str]:
     rgb = _rgb(hue)
     return [
-        _mix(rgb, background, (step / max(SHADE_STEPS - 1, 1)) * ceiling)
+        _hex(_mix(background, rgb, (step / max(SHADE_STEPS - 1, 1)) * ceiling))
         for step in range(SHADE_STEPS)
     ]
 
 
-def _phase_rules(background: tuple[int, int, int], ceiling: float, prefix: str = "") -> str:
+def _phase_rules(background: Rgb, ceiling: float, prefix: str = "") -> str:
     lines = []
     for phase, hue in PHASE_HUES.items():
+        stroke = readable_on(hue, background, 3.0)
+        title = readable_on(hue, background)
         for step, fill in enumerate(_fills(hue, background, ceiling)):
             lines.append(
                 f"{prefix}.ha-diagram .ha-{phase}.ha-shade-{step} > path,\n"
                 f"{prefix}.ha-diagram .ha-{phase}.ha-shade-{step} > polygon "
-                f"{{ fill: {fill}; stroke: {hue}; }}"
+                f"{{ fill: {fill}; stroke: {stroke}; }}"
             )
-        lines.append(f"{prefix}.ha-diagram .ha-column.ha-{phase} > path {{ stroke: {hue}; }}")
-        lines.append(f"{prefix}.ha-diagram .ha-column.ha-{phase} > text {{ fill: {hue}; }}")
+        lines.append(f"{prefix}.ha-diagram .ha-column.ha-{phase} > path {{ stroke: {title}; }}")
+        lines.append(f"{prefix}.ha-diagram .ha-column.ha-{phase} > text {{ fill: {title}; }}")
     return "\n".join(lines)
 
 
@@ -73,10 +122,6 @@ BASE = """/* Diagrams are inlined SVG so their links stay clickable and CSS can 
 }
 .ha-diagram text {
   fill: var(--md-default-fg-color);
-}
-/* the muted subtitle graphviz emits for hook semantics and repeat counts */
-.ha-diagram text[fill="#8a8a8a"] {
-  fill: var(--md-default-fg-color--light);
 }
 .ha-diagram .edge path {
   stroke: var(--md-default-fg-color--light);
@@ -94,17 +139,48 @@ BASE = """/* Diagrams are inlined SVG so their links stay clickable and CSS can 
 }
 """
 
+#: The muted subtitle colour graphviz bakes in as a fill attribute. Overridden
+#: per theme because it sits on tinted fills, where the theme's default muted
+#: grey drops under 3:1.
+MUTED_SELECTOR = '.ha-diagram text[fill="#8a8a8a"]'
+
 
 def stylesheet() -> str:
     """The full diagram stylesheet, light and dark."""
     return "\n\n".join(
         [
             BASE,
-            "/* light theme: hues tinted toward white */",
+            "/* light theme */",
+            f"{MUTED_SELECTOR} {{ fill: #5A5A5A; }}",
             _phase_rules(LIGHT_BACKGROUND, MAX_TINT_LIGHT),
-            "/* dark theme: the same hues tinted toward the page background */",
+            "/* dark theme: same hues, tinted toward the slate background */",
+            f'[data-md-color-scheme="slate"] {MUTED_SELECTOR} {{ fill: #B4B4B4; }}',
             '[data-md-color-scheme="slate"] .ha-diagram .ha-column > path { fill: none; }',
             _phase_rules(DARK_BACKGROUND, MAX_TINT_DARK, prefix='[data-md-color-scheme="slate"] '),
             "",
         ]
     )
+
+
+#: Body text per theme, matching Material's foreground colours.
+BODY_TEXT = {"light": "#212121", "dark": "#E3E3E3"}
+
+
+def theme_settings(theme: str) -> tuple[Rgb, float]:
+    """Background and tint ceiling for a named theme."""
+    if theme == "dark":
+        return DARK_BACKGROUND, MAX_TINT_DARK
+    return LIGHT_BACKGROUND, MAX_TINT_LIGHT
+
+
+def body_text(theme: str) -> str:
+    return BODY_TEXT.get(theme, BODY_TEXT["light"])
+
+
+#: Edge colour per theme. Arrows default to black in Graphviz, which is
+#: invisible on the dark background.
+EDGE_COLOUR = {"light": "#8A8A8A", "dark": "#9AA0A6"}
+
+
+def edge_colour(theme: str) -> str:
+    return EDGE_COLOUR.get(theme, EDGE_COLOUR["light"])

@@ -116,6 +116,7 @@ class _Builder:
         phase: str = "startup",
         totals: dict[str, int] | None = None,
         prefix: str = "",
+        theme: str | None = None,
     ) -> None:
         self.hookspecs = hookspecs
         self.base_url = base_url
@@ -124,6 +125,10 @@ class _Builder:
         # meant restarting counters, so clusters collided and Graphviz silently
         # dropped every column after the first
         self.prefix = prefix
+        # None means "let CSS colour it", which is how the site works. A named
+        # theme bakes the colours in, for standalone exports and previews - it
+        # reuses the stylesheet's own computation so the two cannot drift.
+        self.theme = theme
         self.totals = totals or {}
         self.peak = max(self.totals.values(), default=1)
         self._counter = 0
@@ -135,6 +140,21 @@ class _Builder:
     def _classes(self, node: FlowNode, kind: str) -> str:
         total = self.totals.get(node.name, node.count)
         return f"ha-{kind} ha-{self.phase} ha-shade-{shade_step(total, self.peak)}"
+
+    def _colours(self, node: FlowNode) -> dict[str, str]:
+        if self.theme is None:
+            return {}
+        from . import css
+
+        total = self.totals.get(node.name, node.count)
+        step = shade_step(total, self.peak)
+        hue = PHASE_HUES[self.phase]
+        background, ceiling = css.theme_settings(self.theme)
+        return {
+            "fillcolor": css._fills(hue, background, ceiling)[step],
+            "color": css.readable_on(hue, background, 3.0),
+            "fontcolor": css.body_text(self.theme),
+        }
 
     def emit(self, graph: Any, nodes: list[FlowNode]) -> list[tuple[str, str, str | None]]:
         elements: list[tuple[str, str, str | None]] = []
@@ -153,6 +173,7 @@ class _Builder:
                     shape="box",
                     style="rounded,filled",
                     **common,
+                    **self._colours(node),
                     **{"class": self._classes(node, "node")},
                 )
                 elements.append((node_id, node_id, None))
@@ -165,6 +186,7 @@ class _Builder:
                         # cluster margin is in points, unlike the root graph's
                         margin="10",
                         **common,
+                        **self._colours(node),
                         **{"class": self._classes(node, "cluster")},
                     )
                     inner = self.emit(sub, node.children)
@@ -185,8 +207,23 @@ class _Builder:
             graph.edge(exit_a, entry_b, **attrs)
 
 
-def _new_graph() -> graphviz.Digraph:
+def _column_colours(phase: str, theme: str | None) -> dict[str, str]:
+    if theme is None:
+        return {}
+    from . import css
+
+    background, _ = css.theme_settings(theme)
+    title = css.readable_on(PHASE_HUES[phase], background)
+    return {"color": title, "fontcolor": title}
+
+
+def _new_graph(theme: str | None = None) -> graphviz.Digraph:
     dot = graphviz.Digraph()
+    if theme is not None:
+        from . import css
+
+        background, _ = css.theme_settings(theme)
+        dot.attr(bgcolor=css._hex(background))
     dot.attr(
         compound="true",
         rankdir="TB",
@@ -201,7 +238,13 @@ def _new_graph() -> graphviz.Digraph:
         margin="0.08",
     )
     dot.attr("node", fontname=FONT, fontsize="11", margin="0.13,0.06", penwidth="1.3")
-    dot.attr("edge", arrowsize="0.65")
+    if theme is None:
+        # left to CSS, which uses the theme's muted foreground
+        dot.attr("edge", arrowsize="0.65")
+    else:
+        from . import css
+
+        dot.attr("edge", arrowsize="0.65", color=css.edge_colour(theme))
     dot.attr("graph", fontname=FONT, fontsize="11")
     return dot
 
@@ -225,13 +268,14 @@ def build_columns(
     hookspecs: dict[str, Any],
     base_url: str,
     totals: dict[str, int] | None = None,
+    theme: str | None = None,
 ) -> graphviz.Digraph:
     """The overview: one column per phase, laid out left to right.
 
     Phases are rendered as clusters with no edges between them, which is what
     makes Graphviz place them side by side rather than stacking them.
     """
-    dot = _new_graph()
+    dot = _new_graph(theme)
     for key, title, nodes in phases:
         if not nodes:
             continue
@@ -243,9 +287,10 @@ def build_columns(
                 fontsize="12",
                 margin="14",
                 penwidth="1.6",
+                **_column_colours(key, theme),
                 **{"class": f"ha-column ha-{key}"},
             )
-            builder = _Builder(hookspecs, base_url, key, totals, prefix=f"{key}_")
+            builder = _Builder(hookspecs, base_url, key, totals, prefix=f"{key}_", theme=theme)
             builder.chain(column, builder.emit(column, nodes))
     return dot
 
