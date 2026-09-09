@@ -24,7 +24,18 @@ jobs:
           python-version: "3.12"
 
       # the full-map diagrams are rendered with Graphviz
-      - run: sudo apt-get update && sudo apt-get install -y graphviz
+      - name: Ensure Graphviz
+        run: |
+          # Skip apt entirely when the runner already ships Graphviz.
+          if command -v dot >/dev/null; then dot -V; exit 0; fi
+          # The runner image carries third-party apt repos (Chrome, Microsoft)
+          # that intermittently serve mismatched hashes. apt-get update exits
+          # 100 if *any* repo fails, so an unrelated Chrome index breaks this
+          # build. Drop the repos we do not use rather than masking failures.
+          sudo rm -f /etc/apt/sources.list.d/*google* /etc/apt/sources.list.d/*chrome* \
+                     /etc/apt/sources.list.d/*microsoft*
+          sudo apt-get update
+          sudo apt-get install -y graphviz
 
       - run: pip install -e ".[docs]"
 
