@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from . import analysis, doclinks, flow
-from .render import dot
+from .render import css, dot
 from .scenarios import Scenario, discover
 
 LANGUAGE_BY_SUFFIX = {".py": "python", ".toml": "toml", ".ini": "ini", ".cfg": "ini"}
@@ -39,11 +39,38 @@ def _fence(path: Path) -> str:
     return f'??? example "{path.name}"\n\n    ```{language}\n{indented}\n    ```\n'
 
 
-def _diagram(nodes: list[flow.FlowNode], hookspecs: dict[str, Any], base_url: str) -> str:
+def _diagram(
+    nodes: list[flow.FlowNode],
+    hookspecs: dict[str, Any],
+    base_url: str,
+    phase: str = "startup",
+    totals: dict[str, int] | None = None,
+) -> str:
     """Inline the SVG so its links stay clickable and CSS can theme it."""
     if not nodes:
         return ""
-    svg = dot.render_inline_svg(nodes, hookspecs, base_url)
+    svg = dot.render_inline_svg(nodes, hookspecs, base_url, phase, totals)
+    return f'<div class="ha-diagram">\n{svg}\n</div>\n'
+
+
+def _overview(
+    trace: dict[str, Any], base_url: str, totals: dict[str, int], depth: int = OUTLINE_DEPTH
+) -> str:
+    """The whole session as columns: phases left to right, steps top to bottom.
+
+    Depth-limited on purpose. At full depth the collection column alone runs to
+    29 nested steps and the page is about two and a half screens; the detail
+    lives in the per-phase diagrams below. That collection dwarfs the other
+    columns is not imbalance to fix - it is where pytest's complexity is.
+    """
+    columns = []
+    for phase in analysis.PHASES:
+        variants = flow.phase_variants(analysis.find_subtrees(trace["calls"], phase.anchors))
+        if variants:
+            columns.append((phase.key, phase.title, flow.prune(variants[0].flow, depth)))
+    if not columns:
+        return ""
+    svg = dot.to_inline_svg(dot.build_columns(columns, trace["hookspecs"], base_url, totals))
     return f'<div class="ha-diagram">\n{svg}\n</div>\n'
 
 
@@ -106,12 +133,15 @@ def scenario_page(scenario: Scenario, trace: dict[str, Any], verify_links: bool 
     parts = [f"# {scenario.title}\n", f"{scenario.summary}\n", f"{scenario.description}\n"]
     parts.append(_provenance(scenario, trace))
 
-    parts.append("## Session outline\n")
+    totals = {name: hook.call_count for name, hook in analysis.full_graph(trace).hooks.items()}
+
+    parts.append("## The whole run\n")
     parts.append(
-        "The whole run, top two levels only. Each phase below expands one of these steps.\n"
+        "Phases left to right, steps top to bottom. Colour says which phase a "
+        "hook belongs to; how dark a step is says how often it was called. "
+        "Each phase below expands one of these columns in full.\n"
     )
-    outline = flow.prune(flow.collapse(trace["calls"]), OUTLINE_DEPTH)
-    parts.append(_diagram(outline, hookspecs, base_url))
+    parts.append(_overview(trace, base_url, totals))
 
     for phase in analysis.PHASES:
         variants = flow.phase_variants(analysis.find_subtrees(trace["calls"], phase.anchors))
@@ -119,7 +149,7 @@ def scenario_page(scenario: Scenario, trace: dict[str, Any], verify_links: bool 
             continue
         parts.append(f"## {phase.title}\n")
         parts.append(f"{phase.description}\n")
-        parts.append(_diagram(variants[0].flow, hookspecs, base_url))
+        parts.append(_diagram(variants[0].flow, hookspecs, base_url, phase.key, totals))
 
         total = sum(variant.count for variant in variants)
         if total > 1:
@@ -185,42 +215,6 @@ def index_page(captured: list[tuple[Scenario, dict[str, Any]]]) -> str:
     return "\n".join(parts)
 
 
-STYLESHEET = """/* Diagrams are inlined SVG so they stay clickable and follow the theme. */
-.ha-diagram {
-  overflow-x: auto;
-  margin: 1.2rem 0;
-}
-.ha-diagram svg {
-  max-width: 100%;
-  height: auto;
-}
-.ha-diagram .node path,
-.ha-diagram .node polygon,
-.ha-diagram .cluster path {
-  fill: transparent;
-  stroke: var(--md-default-fg-color--lighter);
-}
-.ha-diagram text {
-  fill: var(--md-default-fg-color);
-}
-/* the muted subtitle graphviz emits for hook semantics and repeat counts */
-.ha-diagram text[fill="#8a8a8a"] {
-  fill: var(--md-default-fg-color--light);
-}
-.ha-diagram .edge path {
-  stroke: var(--md-default-fg-color--light);
-  fill: none;
-}
-.ha-diagram .edge polygon {
-  fill: var(--md-default-fg-color--light);
-  stroke: var(--md-default-fg-color--light);
-}
-.ha-diagram a:hover text {
-  fill: var(--md-accent-fg-color);
-}
-"""
-
-
 def build(
     repo_root: Path, docs_dir: Path, traces_dir: Path, verify_links: bool = True
 ) -> list[Path]:
@@ -229,7 +223,7 @@ def build(
         shutil.rmtree(docs_dir)
     (docs_dir / "scenarios").mkdir(parents=True, exist_ok=True)
     (docs_dir / "assets").mkdir(parents=True, exist_ok=True)
-    (docs_dir / "assets" / "atlas.css").write_text(STYLESHEET)
+    (docs_dir / "assets" / "atlas.css").write_text(css.stylesheet())
 
     captured: list[tuple[Scenario, dict[str, Any]]] = []
     for scenario in discover(repo_root / "scenarios"):
