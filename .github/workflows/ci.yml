@@ -47,5 +47,5 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -e .
-      - run: hook-atlas capture
+      # reads the committed traces; no capture needed
       - run: hook-atlas linkcheck

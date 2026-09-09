@@ -34,17 +34,44 @@ class CaptureResult:
         return self.error is None
 
 
-def captured_versions(traces_dir: Path) -> set[str]:
-    """pytest versions already recorded on disk."""
+def captured_pairs(traces_dir: Path) -> set[tuple[str, str]]:
+    """``(pytest version, scenario id)`` pairs already recorded on disk."""
     if not traces_dir.exists():
         return set()
     return {
-        path.name for path in traces_dir.iterdir() if path.is_dir() and any(path.glob("*.json"))
+        (version.name, trace.stem)
+        for version in traces_dir.iterdir()
+        if version.is_dir()
+        for trace in version.glob("*.json")
     }
 
 
+def captured_versions(traces_dir: Path, scenarios: list[Scenario] | None = None) -> set[str]:
+    """Versions captured for *every* scenario in ``scenarios``.
+
+    Keyed on (version, scenario) rather than version alone. Treating a version
+    directory containing any .json as "captured" meant that adding a scenario
+    left all existing versions looking complete, so capture-missing reported
+    nothing to do and the new scenario was never backfilled - a silent no-op
+    that would have been baffling to diagnose later.
+    """
+    pairs = captured_pairs(traces_dir)
+    if scenarios is None:
+        return {version for version, _ in pairs}
+
+    wanted = {scenario.id for scenario in scenarios}
+    by_version: dict[str, set[str]] = {}
+    for version, scenario_id in pairs:
+        by_version.setdefault(version, set()).add(scenario_id)
+    return {version for version, found in by_version.items() if wanted <= found}
+
+
 def outstanding(
-    releases: list[Release], traces_dir: Path, python: str = CURRENT_PYTHON
+    releases: list[Release],
+    traces_dir: Path,
+    python: str = CURRENT_PYTHON,
+    force: bool = False,
+    scenarios: list[Scenario] | None = None,
 ) -> list[Release]:
     """Releases worth capturing now: not yanked, not captured, runnable here.
 
@@ -53,7 +80,11 @@ def outstanding(
     - and pip only installs them at all when pinned exactly, which is what the
     matrix does.
     """
-    already = captured_versions(traces_dir)
+    # ``force`` exists to correct traces captured before this was the only
+    # capture path. Traces are otherwise immutable: each is a fact about one
+    # exact (pytest, pluggy, Python) triple, and re-capturing against different
+    # dependencies would make version-to-version comparisons meaningless.
+    already = set() if force else captured_versions(traces_dir, scenarios)
     return [
         release
         for release in releases

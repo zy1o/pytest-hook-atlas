@@ -118,3 +118,6 @@ hooks_order.txt
 # generated site sources
 docs/
 data/traces/*/.tmp*
+
+# local visual experiments, never committed
+prototypes/

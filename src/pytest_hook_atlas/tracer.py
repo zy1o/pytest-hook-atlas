@@ -92,6 +92,21 @@ def _raised(outcome: Any) -> bool:
     return getattr(outcome, "excinfo", None) is not None
 
 
+def _plugin_name(impl: Any) -> str | None:
+    """Stable name for the plugin that supplied an implementation.
+
+    pluggy falls back to ``str(id(plugin))`` for plugins registered without a
+    name, so that field is a memory address that changes every run. Left alone
+    it would make every capture produce a different trace, turning committed
+    traces into noise and breaking any content-based comparison between them.
+    """
+    name = getattr(impl, "plugin_name", None)
+    if name is None:
+        return None
+    name = str(name)
+    return "<anonymous>" if name.isdigit() else name
+
+
 def _impl_info(impl: Any) -> dict[str, Any]:
     """Summarise a pluggy ``HookImpl``.
 
@@ -101,7 +116,7 @@ def _impl_info(impl: Any) -> dict[str, Any]:
     """
     function = getattr(impl, "function", None)
     return {
-        "plugin": getattr(impl, "plugin_name", None),
+        "plugin": _plugin_name(impl),
         "module": getattr(function, "__module__", None),
         "function": getattr(function, "__qualname__", None),
         "wrapper": bool(getattr(impl, "wrapper", False)),

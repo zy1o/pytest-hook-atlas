@@ -11,15 +11,15 @@
     "argv": [
       "-p",
       "hook_atlas_tracer",
-      "/tmp/hook-atlas-matrix-95gt98mf/baseline",
+      "/tmp/hook-atlas-matrix-_fk4iugh/baseline",
       "-q",
       "-p",
       "no:cacheprovider"
     ],
-    "invocation_dir": "/tmp/hook-atlas-matrix-95gt98mf/baseline"
+    "invocation_dir": "/tmp/hook-atlas-matrix-_fk4iugh/baseline"
   },
   "stats": {
-    "total_calls": 282,
+    "total_calls": 283,
     "unique_hooks": 38
   },
   "desyncs": [],
@@ -685,7 +685,7 @@
               "trylast": true
             },
             {
-              "plugin": "140492112601088",
+              "plugin": "<anonymous>",
               "module": "_pytest.config",
               "function": "PytestPluginManager.pytest_configure",
               "wrapper": false,
@@ -2575,11 +2575,36 @@
                       "tryfirst": false,
                       "trylast": false
                     }
+                  ]
+                },
+                {
+                  "name": "pytest_pycollect_makeitem",
+                  "seq": 106,
+                  "depth": 3,
+                  "impls": [
+                    {
+                      "plugin": "python",
+                      "module": "_pytest.python",
+                      "function": "pytest_pycollect_makeitem",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": true
+                    },
+                    {
+                      "plugin": "unittest",
+                      "module": "_pytest.unittest",
+                      "function": "pytest_pycollect_makeitem",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    }
                   ],
                   "children": [
                     {
                       "name": "pytest_generate_tests",
-                      "seq": 106,
+                      "seq": 107,
                       "depth": 4,
                       "impls": [
                         {
@@ -2604,12 +2629,6 @@
                       "children": [
                         {
                           "name": "pytest_make_parametrize_id",
-                          "seq": 107,
-                          "depth": 5,
-                          "impls": []
-                        },
-                        {
-                          "name": "pytest_make_parametrize_id",
                           "seq": 108,
                           "depth": 5,
                           "impls": []
@@ -2631,6 +2650,12 @@
                           "seq": 111,
                           "depth": 5,
                           "impls": []
+                        },
+                        {
+                          "name": "pytest_make_parametrize_id",
+                          "seq": 112,
+                          "depth": 5,
+                          "impls": []
                         }
                       ]
                     }
@@ -2638,7 +2663,7 @@
                 },
                 {
                   "name": "pytest_pycollect_makeitem",
-                  "seq": 112,
+                  "seq": 113,
                   "depth": 3,
                   "impls": [
                     {
@@ -2663,7 +2688,7 @@
                   "children": [
                     {
                       "name": "pytest_generate_tests",
-                      "seq": 113,
+                      "seq": 114,
                       "depth": 4,
                       "impls": [
                         {
@@ -2690,7 +2715,7 @@
                 },
                 {
                   "name": "pytest_pycollect_makeitem",
-                  "seq": 114,
+                  "seq": 115,
                   "depth": 3,
                   "impls": [
                     {
@@ -2715,7 +2740,7 @@
                   "children": [
                     {
                       "name": "pytest_generate_tests",
-                      "seq": 115,
+                      "seq": 116,
                       "depth": 4,
                       "impls": [
                         {
@@ -2737,31 +2762,6 @@
                           "trylast": false
                         }
                       ]
-                    }
-                  ]
-                },
-                {
-                  "name": "pytest_pycollect_makeitem",
-                  "seq": 116,
-                  "depth": 3,
-                  "impls": [
-                    {
-                      "plugin": "python",
-                      "module": "_pytest.python",
-                      "function": "pytest_pycollect_makeitem",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": true
-                    },
-                    {
-                      "plugin": "unittest",
-                      "module": "_pytest.unittest",
-                      "function": "pytest_pycollect_makeitem",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
                     }
                   ]
                 },
@@ -8543,6 +8543,22 @@
                       "trylast": false
                     }
                   ]
+                },
+                {
+                  "name": "pytest_warning_recorded",
+                  "seq": 279,
+                  "depth": 3,
+                  "impls": [
+                    {
+                      "plugin": "terminalreporter",
+                      "module": "_pytest.terminal",
+                      "function": "TerminalReporter.pytest_warning_recorded",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    }
+                  ]
                 }
               ]
             }
@@ -8550,7 +8566,7 @@
         },
         {
           "name": "pytest_sessionfinish",
-          "seq": 279,
+          "seq": 280,
           "depth": 1,
           "impls": [
             {
@@ -8611,7 +8627,7 @@
           "children": [
             {
               "name": "pytest_terminal_summary",
-              "seq": 280,
+              "seq": 281,
               "depth": 2,
               "impls": [
                 {
@@ -8654,7 +8670,7 @@
               "children": [
                 {
                   "name": "pytest_report_teststatus",
-                  "seq": 281,
+                  "seq": 282,
                   "depth": 3,
                   "impls": [
                     {
@@ -8692,7 +8708,7 @@
         },
         {
           "name": "pytest_unconfigure",
-          "seq": 282,
+          "seq": 283,
           "depth": 1,
           "impls": [
             {

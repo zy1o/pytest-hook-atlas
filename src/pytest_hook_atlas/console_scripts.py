@@ -9,10 +9,8 @@ import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
 
-import pytest
-
 from . import analysis, build, doclinks, matrix, pypi
-from .scenarios import capture, discover
+from .scenarios import discover
 
 TRACES_DIR = Path("data/traces")
 DOCS_DIR = Path("docs")
@@ -26,25 +24,6 @@ def _version_dirs(traces_dir: Path) -> list[Path]:
         (path for path in traces_dir.iterdir() if path.is_dir()),
         key=lambda path: tuple(int(part) if part.isdigit() else 0 for part in path.name.split(".")),
     )
-
-
-def cmd_capture(args: argparse.Namespace) -> int:
-    """Run every scenario under the tracer and commit the JSON."""
-    destination = TRACES_DIR / pytest.__version__
-    scenarios = discover(Path(args.scenarios))
-    if not scenarios:
-        print(f"no scenarios found in {args.scenarios}", file=sys.stderr)
-        return 1
-
-    with tempfile.TemporaryDirectory(prefix="hook-atlas-") as workdir:
-        for scenario in scenarios:
-            trace_path = capture(scenario, destination / f"{scenario.id}.json", Path(workdir))
-            trace = analysis.load_trace(trace_path)
-            print(
-                f"  {scenario.id:24} {trace['stats']['total_calls']:5} calls, "
-                f"{trace['stats']['unique_hooks']:3} hooks -> {trace_path}"
-            )
-    return 0
 
 
 def cmd_build(args: argparse.Namespace) -> int:
@@ -115,7 +94,8 @@ def _write_heartbeat(checked: int, captured: list[str]) -> None:
 def cmd_targets(args: argparse.Namespace) -> int:
     """Show what PyPI offers and what we have already captured."""
     releases = pypi.releases(detailed=args.detailed)
-    already = matrix.captured_versions(TRACES_DIR)
+    scenarios = discover(Path("scenarios"))
+    already = matrix.captured_versions(TRACES_DIR, scenarios)
     python = args.python or matrix.CURRENT_PYTHON
 
     print(f"{len(releases)} pytest releases >= {pypi.FLOOR}; python {python}\n")
@@ -131,7 +111,7 @@ def cmd_targets(args: argparse.Namespace) -> int:
             state = "MISSING"
         print(f"{release.version:10} {release.uploaded.date()!s:12} {state}")
 
-    outstanding = matrix.outstanding(releases, TRACES_DIR, python)
+    outstanding = matrix.outstanding(releases, TRACES_DIR, python, scenarios=scenarios)
     print(f"\ncapturable now: {len(outstanding)}")
     return 0
 
@@ -141,7 +121,9 @@ def cmd_capture_missing(args: argparse.Namespace) -> int:
     releases = pypi.releases(detailed=args.detailed)
     scenarios = discover(Path(args.scenarios))
     python = args.python or matrix.CURRENT_PYTHON
-    outstanding = matrix.outstanding(releases, TRACES_DIR, python)
+    outstanding = matrix.outstanding(
+        releases, TRACES_DIR, python, force=args.force, scenarios=scenarios
+    )
 
     if args.limit:
         outstanding = outstanding[: args.limit]
@@ -171,10 +153,6 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="hook-atlas", description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    capture_parser = subparsers.add_parser("capture", help="trace every scenario")
-    capture_parser.add_argument("--scenarios", default="scenarios")
-    capture_parser.set_defaults(func=cmd_capture)
-
     build_parser = subparsers.add_parser("build", help="generate the docs tree")
     build_parser.add_argument("--pytest-version", default=None)
     build_parser.add_argument(
@@ -203,6 +181,11 @@ def main(argv: list[str] | None = None) -> int:
     missing_parser.add_argument("--detailed", action="store_true")
     missing_parser.add_argument(
         "--keep-going", action="store_true", help="exit 0 even if some captures failed"
+    )
+    missing_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="re-capture versions already on disk (only for correcting bad captures)",
     )
     missing_parser.set_defaults(func=cmd_capture_missing)
 

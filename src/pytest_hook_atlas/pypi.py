@@ -13,11 +13,19 @@ import json
 import urllib.request
 from dataclasses import dataclass
 from datetime import datetime
+from pathlib import Path
 
 from packaging.specifiers import InvalidSpecifier, SpecifierSet
 from packaging.version import InvalidVersion, Version
 
 PYPI_JSON = "https://pypi.org/pypi/{package}/json"
+
+#: Which Pythons a release supports can only be learned from its own PyPI
+#: page, one request per release. A published release never changes, so the
+#: answer is cached permanently and committed. Without this, every run made
+#:50+ sequential requests and PyPI throttling turned a 2 minute job into a
+#: 25 minute one - or a CI timeout.
+SUPPORT_CACHE = Path("data/python-support.json")
 USER_AGENT = "pytest-hook-atlas (+https://github.com/zy1o/pytest-hook-atlas)"
 
 #: pytest 6.0 is where this project starts; older releases predate the
@@ -90,6 +98,7 @@ def releases(
     one-off backfill wants it on.
     """
     data = _fetch(package, timeout)
+    cache = load_support_cache() if detailed else None
     found: list[Release] = []
 
     for version, files in data["releases"].items():
@@ -115,15 +124,53 @@ def releases(
                 requires_python=next(
                     (e.get("requires_python") for e in files if e.get("requires_python")), None
                 ),
-                pythons=release_classifiers(package, version, timeout) if detailed else (),
+                pythons=(release_classifiers(package, version, timeout, cache) if detailed else ()),
             )
         )
+
+    if detailed and cache is not None:
+        save_support_cache(cache)
 
     found.sort(key=lambda release: release.parsed)
     return found
 
 
-def release_classifiers(package: str, version: str, timeout: float = 30.0) -> tuple[str, ...]:
-    """Python versions a specific release claims to support."""
-    data = _fetch(f"{package}/{version}", timeout)
-    return _classifier_pythons(data["info"].get("classifiers", []))
+def load_support_cache(path: Path = SUPPORT_CACHE) -> dict[str, list[str]]:
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text())
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+
+def save_support_cache(cache: dict[str, list[str]], path: Path = SUPPORT_CACHE) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(cache, indent=2, sort_keys=True) + "\n")
+
+
+def release_classifiers(
+    package: str,
+    version: str,
+    timeout: float = 15.0,
+    cache: dict[str, list[str]] | None = None,
+) -> tuple[str, ...]:
+    """Python versions a specific release claims to support.
+
+    Returns an empty tuple if PyPI cannot be reached, which callers treat as
+    "upper bound unknown" - a failed lookup should not stop a capture run.
+    """
+    key = f"{package}=={version}"
+    if cache is not None and key in cache:
+        return tuple(cache[key])
+    try:
+        data = _fetch(f"{package}/{version}", timeout)
+    except Exception:  # noqa: BLE001 - network trouble must not abort the run
+        return ()
+    found = _classifier_pythons(data["info"].get("classifiers", []))
+    if cache is not None:
+        cache[key] = list(found)
+        # written per entry, not once at the end: a throttled or interrupted run
+        # should still leave behind everything it managed to fetch
+        save_support_cache(cache)
+    return found
