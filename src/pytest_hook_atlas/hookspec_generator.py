@@ -43,3 +43,7 @@ def get_conftest_file() -> str:
         conftest_content += get_hook_implementation(hook)
 
     return conftest_content
+
+
+if __name__ == "__main__":
+    print(get_conftest_file())

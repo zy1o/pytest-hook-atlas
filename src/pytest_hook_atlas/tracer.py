@@ -5,6 +5,13 @@ Loaded as a plugin (``-p pytest_hook_atlas.tracer``), this installs pluggy's
 call as it happens: the exact nesting, the order, and *which plugin supplied
 each implementation*.
 
+This module is deliberately **standalone**: no imports from the rest of the
+package, no syntax newer than Python 3.8, and nothing beyond pytest and pluggy.
+Capturing old pytest means running it on an old Python (pytest 6.0 caps out at
+3.9), where the rest of this package - which needs 3.11 and ``tomllib`` - cannot
+be installed. So capture copies this one file next to the test project and
+loads it with ``-p hook_atlas_tracer``.
+
 This replaces the previous approach of scraping ``pytest --debug`` output.
 Parsing a human-readable log could never see plugin provenance, and broke
 whenever pytest changed its log formatting.
@@ -71,6 +78,18 @@ class CallNode:
         if self.children:
             node["children"] = [child.to_dict() for child in self.children]
         return node
+
+
+def _raised(outcome: Any) -> bool:
+    """Did the hook call raise?
+
+    pluggy >= 1.3 exposes ``Result.exception``; 0.13 and 1.0 expose
+    ``_Result.excinfo``. Both are supported so traces can be captured all the
+    way back to pytest 6.0.
+    """
+    if getattr(outcome, "exception", None) is not None:
+        return True
+    return getattr(outcome, "excinfo", None) is not None
 
 
 def _impl_info(impl: Any) -> dict[str, Any]:
@@ -166,7 +185,7 @@ class HookRecorder:
         node = self._stack.pop()
         if node.name != hook_name:
             self.desyncs.append(f"expected after({node.name}), got after({hook_name})")
-        if getattr(outcome, "exception", None) is not None:
+        if _raised(outcome):
             node.raised = True
 
     def total_calls(self) -> int:

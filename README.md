@@ -36,9 +36,16 @@ site/                                                              (generated)
 Traces are committed, so a change in pytest's hook flow shows up as a
 reviewable diff rather than a silently different picture.
 
+Each arrow is a separate step. Rendering reads only the committed traces, so
+changing how diagrams look — or how versions are grouped — means re-running
+`hook-atlas build` alone. Capture is never needed to change the output.
+
 ## Running it locally
 
-Needs Python 3.11+ and the Graphviz binary (`apt install graphviz`).
+Needs Python 3.11+ and the Graphviz binary, which provides `dot`. Install it
+with your platform's package manager (`brew install graphviz`,
+`choco install graphviz`, `apt install graphviz`, …) or from
+[graphviz.org/download](https://graphviz.org/download/).
 
 ```bash
 pip install -e ".[dev,docs]"

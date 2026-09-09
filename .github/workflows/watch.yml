@@ -1,0 +1,74 @@
+name: Watch for new pytest releases
+
+on:
+  schedule:
+    # Saturday 07:23 UTC. Deliberately not on the hour: GitHub delays scheduled
+    # workflows under load, and the start of every hour is the worst of it.
+    - cron: "23 7 * * 6"
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Max releases to capture this run (0 = no limit)"
+        required: false
+        default: "0"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # A push authenticated with the default GITHUB_TOKEN does NOT trigger
+          # other workflows, so the Pages deploy would never fire. The PAT makes
+          # the push look like a normal one, so pages.yml runs afterwards.
+          token: ${{ secrets.WATCHER_TOKEN || github.token }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # No graphviz here: capture only runs pytest and writes JSON. Rendering
+      # is a separate step, done by pages.yml from the committed traces.
+      - run: pip install -e .
+
+      # --detailed asks PyPI which Pythons each release supports, so releases
+      # this runner cannot host are skipped rather than failing to install.
+      # --keep-going lets one bad release pass without losing the others.
+      - name: Capture any pytest release we do not have yet
+        run: >
+          hook-atlas capture-missing
+          --detailed
+          --keep-going
+          --limit ${{ github.event.inputs.limit || 0 }}
+
+      - name: Commit new traces
+        run: |
+          set -euo pipefail
+          git config user.name "hook-atlas bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/
+
+          if git diff --cached --quiet; then
+            echo "nothing to commit"
+            exit 0
+          fi
+
+          # data/last-checked.json changes every run, so something lands even in
+          # a quiet month. GitHub disables scheduled workflows after 60 days of
+          # repository inactivity, and pytest release gaps have exceeded that.
+          versions=$(git diff --cached --name-only \
+            | sed -n 's|^data/traces/\([^/]*\)/.*|\1|p' | sort -u | tr '\n' ' ')
+
+          if [ -n "$versions" ]; then
+            git commit -m "Capture traces for pytest $versions"
+          else
+            git commit -m "Watcher ran; no new pytest releases"
+          fi
+          git push

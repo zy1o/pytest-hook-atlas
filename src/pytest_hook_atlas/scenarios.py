@@ -16,7 +16,7 @@ import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 
-from . import hookspec_generator
+from . import hookspec_generator, tracer
 
 REPO_URL = "https://github.com/zy1o/pytest-hook-atlas"
 SCENARIO_FILE = "scenario.toml"
@@ -70,31 +70,66 @@ def discover(root: Path) -> list[Scenario]:
     return sorted(scenarios, key=lambda scenario: (scenario.order, scenario.id))
 
 
-def capture(scenario: Scenario, destination: Path, workdir: Path) -> Path:
+#: Name the standalone tracer takes once copied beside a test project.
+TRACER_MODULE = "hook_atlas_tracer"
+
+
+def _write_generated_conftest(project: Path, interpreter: str) -> None:
+    """Generate the all-hooks conftest using the *target* pytest.
+
+    The declared hook set differs between pytest versions, so this has to run
+    in the environment being captured rather than in ours.
+    """
+    generator = project / "_hookspec_generator.py"
+    shutil.copyfile(Path(hookspec_generator.__file__), generator)
+    result = subprocess.run(
+        [interpreter, str(generator)],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    (project / "conftest.py").write_text(result.stdout)
+    generator.unlink()
+
+
+def capture(
+    scenario: Scenario,
+    destination: Path,
+    workdir: Path,
+    python: str | None = None,
+) -> Path:
     """Run one scenario under the tracer, writing its trace to ``destination``.
 
     The project is copied to a scratch directory first so that generated files
     and ``__pycache__`` never land in the committed scenario source.
+
+    ``python`` selects the interpreter, which for the version matrix is a venv
+    holding some older pytest. The tracer is copied in as a single file rather
+    than imported from this package, because that interpreter will not have
+    this package installed - and on Python 3.9 could not.
     """
     # the subprocess runs with cwd inside the copied project, so a relative
     # destination would land there rather than in the repo
     destination = destination.resolve()
+    interpreter = python or sys.executable
     project = workdir / scenario.id
     if project.exists():
         shutil.rmtree(project)
     shutil.copytree(scenario.path, project)
 
+    shutil.copyfile(Path(tracer.__file__), project / f"{TRACER_MODULE}.py")
+
     if scenario.generated_conftest:
-        (project / "conftest.py").write_text(hookspec_generator.get_conftest_file())
+        _write_generated_conftest(project, interpreter)
 
     destination.parent.mkdir(parents=True, exist_ok=True)
     subprocess.run(
         [
-            sys.executable,
+            interpreter,
             "-m",
             "pytest",
             "-p",
-            "pytest_hook_atlas.tracer",
+            TRACER_MODULE,
             str(project),
             *scenario.args,
             "-p",

@@ -28,9 +28,12 @@ jobs:
 
       - run: pip install -e ".[docs]"
 
-      # capture is cheap, so the published site always matches the committed
-      # scenarios rather than a stale trace
-      - run: hook-atlas capture
+      # Deliberately no capture step. Rendering reads the committed traces and
+      # nothing else, so the site can be rebuilt for a rendering or grouping
+      # change without re-running pytest. It also keeps traces immutable: a
+      # trace is a fact about one exact (pytest, pluggy, Python) triple, and
+      # re-capturing it later against different dependencies would make the
+      # version-to-version diffs untrustworthy. Capture belongs to the watcher.
       - run: hook-atlas build
       - run: mkdocs build --strict
 
