@@ -79,3 +79,89 @@ def test_stylesheet_covers_every_phase_and_step_in_both_themes():
 def test_readable_on_returns_the_hue_unchanged_when_it_already_passes():
     """#332288 is already 12:1 on white and should not be darkened further."""
     assert css.readable_on("#332288", css.LIGHT_BACKGROUND) == "#332288"
+
+
+def _rendered_svg():
+    from pytest_hook_atlas.flow import FlowNode
+    from pytest_hook_atlas.render import dot
+
+    nodes = [FlowNode("pytest_configure", children=[FlowNode("pytest_plugin_registered")])]
+    return dot.render_inline_svg(nodes, {}, "https://example/ref.html", "startup", {})
+
+
+def test_shapes_are_wrapped_so_child_selectors_would_miss_them():
+    """Regression: Graphviz wraps any shape carrying an href in <g><a>.
+
+    The stylesheet used `> path`, which matched nothing, so every node kept
+    Graphviz's default grey fill while the text switched to the theme colour -
+    light text on light grey, unreadable in dark mode.
+    """
+    import xml.etree.ElementTree as ET
+
+    root = ET.fromstring(_rendered_svg())
+    ns = {"svg": "http://www.w3.org/2000/svg"}
+    classed = [
+        element
+        for element in root.iter("{http://www.w3.org/2000/svg}g")
+        if "ha-node" in (element.get("class") or "")
+    ]
+    assert classed, "expected at least one classed node group"
+
+    group = classed[0]
+    assert group.find("svg:path", ns) is None, "shape is no longer wrapped; revisit selectors"
+    assert group.find(".//svg:path", ns) is not None, "shape must be reachable as a descendant"
+
+
+def test_stylesheet_uses_descendant_selectors_for_shapes():
+    sheet = css.stylesheet()
+
+    for line in sheet.splitlines():
+        if ".ha-shade-" in line or ".ha-column" in line:
+            assert "> path" not in line, f"child selector cannot reach wrapped shapes: {line}"
+            assert "> polygon" not in line, f"child selector cannot reach wrapped shapes: {line}"
+
+
+def test_graphviz_groups_are_siblings_not_nested():
+    """Why a descendant selector is safe: it cannot leak into another node."""
+    import xml.etree.ElementTree as ET
+
+    root = ET.fromstring(_rendered_svg())
+    graph = next(
+        element
+        for element in root.iter("{http://www.w3.org/2000/svg}g")
+        if (element.get("class") or "") == "graph"
+    )
+    classed = [child for child in graph if "ha-" in (child.get("class") or "")]
+    for group in classed:
+        nested = [d for d in group.iter() if "ha-node" in (d.get("class") or "")]
+        assert len(nested) <= 1, "groups must not nest, or descendant selectors would leak"
+
+
+@pytest.mark.parametrize("theme", sorted(THEMES))
+def test_stylesheet_fills_match_the_baked_renderer(theme):
+    """The CSS path and the baked-theme path must agree.
+
+    Diagrams on the site are coloured by CSS, but previews and exports bake the
+    colours in. Only the baked path can be rendered to an image locally - no
+    available renderer applies CSS inside an SVG - so this equality is what
+    makes a preview trustworthy evidence about the real site.
+    """
+    import re
+
+    sheet = css.stylesheet()
+    prefix = '[data-md-color-scheme="slate"] ' if theme == "dark" else ""
+    background, ceiling = css.theme_settings(theme)
+
+    for phase, hue in PHASE_HUES.items():
+        baked = css._fills(hue, background, ceiling)
+        for step, expected in enumerate(baked):
+            selector = f"{prefix}.ha-diagram .ha-{phase}.ha-shade-{step}"
+            match = re.search(
+                re.escape(f"{selector} path,")
+                + r"\n"
+                + re.escape(f"{selector} polygon")
+                + r" \{ fill: (#[0-9A-F]{6});",
+                sheet,
+            )
+            assert match, f"no rule for {theme}/{phase}/{step}"
+            assert match.group(1) == expected

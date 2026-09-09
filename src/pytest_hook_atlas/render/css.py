@@ -100,13 +100,18 @@ def _phase_rules(background: Rgb, ceiling: float, prefix: str = "") -> str:
         stroke = readable_on(hue, background, 3.0)
         title = readable_on(hue, background)
         for step, fill in enumerate(_fills(hue, background, ceiling)):
+            # Descendant, not child. Graphviz wraps any shape carrying an
+            # href in <g><a>, so the path is a grandchild - "> path" silently
+            # matched nothing and every node kept its default grey fill.
+            # Groups are siblings in Graphviz's output, never nested, so a
+            # descendant selector cannot leak into neighbouring nodes.
             lines.append(
-                f"{prefix}.ha-diagram .ha-{phase}.ha-shade-{step} > path,\n"
-                f"{prefix}.ha-diagram .ha-{phase}.ha-shade-{step} > polygon "
+                f"{prefix}.ha-diagram .ha-{phase}.ha-shade-{step} path,\n"
+                f"{prefix}.ha-diagram .ha-{phase}.ha-shade-{step} polygon "
                 f"{{ fill: {fill}; stroke: {stroke}; }}"
             )
-        lines.append(f"{prefix}.ha-diagram .ha-column.ha-{phase} > path {{ stroke: {title}; }}")
-        lines.append(f"{prefix}.ha-diagram .ha-column.ha-{phase} > text {{ fill: {title}; }}")
+        lines.append(f"{prefix}.ha-diagram .ha-column.ha-{phase} path {{ stroke: {title}; }}")
+        lines.append(f"{prefix}.ha-diagram .ha-column.ha-{phase} text {{ fill: {title}; }}")
     return "\n".join(lines)
 
 
@@ -134,7 +139,7 @@ BASE = """/* Diagrams are inlined SVG so their links stay clickable and CSS can 
 .ha-diagram a:hover text {
   text-decoration: underline;
 }
-.ha-diagram .ha-column > path {
+.ha-diagram .ha-column path {
   fill: none;
 }
 
@@ -178,7 +183,7 @@ def stylesheet() -> str:
             _phase_rules(LIGHT_BACKGROUND, MAX_TINT_LIGHT),
             "/* dark theme: same hues, tinted toward the slate background */",
             f'[data-md-color-scheme="slate"] {MUTED_SELECTOR} {{ fill: #B4B4B4; }}',
-            '[data-md-color-scheme="slate"] .ha-diagram .ha-column > path { fill: none; }',
+            '[data-md-color-scheme="slate"] .ha-diagram .ha-column path { fill: none; }',
             _phase_rules(DARK_BACKGROUND, MAX_TINT_DARK, prefix='[data-md-color-scheme="slate"] '),
             "",
         ]
