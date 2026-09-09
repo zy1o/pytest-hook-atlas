@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import ast
 import json
 import os
 import subprocess
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -197,3 +199,41 @@ def test_recorder_reports_desync_rather_than_crashing():
     recorder.after(None, "never_started", [], {})
 
     assert recorder.desyncs
+
+
+def test_tracer_is_standalone_and_old_python_compatible():
+    """Capture runs under the pytest being traced, on the Python it supports.
+
+    pytest 6.0 caps out at Python 3.9, where this package cannot be installed,
+    so the tracer must import nothing from its own package and use no syntax
+    newer than 3.8.
+    """
+    source = Path(tracer.__file__).read_text()
+    tree = ast.parse(source)
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom) and node.level:
+            raise AssertionError(f"tracer must not import from its package: {node.module}")
+        assert not isinstance(node, ast.Match), "match statements need Python 3.10"
+
+    for banned in ("removeprefix", "removesuffix"):
+        assert banned not in source, f"{banned} needs Python 3.9"
+
+
+def test_raised_handles_both_pluggy_result_shapes():
+    """pluggy >=1.3 exposes .exception; 0.13 and 1.0 expose .excinfo."""
+
+    class Modern:
+        exception = ValueError("boom")
+
+    class Ancient:
+        exception = None
+        excinfo = (ValueError, ValueError("boom"), None)
+
+    class Clean:
+        exception = None
+        excinfo = None
+
+    assert tracer._raised(Modern())
+    assert tracer._raised(Ancient())
+    assert not tracer._raised(Clean())
