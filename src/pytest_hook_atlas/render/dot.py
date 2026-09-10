@@ -269,16 +269,23 @@ def build_columns(
     base_url: str,
     totals: dict[str, int] | None = None,
     theme: str | None = None,
+    anchors: dict[str, str] | None = None,
 ) -> graphviz.Digraph:
     """The overview: one column per phase, laid out left to right.
+
+    ``anchors`` maps a phase key to an in-page link. Given one, the column
+    becomes clickable and jumps to that phase's detailed diagram further down
+    the page - the overview is a table of contents as much as a summary.
 
     Phases are rendered as clusters with no edges between them, which is what
     makes Graphviz place them side by side rather than stacking them.
     """
     dot = _new_graph(theme)
+    anchors = anchors or {}
     for key, title, nodes in phases:
         if not nodes:
             continue
+        link = anchors.get(key)
         with dot.subgraph(name=f"cluster_phase_{key}") as column:
             column.attr(
                 label=title.upper(),
@@ -287,6 +294,8 @@ def build_columns(
                 fontsize="12",
                 margin="14",
                 penwidth="1.6",
+                # no target: this is an in-page jump, not an outbound link
+                **({"href": link, "tooltip": f"Jump to {title}"} if link else {}),
                 **_column_colours(key, theme),
                 **{"class": f"ha-column ha-{key}"},
             )

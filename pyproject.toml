@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pytest-hook-atlas"
-version = "0.1.0"
+version = "1.0.0"
 description = "A versioned, multi-scenario visual reference for pytest's hook execution flow"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -26,7 +26,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["ruff>=0.6"]
+# markdown is python-markdown, used by the tests as the oracle for heading
+# slugs. It arrives transitively with mkdocs, but the test job does not
+# install the docs extra, so depending on that was how CI broke.
+dev = ["ruff>=0.6", "markdown>=3.4"]
 docs = ["mkdocs>=1.6,<2", "mkdocs-material>=9.5,<10", "pymdown-extensions>=10.8"]
 
 [project.urls]

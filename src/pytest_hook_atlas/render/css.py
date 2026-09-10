@@ -136,8 +136,19 @@ BASE = """/* Diagrams are inlined SVG so their links stay clickable and CSS can 
   fill: var(--md-default-fg-color--light);
   stroke: var(--md-default-fg-color--light);
 }
+.ha-diagram a {
+  cursor: pointer;
+}
 .ha-diagram a:hover text {
   text-decoration: underline;
+}
+/* Column headings jump to that phase's detailed diagram, so give the whole
+   column a visible affordance rather than only its title. */
+.ha-diagram .ha-column:hover path {
+  stroke-width: 2.6;
+}
+.ha-diagram .ha-column a:focus-visible path {
+  stroke-width: 2.6;
 }
 .ha-diagram .ha-column path {
   fill: none;

@@ -11,12 +11,11 @@
     "argv": [
       "-p",
       "hook_atlas_tracer",
-      "/tmp/hook-atlas-matrix-_fk4iugh/baseline",
+      ".",
       "-q",
       "-p",
       "no:cacheprovider"
-    ],
-    "invocation_dir": "/tmp/hook-atlas-matrix-_fk4iugh/baseline"
+    ]
   },
   "stats": {
     "total_calls": 285,

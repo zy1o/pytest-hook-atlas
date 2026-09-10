@@ -11,12 +11,11 @@
     "argv": [
       "-p",
       "hook_atlas_tracer",
-      "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest",
+      ".",
       "-q",
       "-p",
       "no:cacheprovider"
-    ],
-    "invocation_dir": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest"
+    ]
   },
   "stats": {
     "total_calls": 334,
@@ -574,7 +573,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_addhooks",
               "wrapper": false,
@@ -590,7 +589,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_addoption",
               "wrapper": false,
@@ -606,7 +605,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -622,7 +621,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -638,7 +637,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -654,7 +653,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -670,7 +669,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -686,7 +685,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -702,7 +701,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -718,7 +717,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -734,7 +733,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -750,7 +749,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -766,7 +765,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -782,7 +781,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -798,7 +797,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -814,7 +813,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -830,7 +829,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -846,7 +845,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -862,7 +861,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -878,7 +877,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -894,7 +893,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -910,7 +909,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -926,7 +925,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -942,7 +941,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -958,7 +957,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -974,7 +973,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -990,7 +989,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -1006,7 +1005,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -1022,7 +1021,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -1038,7 +1037,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -1054,7 +1053,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -1070,7 +1069,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -1086,7 +1085,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -1102,7 +1101,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -1127,7 +1126,7 @@
               "trylast": false
             },
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -1143,7 +1142,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_warning_recorded",
               "wrapper": false,
@@ -1159,7 +1158,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_warning_recorded",
               "wrapper": false,
@@ -1175,7 +1174,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_warning_recorded",
               "wrapper": false,
@@ -1191,7 +1190,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_warning_recorded",
               "wrapper": false,
@@ -1207,7 +1206,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_warning_recorded",
               "wrapper": false,
@@ -1252,7 +1251,7 @@
           "trylast": false
         },
         {
-          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+          "plugin": "conftest.py",
           "module": "conftest",
           "function": "pytest_cmdline_main",
           "wrapper": false,
@@ -1304,7 +1303,7 @@
               "trylast": false
             },
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_plugin_registered",
               "wrapper": false,
@@ -1455,7 +1454,7 @@
               "trylast": false
             },
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_configure",
               "wrapper": false,
@@ -1480,7 +1479,7 @@
                   "trylast": false
                 },
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_plugin_registered",
                   "wrapper": false,
@@ -2145,7 +2144,7 @@
                   "trylast": false
                 },
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_plugin_registered",
                   "wrapper": false,
@@ -2179,7 +2178,7 @@
                   "trylast": false
                 },
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_plugin_registered",
                   "wrapper": false,
@@ -2233,7 +2232,7 @@
               "trylast": false
             },
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_sessionstart",
               "wrapper": false,
@@ -2859,7 +2858,7 @@
                   "trylast": false
                 },
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_plugin_registered",
                   "wrapper": false,
@@ -2913,7 +2912,7 @@
               "trylast": false
             },
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_collection",
               "wrapper": false,
@@ -2965,7 +2964,7 @@
               "depth": 2,
               "impls": [
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_collectstart",
                   "wrapper": false,
@@ -2999,7 +2998,7 @@
                   "trylast": false
                 },
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_make_collect_report",
                   "wrapper": false,
@@ -3051,7 +3050,7 @@
               "depth": 2,
               "impls": [
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_collectreport",
                   "wrapper": false,
@@ -3085,7 +3084,7 @@
               "depth": 2,
               "impls": [
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_collectstart",
                   "wrapper": false,
@@ -3119,7 +3118,7 @@
                   "trylast": false
                 },
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_make_collect_report",
                   "wrapper": false,
@@ -3153,7 +3152,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_ignore_collect",
                       "wrapper": false,
@@ -3178,7 +3177,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_ignore_collect",
                       "wrapper": false,
@@ -3212,7 +3211,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_collect_file",
                       "wrapper": false,
@@ -3237,7 +3236,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_ignore_collect",
                       "wrapper": false,
@@ -3271,7 +3270,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_collect_file",
                       "wrapper": false,
@@ -3296,7 +3295,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_ignore_collect",
                       "wrapper": false,
@@ -3330,7 +3329,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_collect_file",
                       "wrapper": false,
@@ -3355,7 +3354,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_ignore_collect",
                       "wrapper": false,
@@ -3389,7 +3388,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_collect_file",
                       "wrapper": false,
@@ -3414,7 +3413,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_ignore_collect",
                       "wrapper": false,
@@ -3448,7 +3447,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_collect_file",
                       "wrapper": false,
@@ -3473,7 +3472,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_pycollect_makemodule",
                           "wrapper": false,
@@ -3493,7 +3492,7 @@
               "depth": 2,
               "impls": [
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_collectstart",
                   "wrapper": false,
@@ -3527,7 +3526,7 @@
                   "trylast": false
                 },
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_make_collect_report",
                   "wrapper": false,
@@ -3570,7 +3569,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_pycollect_makeitem",
                       "wrapper": false,
@@ -3604,7 +3603,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_pycollect_makeitem",
                       "wrapper": false,
@@ -3638,7 +3637,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_pycollect_makeitem",
                       "wrapper": false,
@@ -3672,7 +3671,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_pycollect_makeitem",
                       "wrapper": false,
@@ -3706,7 +3705,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_pycollect_makeitem",
                       "wrapper": false,
@@ -3740,7 +3739,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_pycollect_makeitem",
                       "wrapper": false,
@@ -3774,7 +3773,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_pycollect_makeitem",
                       "wrapper": false,
@@ -3799,7 +3798,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_generate_tests",
                           "wrapper": false,
@@ -3824,7 +3823,7 @@
                           "depth": 5,
                           "impls": [
                             {
-                              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                              "plugin": "conftest.py",
                               "module": "conftest",
                               "function": "pytest_make_parametrize_id",
                               "wrapper": false,
@@ -3840,7 +3839,7 @@
                           "depth": 5,
                           "impls": [
                             {
-                              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                              "plugin": "conftest.py",
                               "module": "conftest",
                               "function": "pytest_make_parametrize_id",
                               "wrapper": false,
@@ -3856,7 +3855,7 @@
                           "depth": 5,
                           "impls": [
                             {
-                              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                              "plugin": "conftest.py",
                               "module": "conftest",
                               "function": "pytest_make_parametrize_id",
                               "wrapper": false,
@@ -3872,7 +3871,7 @@
                           "depth": 5,
                           "impls": [
                             {
-                              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                              "plugin": "conftest.py",
                               "module": "conftest",
                               "function": "pytest_make_parametrize_id",
                               "wrapper": false,
@@ -3888,7 +3887,7 @@
                           "depth": 5,
                           "impls": [
                             {
-                              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                              "plugin": "conftest.py",
                               "module": "conftest",
                               "function": "pytest_make_parametrize_id",
                               "wrapper": false,
@@ -3926,7 +3925,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_pycollect_makeitem",
                       "wrapper": false,
@@ -3951,7 +3950,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_generate_tests",
                           "wrapper": false,
@@ -3996,7 +3995,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_pycollect_makeitem",
                       "wrapper": false,
@@ -4021,7 +4020,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_generate_tests",
                           "wrapper": false,
@@ -4066,7 +4065,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_pycollect_makeitem",
                       "wrapper": false,
@@ -4091,7 +4090,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_generate_tests",
                           "wrapper": false,
@@ -4120,7 +4119,7 @@
               "depth": 2,
               "impls": [
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_itemcollected",
                   "wrapper": false,
@@ -4136,7 +4135,7 @@
               "depth": 2,
               "impls": [
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_itemcollected",
                   "wrapper": false,
@@ -4152,7 +4151,7 @@
               "depth": 2,
               "impls": [
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_itemcollected",
                   "wrapper": false,
@@ -4168,7 +4167,7 @@
               "depth": 2,
               "impls": [
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_itemcollected",
                   "wrapper": false,
@@ -4184,7 +4183,7 @@
               "depth": 2,
               "impls": [
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_itemcollected",
                   "wrapper": false,
@@ -4200,7 +4199,7 @@
               "depth": 2,
               "impls": [
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_itemcollected",
                   "wrapper": false,
@@ -4216,7 +4215,7 @@
               "depth": 2,
               "impls": [
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_itemcollected",
                   "wrapper": false,
@@ -4232,7 +4231,7 @@
               "depth": 2,
               "impls": [
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_itemcollected",
                   "wrapper": false,
@@ -4248,7 +4247,7 @@
               "depth": 2,
               "impls": [
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_collectreport",
                   "wrapper": false,
@@ -4282,7 +4281,7 @@
               "depth": 2,
               "impls": [
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_collectreport",
                   "wrapper": false,
@@ -4334,7 +4333,7 @@
                   "trylast": false
                 },
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_collection_modifyitems",
                   "wrapper": false,
@@ -4359,7 +4358,7 @@
               "depth": 2,
               "impls": [
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_collection_finish",
                   "wrapper": false,
@@ -4384,7 +4383,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_report_collectionfinish",
                       "wrapper": false,
@@ -4402,7 +4401,7 @@
               "depth": 2,
               "impls": [
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_warning_recorded",
                   "wrapper": false,
@@ -4438,7 +4437,7 @@
               "trylast": false
             },
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_runtestloop",
               "wrapper": false,
@@ -4481,7 +4480,7 @@
                   "trylast": false
                 },
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_runtest_protocol",
                   "wrapper": false,
@@ -4533,7 +4532,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logstart",
                       "wrapper": false,
@@ -4594,7 +4593,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_setup",
                       "wrapper": false,
@@ -4646,7 +4645,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_fixture_setup",
                           "wrapper": false,
@@ -4689,7 +4688,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_fixture_setup",
                           "wrapper": false,
@@ -4734,7 +4733,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_makereport",
                       "wrapper": false,
@@ -4777,7 +4776,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logreport",
                       "wrapper": false,
@@ -4847,7 +4846,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_report_teststatus",
                           "wrapper": false,
@@ -4892,7 +4891,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_call",
                       "wrapper": false,
@@ -4944,7 +4943,7 @@
                           "trylast": true
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_pyfunc_call",
                           "wrapper": false,
@@ -4971,7 +4970,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_makereport",
                       "wrapper": false,
@@ -5014,7 +5013,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logreport",
                       "wrapper": false,
@@ -5084,7 +5083,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_report_teststatus",
                           "wrapper": false,
@@ -5129,7 +5128,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_teardown",
                       "wrapper": false,
@@ -5172,7 +5171,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_fixture_post_finalizer",
                           "wrapper": false,
@@ -5197,7 +5196,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_fixture_post_finalizer",
                           "wrapper": false,
@@ -5224,7 +5223,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_makereport",
                       "wrapper": false,
@@ -5267,7 +5266,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logreport",
                       "wrapper": false,
@@ -5337,7 +5336,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_report_teststatus",
                           "wrapper": false,
@@ -5355,7 +5354,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logfinish",
                       "wrapper": false,
@@ -5391,7 +5390,7 @@
                   "trylast": false
                 },
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_runtest_protocol",
                   "wrapper": false,
@@ -5443,7 +5442,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logstart",
                       "wrapper": false,
@@ -5504,7 +5503,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_setup",
                       "wrapper": false,
@@ -5556,7 +5555,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_fixture_setup",
                           "wrapper": false,
@@ -5599,7 +5598,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_fixture_setup",
                           "wrapper": false,
@@ -5644,7 +5643,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_makereport",
                       "wrapper": false,
@@ -5687,7 +5686,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logreport",
                       "wrapper": false,
@@ -5757,7 +5756,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_report_teststatus",
                           "wrapper": false,
@@ -5802,7 +5801,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_call",
                       "wrapper": false,
@@ -5854,7 +5853,7 @@
                           "trylast": true
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_pyfunc_call",
                           "wrapper": false,
@@ -5881,7 +5880,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_makereport",
                       "wrapper": false,
@@ -5924,7 +5923,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logreport",
                       "wrapper": false,
@@ -5994,7 +5993,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_report_teststatus",
                           "wrapper": false,
@@ -6039,7 +6038,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_teardown",
                       "wrapper": false,
@@ -6082,7 +6081,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_fixture_post_finalizer",
                           "wrapper": false,
@@ -6107,7 +6106,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_fixture_post_finalizer",
                           "wrapper": false,
@@ -6134,7 +6133,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_makereport",
                       "wrapper": false,
@@ -6177,7 +6176,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logreport",
                       "wrapper": false,
@@ -6247,7 +6246,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_report_teststatus",
                           "wrapper": false,
@@ -6265,7 +6264,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logfinish",
                       "wrapper": false,
@@ -6301,7 +6300,7 @@
                   "trylast": false
                 },
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_runtest_protocol",
                   "wrapper": false,
@@ -6353,7 +6352,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logstart",
                       "wrapper": false,
@@ -6414,7 +6413,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_setup",
                       "wrapper": false,
@@ -6466,7 +6465,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_fixture_setup",
                           "wrapper": false,
@@ -6509,7 +6508,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_fixture_setup",
                           "wrapper": false,
@@ -6554,7 +6553,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_makereport",
                       "wrapper": false,
@@ -6597,7 +6596,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logreport",
                       "wrapper": false,
@@ -6667,7 +6666,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_report_teststatus",
                           "wrapper": false,
@@ -6712,7 +6711,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_call",
                       "wrapper": false,
@@ -6764,7 +6763,7 @@
                           "trylast": true
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_pyfunc_call",
                           "wrapper": false,
@@ -6791,7 +6790,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_makereport",
                       "wrapper": false,
@@ -6834,7 +6833,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logreport",
                       "wrapper": false,
@@ -6904,7 +6903,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_report_teststatus",
                           "wrapper": false,
@@ -6949,7 +6948,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_teardown",
                       "wrapper": false,
@@ -6992,7 +6991,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_fixture_post_finalizer",
                           "wrapper": false,
@@ -7017,7 +7016,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_fixture_post_finalizer",
                           "wrapper": false,
@@ -7044,7 +7043,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_makereport",
                       "wrapper": false,
@@ -7087,7 +7086,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logreport",
                       "wrapper": false,
@@ -7157,7 +7156,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_report_teststatus",
                           "wrapper": false,
@@ -7175,7 +7174,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logfinish",
                       "wrapper": false,
@@ -7211,7 +7210,7 @@
                   "trylast": false
                 },
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_runtest_protocol",
                   "wrapper": false,
@@ -7263,7 +7262,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logstart",
                       "wrapper": false,
@@ -7324,7 +7323,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_setup",
                       "wrapper": false,
@@ -7376,7 +7375,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_fixture_setup",
                           "wrapper": false,
@@ -7419,7 +7418,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_fixture_setup",
                           "wrapper": false,
@@ -7464,7 +7463,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_makereport",
                       "wrapper": false,
@@ -7507,7 +7506,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logreport",
                       "wrapper": false,
@@ -7577,7 +7576,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_report_teststatus",
                           "wrapper": false,
@@ -7622,7 +7621,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_call",
                       "wrapper": false,
@@ -7674,7 +7673,7 @@
                           "trylast": true
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_pyfunc_call",
                           "wrapper": false,
@@ -7701,7 +7700,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_makereport",
                       "wrapper": false,
@@ -7744,7 +7743,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logreport",
                       "wrapper": false,
@@ -7814,7 +7813,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_report_teststatus",
                           "wrapper": false,
@@ -7859,7 +7858,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_teardown",
                       "wrapper": false,
@@ -7902,7 +7901,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_fixture_post_finalizer",
                           "wrapper": false,
@@ -7927,7 +7926,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_fixture_post_finalizer",
                           "wrapper": false,
@@ -7954,7 +7953,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_makereport",
                       "wrapper": false,
@@ -7997,7 +7996,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logreport",
                       "wrapper": false,
@@ -8067,7 +8066,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_report_teststatus",
                           "wrapper": false,
@@ -8085,7 +8084,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logfinish",
                       "wrapper": false,
@@ -8121,7 +8120,7 @@
                   "trylast": false
                 },
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_runtest_protocol",
                   "wrapper": false,
@@ -8173,7 +8172,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logstart",
                       "wrapper": false,
@@ -8234,7 +8233,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_setup",
                       "wrapper": false,
@@ -8286,7 +8285,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_fixture_setup",
                           "wrapper": false,
@@ -8329,7 +8328,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_fixture_setup",
                           "wrapper": false,
@@ -8374,7 +8373,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_makereport",
                       "wrapper": false,
@@ -8417,7 +8416,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logreport",
                       "wrapper": false,
@@ -8487,7 +8486,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_report_teststatus",
                           "wrapper": false,
@@ -8532,7 +8531,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_call",
                       "wrapper": false,
@@ -8584,7 +8583,7 @@
                           "trylast": true
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_pyfunc_call",
                           "wrapper": false,
@@ -8611,7 +8610,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_makereport",
                       "wrapper": false,
@@ -8654,7 +8653,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logreport",
                       "wrapper": false,
@@ -8724,7 +8723,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_report_teststatus",
                           "wrapper": false,
@@ -8769,7 +8768,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_teardown",
                       "wrapper": false,
@@ -8812,7 +8811,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_fixture_post_finalizer",
                           "wrapper": false,
@@ -8837,7 +8836,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_fixture_post_finalizer",
                           "wrapper": false,
@@ -8864,7 +8863,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_makereport",
                       "wrapper": false,
@@ -8907,7 +8906,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logreport",
                       "wrapper": false,
@@ -8977,7 +8976,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_report_teststatus",
                           "wrapper": false,
@@ -8995,7 +8994,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logfinish",
                       "wrapper": false,
@@ -9031,7 +9030,7 @@
                   "trylast": false
                 },
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_runtest_protocol",
                   "wrapper": false,
@@ -9083,7 +9082,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logstart",
                       "wrapper": false,
@@ -9144,7 +9143,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_setup",
                       "wrapper": false,
@@ -9196,7 +9195,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_fixture_setup",
                           "wrapper": false,
@@ -9241,7 +9240,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_makereport",
                       "wrapper": false,
@@ -9284,7 +9283,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logreport",
                       "wrapper": false,
@@ -9354,7 +9353,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_report_teststatus",
                           "wrapper": false,
@@ -9399,7 +9398,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_call",
                       "wrapper": false,
@@ -9452,7 +9451,7 @@
                           "trylast": true
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_pyfunc_call",
                           "wrapper": false,
@@ -9480,7 +9479,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_makereport",
                       "wrapper": false,
@@ -9523,7 +9522,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logreport",
                       "wrapper": false,
@@ -9593,7 +9592,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_report_teststatus",
                           "wrapper": false,
@@ -9611,7 +9610,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_exception_interact",
                       "wrapper": false,
@@ -9663,7 +9662,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_teardown",
                       "wrapper": false,
@@ -9706,7 +9705,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_fixture_post_finalizer",
                           "wrapper": false,
@@ -9733,7 +9732,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_makereport",
                       "wrapper": false,
@@ -9776,7 +9775,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logreport",
                       "wrapper": false,
@@ -9846,7 +9845,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_report_teststatus",
                           "wrapper": false,
@@ -9864,7 +9863,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logfinish",
                       "wrapper": false,
@@ -9900,7 +9899,7 @@
                   "trylast": false
                 },
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_runtest_protocol",
                   "wrapper": false,
@@ -9952,7 +9951,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logstart",
                       "wrapper": false,
@@ -10013,7 +10012,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_setup",
                       "wrapper": false,
@@ -10066,7 +10065,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_makereport",
                       "wrapper": false,
@@ -10109,7 +10108,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logreport",
                       "wrapper": false,
@@ -10179,7 +10178,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_report_teststatus",
                           "wrapper": false,
@@ -10224,7 +10223,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_teardown",
                       "wrapper": false,
@@ -10267,7 +10266,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_makereport",
                       "wrapper": false,
@@ -10310,7 +10309,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logreport",
                       "wrapper": false,
@@ -10380,7 +10379,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_report_teststatus",
                           "wrapper": false,
@@ -10398,7 +10397,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logfinish",
                       "wrapper": false,
@@ -10434,7 +10433,7 @@
                   "trylast": false
                 },
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_runtest_protocol",
                   "wrapper": false,
@@ -10486,7 +10485,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logstart",
                       "wrapper": false,
@@ -10547,7 +10546,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_setup",
                       "wrapper": false,
@@ -10599,7 +10598,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_makereport",
                       "wrapper": false,
@@ -10642,7 +10641,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logreport",
                       "wrapper": false,
@@ -10712,7 +10711,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_report_teststatus",
                           "wrapper": false,
@@ -10757,7 +10756,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_call",
                       "wrapper": false,
@@ -10809,7 +10808,7 @@
                           "trylast": true
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_pyfunc_call",
                           "wrapper": false,
@@ -10836,7 +10835,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_makereport",
                       "wrapper": false,
@@ -10879,7 +10878,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logreport",
                       "wrapper": false,
@@ -10949,7 +10948,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_report_teststatus",
                           "wrapper": false,
@@ -10994,7 +10993,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_teardown",
                       "wrapper": false,
@@ -11037,7 +11036,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_makereport",
                       "wrapper": false,
@@ -11080,7 +11079,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logreport",
                       "wrapper": false,
@@ -11150,7 +11149,7 @@
                           "trylast": false
                         },
                         {
-                          "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                          "plugin": "conftest.py",
                           "module": "conftest",
                           "function": "pytest_report_teststatus",
                           "wrapper": false,
@@ -11168,7 +11167,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_runtest_logfinish",
                       "wrapper": false,
@@ -11193,7 +11192,7 @@
                   "depth": 3,
                   "impls": [
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_warning_recorded",
                       "wrapper": false,
@@ -11249,7 +11248,7 @@
               "trylast": false
             },
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_sessionfinish",
               "wrapper": false,
@@ -11310,7 +11309,7 @@
                   "trylast": false
                 },
                 {
-                  "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                  "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_terminal_summary",
                   "wrapper": false,
@@ -11371,7 +11370,7 @@
                       "trylast": false
                     },
                     {
-                      "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+                      "plugin": "conftest.py",
                       "module": "conftest",
                       "function": "pytest_report_teststatus",
                       "wrapper": false,
@@ -11436,7 +11435,7 @@
               "trylast": false
             },
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_unconfigure",
               "wrapper": false,

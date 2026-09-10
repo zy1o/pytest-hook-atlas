@@ -128,3 +128,62 @@ def test_stylesheet_and_core_pages_are_written(built):
     for name in ("index.md", "versions.md", "changes.md", "design-notes.md"):
         assert (docs / name).exists()
     assert (docs / "assets" / "atlas.css").exists()
+
+
+def test_scenario_source_is_linked_not_inlined(built, builds):
+    """Scenarios grow directory trees; a collapsed code block does not scale.
+
+    The repository renders the project better than the page can, so provenance
+    links to it and names the files rather than dumping their contents.
+    """
+    docs, _ = built
+    item = builds[0]
+    page = (docs / "scenarios" / item.scenario.id / f"{item.latest.key}.md").read_text()
+
+    assert item.scenario.source_url in page
+    for source in item.scenario.source_files():
+        assert source.name in page, "the file should still be named"
+        body = source.read_text().strip().splitlines()
+        longest = max(body, key=len)
+        assert longest.strip() not in page, "file contents must not be inlined"
+
+
+def test_heading_anchor_matches_python_markdown():
+    """Anchors are computed here but resolved by python-markdown's slugifier.
+
+    If the two disagree, every column link silently scrolls nowhere - so the
+    real implementation is the oracle.
+    """
+    from markdown.extensions.toc import slugify
+
+    from pytest_hook_atlas.build import heading_anchor
+
+    for title in (
+        "Startup and configuration",
+        "Collection",
+        "The run-test protocol",
+        "Session finish",
+        "A title, with punctuation!",
+    ):
+        assert heading_anchor(title) == slugify(title, "-")
+
+
+def test_overview_columns_link_to_their_phase_headings(built, builds):
+    """The overview doubles as a table of contents."""
+    from pytest_hook_atlas import analysis
+    from pytest_hook_atlas.build import heading_anchor
+
+    docs, _ = built
+    item = builds[0]
+    page = (docs / "scenarios" / item.scenario.id / f"{item.latest.key}.md").read_text()
+
+    linked = 0
+    for phase in analysis.PHASES:
+        heading = f"## {phase.title}"
+        if heading not in page:
+            continue
+        anchor = heading_anchor(phase.title)
+        assert f'xlink:href="#{anchor}"' in page, f"{phase.key} column is not clickable"
+        linked += 1
+
+    assert linked >= 3, "expected most phases present in the baseline scenario"

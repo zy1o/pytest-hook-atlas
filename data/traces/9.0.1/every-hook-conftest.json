@@ -11,12 +11,11 @@
     "argv": [
       "-p",
       "hook_atlas_tracer",
-      "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest",
+      ".",
       "-q",
       "-p",
       "no:cacheprovider"
-    ],
-    "invocation_dir": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest"
+    ]
   },
   "stats": {
     "total_calls": 5,
@@ -575,7 +574,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_addhooks",
               "wrapper": false,
@@ -591,7 +590,7 @@
           "depth": 1,
           "impls": [
             {
-              "plugin": "/tmp/hook-atlas-matrix-_fk4iugh/every-hook-conftest/conftest.py",
+              "plugin": "conftest.py",
               "module": "conftest",
               "function": "pytest_addoption",
               "wrapper": false,
