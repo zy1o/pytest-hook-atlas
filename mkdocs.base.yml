@@ -35,6 +35,8 @@ extra_css:
 markdown_extensions:
   - admonition
   - attr_list
+  # implementer lists that changed mid-range are rendered as footnotes
+  - footnotes
   - md_in_html
   - tables
   - toc:

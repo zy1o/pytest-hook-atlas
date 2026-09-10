@@ -22,7 +22,7 @@ from typing import Any
 
 from packaging.version import Version
 
-from . import analysis, doclinks, flow, grouping
+from . import analysis, doclinks, flow, grouping, implementers
 from .grouping import Group
 from .render import css, dot
 from .scenarios import Scenario, discover
@@ -185,22 +185,71 @@ def _provenance(scenario: Scenario, trace: dict[str, Any], group: Group) -> str:
     return "\n".join(lines)
 
 
-def _hook_table(graph: analysis.HookGraph, base_url: str) -> str:
-    rows = ["| Hook | Calls | Semantics | Implementations |", "| --- | --: | --- | --: |"]
-    labels = {
-        "plain": "",
-        "historic": "historic",
-        "firstresult": "firstresult",
-        "both": "historic, firstresult",
-    }
+SEMANTIC_LABELS = {
+    "plain": "",
+    "historic": "historic",
+    "firstresult": "firstresult",
+    "both": "historic, firstresult",
+}
+
+
+def _hook_table(
+    graph: analysis.HookGraph,
+    base_url: str,
+    implemented: dict[str, implementers.HookImplementers],
+) -> str:
+    """Every hook observed, with the plugins behind it.
+
+    pytest implements most of itself as plugins, so this column is usually a
+    list of pytest's own internals - which is the point: it shows that
+    ``pytest_runtest_setup`` is served by ``runner``, ``skipping``,
+    ``capturemanager`` and others, in that order.
+    """
+    rows = [
+        "| Hook | Calls | Semantics | Implemented by |",
+        "| --- | --: | --- | --- |",
+    ]
     for name in sorted(graph.hooks):
         hook = graph.hooks[name]
         url = doclinks.hook_url(name, base_url)
+        info = implemented.get(name)
+        plugins = info.current if info else hook.plugins
+        listed = ", ".join(plugins) or "-"
+        if info and not info.stable:
+            listed += f" [^{name}]"
         rows.append(
             f"| [`{name}`]({url}) | {hook.call_count} | "
-            f"{labels[hook.semantics]} | {len(hook.plugins)} |"
+            f"{SEMANTIC_LABELS[hook.semantics]} | {listed} |"
         )
     return "\n".join(rows)
+
+
+def _implementer_changes(
+    implemented: dict[str, implementers.HookImplementers], group: Group
+) -> list[str]:
+    """Footnotes for hooks whose implementers changed inside this range.
+
+    A page covers a range of releases, and implementers can differ across it
+    even when the flow does not - pytest moves hookimpls between its internal
+    plugins without changing what happens. Showing only the newest release's
+    answer would be quietly wrong for the rest of the range, so the exceptions
+    are spelled out.
+    """
+    varying = [info for info in implemented.values() if not info.stable]
+    if not varying:
+        return []
+
+    lines = [
+        f"*{len(varying)} of these changed within {group.label}, without changing "
+        "the flow. pytest moves implementations between its own plugins; the "
+        "table shows the newest, and the exceptions are below.*\n",
+    ]
+    for info in sorted(varying, key=lambda item: item.hook):
+        lines.append(f"[^{info.hook}]:")
+        for run in info.runs:
+            lines.append(f"    **{run.label}** - {', '.join(run.plugins) or 'nobody'}")
+        lines.append("")
+    return lines
 
 
 def group_page(build: ScenarioBuild, group: Group, verify_links: bool = True) -> str:
@@ -269,7 +318,9 @@ def group_page(build: ScenarioBuild, group: Group, verify_links: bool = True) ->
             parts.append("")
 
     parts.append("## Every hook observed\n")
-    parts.append(_hook_table(full, base_url) + "\n")
+    implemented = implementers.reconcile(build.traces, group.versions)
+    parts.append(_hook_table(full, base_url, implemented) + "\n")
+    parts.extend(_implementer_changes(implemented, group))
     return "\n".join(parts)
 
 

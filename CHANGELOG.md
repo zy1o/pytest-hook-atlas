@@ -12,6 +12,21 @@ built or presented, never what was observed.
 
 ## [Unreleased]
 
+### Added
+
+- Every hook's table now names the **plugins that implement it** rather than
+  counting them. pytest implements most of itself as plugins, so this shows
+  that `pytest_runtest_setup` is served by `runner`, `skipping`,
+  `capturemanager` and others.
+- Implementers are reconciled across the releases a page covers. They can
+  differ within a range even when the flow does not - pytest moved
+  `pytest_cmdline_main` from its `python` plugin to `fixtures` at 8.2.0, and
+  dropped `python_path` at 8.4.0, neither of which changed what happens. Where
+  a range disagrees, the table shows the newest answer and a footnote gives the
+  rest, so the page never misdescribes the releases it covers.
+
+This needed no re-capture: the data was already in every committed trace.
+
 ## [1.0.0] - 2026-09-10
 
 First real release. A ground-up rework of `doc_pytest_flow_chart`, which

@@ -187,3 +187,48 @@ def test_overview_columns_link_to_their_phase_headings(built, builds):
         linked += 1
 
     assert linked >= 3, "expected most phases present in the baseline scenario"
+
+
+def test_hook_table_names_implementers_rather_than_counting_them(built, builds):
+    """The plugins behind a hook are the interesting part, not how many."""
+    docs, _ = built
+    item = builds[0]
+    page = (docs / "scenarios" / item.scenario.id / f"{item.latest.key}.md").read_text()
+
+    assert "| Hook | Calls | Semantics | Implemented by |" in page
+    assert "runner" in page and "capturemanager" in page
+
+
+def test_implementers_that_changed_mid_range_are_footnoted(built, builds):
+    """Showing only the newest release's answer would misdescribe the rest."""
+    from pytest_hook_atlas import implementers
+
+    docs, _ = built
+    item = builds[0]
+    group = next((g for g in item.rendered if "8.2.0" in g.versions), None)
+    if group is None:
+        pytest.skip("no captured group spans the 8.2.0 change")
+
+    page = (docs / "scenarios" / item.scenario.id / f"{group.key}.md").read_text()
+    varying = [
+        i for i in implementers.reconcile(item.traces, group.versions).values() if not i.stable
+    ]
+
+    assert varying, "expected at least one implementer change in this range"
+    for info in varying:
+        assert f"[^{info.hook}]" in page
+        assert f"[^{info.hook}]:" in page
+    assert "without changing the flow" in page
+
+
+def test_stable_groups_carry_no_footnotes(built, builds):
+    from pytest_hook_atlas import implementers
+
+    docs, _ = built
+    for item in builds:
+        for group in item.rendered:
+            reconciled = implementers.reconcile(item.traces, group.versions)
+            if any(not info.stable for info in reconciled.values()):
+                continue
+            page = (docs / "scenarios" / item.scenario.id / f"{group.key}.md").read_text()
+            assert "[^" not in page, f"{group.label} should have no footnotes"
