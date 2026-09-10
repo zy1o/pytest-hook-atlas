@@ -29,8 +29,13 @@ def test_hook_url_targets_the_hookspec_anchor():
     assert url.endswith("#pytest.hookspec.pytest_runtest_setup")
 
 
-def test_unverified_resolution_stays_offline_and_pinned():
-    assert doclinks.resolve_base_url("8.1.0", verify=False) == doclinks.reference_url("8.1.x")
+def test_unverified_resolution_falls_back_rather_than_guessing():
+    """An offline build must not emit a pin it could not check.
+
+    Some pinned docs do not exist - 9.1.x serves a redirect loop - so guessing
+    produces exactly the dead links this module exists to prevent.
+    """
+    assert doclinks.resolve_base_url("8.1.0", verify=False) == doclinks.reference_url("stable")
 
 
 def test_resolution_falls_back_when_pinned_docs_are_unavailable(monkeypatch):

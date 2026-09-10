@@ -25,6 +25,24 @@ built or presented, never what was observed.
   a range disagrees, the table shows the newest answer and a footnote gives the
   rest, so the page never misdescribes the releases it covers.
 
+- Implementers are listed **in pluggy's call order**, one per line, with the
+  full name of what implements them - `_pytest.capture.CaptureManager` rather
+  than `capturemanager`, with the registered plugin name alongside when the two
+  differ.
+
+### Fixed
+
+- Implementers were listed in pluggy's *storage* order, which is the reverse of
+  the order it calls them. The table read upside down: `trylast`
+  implementations appeared first.
+- The plugin registered as `<anonymous>` was written bare into a table cell and
+  swallowed as an HTML tag, so that row began with a stray comma.
+- An offline build (`--no-verify-links`) emitted an unverified pinned
+  documentation URL. pytest's own 9.1.x docs currently serve a redirect loop, so
+  those links were dead - the exact failure the link checking exists to prevent.
+  Offline builds now fall back to `stable`.
+- Long hook names no longer break mid-word in tables.
+
 This needed no re-capture: the data was already in every committed trace.
 
 ## [1.0.0] - 2026-09-10

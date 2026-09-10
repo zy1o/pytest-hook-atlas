@@ -198,25 +198,27 @@ def _hook_table(
     base_url: str,
     implemented: dict[str, implementers.HookImplementers],
 ) -> str:
-    """Every hook observed, with the plugins behind it.
+    """Every hook observed, with the plugins behind it in call order.
 
-    pytest implements most of itself as plugins, so this column is usually a
-    list of pytest's own internals - which is the point: it shows that
-    ``pytest_runtest_setup`` is served by ``runner``, ``skipping``,
-    ``capturemanager`` and others, in that order.
+    pytest implements most of itself as plugins, so this column is mostly
+    pytest's own internals - which is the point. Names are wrapped in code
+    spans, which is not only style: one plugin registers as ``<anonymous>``,
+    and unescaped that is swallowed as an HTML tag.
     """
     rows = [
-        "| Hook | Calls | Semantics | Implemented by |",
+        "| Hook | Calls | Semantics | Implemented by, in call order |",
         "| --- | --: | --- | --- |",
     ]
     for name in sorted(graph.hooks):
         hook = graph.hooks[name]
         url = doclinks.hook_url(name, base_url)
         info = implemented.get(name)
-        plugins = info.current if info else hook.plugins
-        listed = ", ".join(plugins) or "-"
+        if info and info.current:
+            listed = "<br>".join(f"`{item.label}`" for item in info.current)
+        else:
+            listed = "<br>".join(f"`{plugin}`" for plugin in hook.plugins) or "-"
         if info and not info.stable:
-            listed += f" [^{name}]"
+            listed += f"<br>[^{name}]"
         rows.append(
             f"| [`{name}`]({url}) | {hook.call_count} | "
             f"{SEMANTIC_LABELS[hook.semantics]} | {listed} |"
@@ -229,26 +231,31 @@ def _implementer_changes(
 ) -> list[str]:
     """Footnotes for hooks whose implementers changed inside this range.
 
-    A page covers a range of releases, and implementers can differ across it
-    even when the flow does not - pytest moves hookimpls between its internal
-    plugins without changing what happens. Showing only the newest release's
-    answer would be quietly wrong for the rest of the range, so the exceptions
-    are spelled out.
+    Written as deltas rather than full re-listings. ``pytest_configure`` has
+    eighteen implementers and changed five times across one range; printing the
+    whole list five times is unreadable, and what changed is both short and the
+    thing worth knowing.
     """
     varying = [info for info in implemented.values() if not info.stable]
     if not varying:
         return []
 
     lines = [
-        f"*{len(varying)} of these changed within {group.label}, without changing "
-        "the flow. pytest moves implementations between its own plugins; the "
-        "table shows the newest, and the exceptions are below.*\n",
+        f"\n*{len(varying)} of these changed implementer somewhere in "
+        f"{group.label} without changing the flow - pytest moves "
+        "implementations between its own plugins. The table shows the newest; "
+        "what changed along the way is below.*\n",
     ]
     for info in sorted(varying, key=lambda item: item.hook):
-        lines.append(f"[^{info.hook}]:")
-        for run in info.runs:
-            lines.append(f"    **{run.label}** - {', '.join(run.plugins) or 'nobody'}")
-        lines.append("")
+        changes = []
+        for version, gained, lost in info.deltas():
+            bits = []
+            if gained:
+                bits.append("gained " + ", ".join(f"`{p}`" for p in gained))
+            if lost:
+                bits.append("lost " + ", ".join(f"`{p}`" for p in lost))
+            changes.append(f"**{version}** {' and '.join(bits) or 'reordered'}")
+        lines.append(f"[^{info.hook}]: " + "; ".join(changes) + "\n")
     return lines
 
 

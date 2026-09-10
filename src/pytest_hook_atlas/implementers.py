@@ -16,7 +16,33 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from . import analysis
+
+@dataclass(frozen=True)
+class Implementation:
+    """One plugin's implementation of one hook."""
+
+    plugin: str
+    owner: str
+
+    @property
+    def label(self) -> str:
+        """Full name, with the plugin's registered name when it differs.
+
+        The two are genuinely different things: ``capturemanager`` is an
+        instance of ``CaptureManager`` living in ``_pytest.capture``, and the
+        registered name is what you would pass to ``-p`` or look up with
+        ``pluginmanager.get_plugin()``. Showing only one loses something.
+        """
+        if not self.owner:
+            return self.plugin
+        tail = self.owner.rsplit(".", 1)[-1]
+        if self.plugin and self.plugin.lower() != tail.lower():
+            return f"{self.owner} ({self.plugin})"
+        return self.owner
+
+    @property
+    def key(self) -> tuple[str, str]:
+        return (self.plugin, self.owner)
 
 
 @dataclass(frozen=True)
@@ -24,7 +50,11 @@ class Run:
     """A stretch of consecutive releases agreeing on who implements a hook."""
 
     versions: tuple[str, ...]
-    plugins: tuple[str, ...]
+    implementations: tuple[Implementation, ...]
+
+    @property
+    def plugins(self) -> tuple[str, ...]:
+        return tuple(item.plugin for item in self.implementations)
 
     @property
     def label(self) -> str:
@@ -46,9 +76,25 @@ class HookImplementers:
         return len(self.runs) <= 1
 
     @property
-    def current(self) -> tuple[str, ...]:
+    def current(self) -> tuple[Implementation, ...]:
         """The newest release's answer, which is what the diagrams reflect."""
-        return self.runs[-1].plugins if self.runs else ()
+        return self.runs[-1].implementations if self.runs else ()
+
+    def deltas(self) -> list[tuple[str, tuple[str, ...], tuple[str, ...]]]:
+        """Each change as (release, gained, lost) rather than a full re-listing.
+
+        pytest_configure is implemented by eighteen plugins and changed five
+        times across one page's range; printing the whole list five times is
+        unreadable. What changed is short, and is what a reader wants.
+        """
+        changes = []
+        for older, newer in zip(self.runs, self.runs[1:], strict=False):
+            before = {item.key for item in older.implementations}
+            after = {item.key for item in newer.implementations}
+            gained = tuple(sorted(p for p, _ in after - before))
+            lost = tuple(sorted(p for p, _ in before - after))
+            changes.append((newer.versions[0], gained, lost))
+        return changes
 
     @property
     def changed_at(self) -> str | None:
@@ -58,9 +104,50 @@ class HookImplementers:
         return self.runs[-1].versions[0]
 
 
-def _plugins_by_hook(trace: dict[str, Any]) -> dict[str, tuple[str, ...]]:
-    graph = analysis.full_graph(trace)
-    return {name: tuple(sorted(hook.plugins)) for name, hook in graph.hooks.items()}
+def _owner(impl: dict[str, Any], hook: str) -> str:
+    """Where the implementation lives: module, or module.Class for a method.
+
+    The qualname ends with the hook name, which is the table row already, so it
+    is trimmed: ``_pytest.capture.CaptureManager.pytest_runtest_setup`` reads
+    better as ``_pytest.capture.CaptureManager``.
+    """
+    module = impl.get("module") or ""
+    function = impl.get("function") or ""
+    qualifier = function[: -len(hook)].rstrip(".") if function.endswith(hook) else function
+    return ".".join(part for part in (module, qualifier) if part)
+
+
+def _implementations_by_hook(trace: dict[str, Any]) -> dict[str, tuple[Implementation, ...]]:
+    """Implementations per hook, in the order pluggy called them.
+
+    Order is not incidental - it is tryfirst/trylast and registration order,
+    and it decides which implementation wins a firstresult hook. Sorting the
+    list alphabetically, as an earlier version did, threw that away.
+
+    pluggy stores hook_impls in *reverse* call order and iterates them with
+    ``reversed()``, which is why a ``trylast`` implementation sits at index 0.
+    They are reversed here so the table reads top to bottom in the order pytest
+    actually runs them.
+    """
+    found: dict[str, list[Implementation]] = {}
+    seen: dict[str, set[tuple[str, str]]] = {}
+
+    def walk(nodes: list[dict[str, Any]]) -> None:
+        for node in nodes:
+            hook = node["name"]
+            bucket = found.setdefault(hook, [])
+            known = seen.setdefault(hook, set())
+            for impl in reversed(node.get("impls", [])):
+                item = Implementation(
+                    plugin=str(impl.get("plugin") or ""), owner=_owner(impl, hook)
+                )
+                if item.key not in known:
+                    known.add(item.key)
+                    bucket.append(item)
+            walk(node.get("children", []))
+
+    walk(trace["calls"])
+    return {hook: tuple(items) for hook, items in found.items()}
 
 
 def reconcile(
@@ -72,7 +159,9 @@ def reconcile(
     is built that way.
     """
     per_version = {
-        version: _plugins_by_hook(traces[version]) for version in versions if version in traces
+        version: _implementations_by_hook(traces[version])
+        for version in versions
+        if version in traces
     }
     if not per_version:
         return {}
@@ -82,15 +171,18 @@ def reconcile(
 
     reconciled: dict[str, HookImplementers] = {}
     for hook in sorted(hooks):
-        runs: list[tuple[list[str], tuple[str, ...]]] = []
+        runs: list[tuple[list[str], tuple[Implementation, ...]]] = []
         for version in ordered:
-            plugins = per_version[version].get(hook, ())
-            if runs and runs[-1][1] == plugins:
+            items = per_version[version].get(hook, ())
+            # compared as a set so a pure ordering difference does not split a
+            # run, while the run itself keeps the newest release's call order
+            if runs and {i.key for i in runs[-1][1]} == {i.key for i in items}:
                 runs[-1][0].append(version)
+                runs[-1] = (runs[-1][0], items)
             else:
-                runs.append(([version], plugins))
+                runs.append(([version], items))
         reconciled[hook] = HookImplementers(
             hook=hook,
-            runs=tuple(Run(tuple(vs), plugins) for vs, plugins in runs),
+            runs=tuple(Run(tuple(vs), items) for vs, items in runs),
         )
     return reconciled

@@ -195,8 +195,9 @@ def test_hook_table_names_implementers_rather_than_counting_them(built, builds):
     item = builds[0]
     page = (docs / "scenarios" / item.scenario.id / f"{item.latest.key}.md").read_text()
 
-    assert "| Hook | Calls | Semantics | Implemented by |" in page
-    assert "runner" in page and "capturemanager" in page
+    assert "Implemented by, in call order" in page
+    assert "`_pytest.runner`" in page
+    assert "`_pytest.capture.CaptureManager`" in page
 
 
 def test_implementers_that_changed_mid_range_are_footnoted(built, builds):
@@ -232,3 +233,46 @@ def test_stable_groups_carry_no_footnotes(built, builds):
                 continue
             page = (docs / "scenarios" / item.scenario.id / f"{group.key}.md").read_text()
             assert "[^" not in page, f"{group.label} should have no footnotes"
+
+
+def test_anonymous_plugin_survives_rendering(built, builds):
+    """One plugin registers as <anonymous>.
+
+    Written bare into a table cell the renderer swallows it as an HTML tag, and
+    the list silently begins with a stray comma. Inside a code span it survives.
+    """
+    docs, _ = built
+    item = builds[0]
+    page = (docs / "scenarios" / item.scenario.id / f"{item.latest.key}.md").read_text()
+
+    if "anonymous" not in page:
+        pytest.skip("no anonymous plugin in this capture")
+
+    for line in page.splitlines():
+        if "<anonymous>" in line:
+            before = line.split("<anonymous>")[0]
+            assert before.count("`") % 2 == 1, "must sit inside a code span"
+            break
+    else:
+        raise AssertionError("anonymous plugin was mangled out of the page")
+
+
+def test_implementers_are_listed_one_per_line(built, builds):
+    docs, _ = built
+    item = builds[0]
+    page = (docs / "scenarios" / item.scenario.id / f"{item.latest.key}.md").read_text()
+
+    row = next(line for line in page.splitlines() if line.startswith("| [`pytest_runtest_setup`]"))
+    cell = row.split("|")[4]
+
+    assert cell.count("<br>") >= 3, "implementers should be one per line"
+    assert "`_pytest.runner`" in cell
+
+
+def test_documentation_links_are_never_an_unverified_pin(built, builds):
+    """9.1.x serves a redirect loop, so an offline build must not link to it."""
+    docs, _ = built
+    item = builds[0]
+    page = (docs / "scenarios" / item.scenario.id / f"{item.latest.key}.md").read_text()
+
+    assert "docs.pytest.org/en/stable/" in page

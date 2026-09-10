@@ -154,6 +154,19 @@ BASE = """/* Diagrams are inlined SVG so their links stay clickable and CSS can 
   fill: none;
 }
 
+/* Hook tables. Hook names are long and full of underscores, which browsers
+   happily break mid-word into "pytest_cmdline" / "_main". */
+.md-typeset table td code,
+.md-typeset table th code {
+  white-space: nowrap;
+}
+.md-typeset table td:first-child {
+  white-space: nowrap;
+}
+.md-typeset table td {
+  vertical-align: top;
+}
+
 /* Version picker. Readers think in pytest versions; the site is organised by
    distinct flows, so picking any version lands on the flow covering it. */
 .ha-version-picker {

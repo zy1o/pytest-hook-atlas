@@ -18,12 +18,19 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
 def trace_with(plugins_by_hook):
-    """A trace whose only content is who implements what."""
+    """A trace whose only content is who implements what.
+
+    Implementations are listed in pluggy's storage order, which is the reverse
+    of call order, so helpers here reverse to match what pluggy would hand us.
+    """
     return {
         "calls": [
             {
                 "name": hook,
-                "impls": [{"plugin": p} for p in plugins],
+                "impls": [
+                    {"plugin": p, "module": f"_pytest.{p}", "function": hook}
+                    for p in reversed(plugins)
+                ],
                 "children": [],
             }
             for hook, plugins in plugins_by_hook.items()
@@ -32,13 +39,17 @@ def trace_with(plugins_by_hook):
     }
 
 
+def names(info):
+    return tuple(item.plugin for item in info.current)
+
+
 def test_identical_releases_collapse_to_one_run():
     traces = {v: trace_with({"pytest_configure": ["a", "b"]}) for v in ("8.0.0", "8.0.1")}
 
     info = implementers.reconcile(traces, ("8.0.0", "8.0.1"))["pytest_configure"]
 
     assert info.stable
-    assert info.current == ("a", "b")
+    assert names(info) == ("a", "b")
     assert info.changed_at is None
 
 
@@ -53,8 +64,9 @@ def test_a_change_splits_into_runs():
 
     assert not info.stable
     assert info.changed_at == "8.2.0"
-    assert info.current == ("fixtures",)
+    assert names(info) == ("fixtures",)
     assert [run.label for run in info.runs] == ["8.1.1 - 8.1.2", "8.2.0"]
+    assert info.deltas() == [("8.2.0", ("fixtures",), ("python",))]
 
 
 def test_a_reverted_change_does_not_merge_runs():
@@ -69,13 +81,17 @@ def test_a_reverted_change_does_not_merge_runs():
     assert len(info.runs) == 3
 
 
-def test_plugins_are_sorted_so_ordering_noise_does_not_split_runs():
+def test_ordering_alone_does_not_split_a_run():
+    """Runs compare as sets; the run still reports the newest call order."""
     traces = {
         "1.0.0": trace_with({"h": ["b", "a"]}),
         "1.1.0": trace_with({"h": ["a", "b"]}),
     }
 
-    assert implementers.reconcile(traces, ("1.0.0", "1.1.0"))["h"].stable
+    info = implementers.reconcile(traces, ("1.0.0", "1.1.0"))["h"]
+
+    assert info.stable
+    assert names(info) == ("a", "b")
 
 
 def test_missing_versions_are_ignored():
@@ -83,7 +99,7 @@ def test_missing_versions_are_ignored():
 
     info = implementers.reconcile(traces, ("1.0.0", "9.9.9"))["h"]
 
-    assert info.current == ("a",)
+    assert names(info) == ("a",)
 
 
 def test_reconcile_of_nothing():
@@ -104,8 +120,8 @@ def test_real_traces_show_pytest_moving_a_hookimpl(real_build):
 
     assert not info.stable
     assert info.changed_at == "8.2.0"
-    assert "fixtures" in info.current
-    assert "python" not in info.current
+    assert "fixtures" in names(info)
+    assert "python" not in names(info)
     assert "python" in info.runs[0].plugins
 
 
@@ -119,3 +135,67 @@ def test_every_hook_in_a_group_is_reconciled(real_build):
             assert info.runs, f"{info.hook} has no runs"
             covered = [v for run in info.runs for v in run.versions]
             assert covered == [v for v in group.versions if v in real_build.traces]
+
+
+def test_call_order_is_pluggys_execution_order_not_its_storage_order():
+    """pluggy stores hook_impls reversed and iterates them with reversed().
+
+    A trylast implementation therefore sits at index 0 of the stored list.
+    Rendering that order verbatim showed the table upside down.
+    """
+    trace = {
+        "calls": [
+            {
+                "name": "pytest_runtest_setup",
+                "impls": [
+                    {"plugin": "last", "module": "m", "function": "pytest_runtest_setup"},
+                    {"plugin": "middle", "module": "m", "function": "pytest_runtest_setup"},
+                    {"plugin": "first", "module": "m", "function": "pytest_runtest_setup"},
+                ],
+                "children": [],
+            }
+        ],
+        "hookspecs": {},
+    }
+
+    info = implementers.reconcile({"1.0.0": trace}, ("1.0.0",))["pytest_runtest_setup"]
+
+    assert [item.plugin for item in info.current] == ["first", "middle", "last"]
+
+
+def test_real_traces_run_wrappers_before_trylast():
+    """A sanity check against pluggy's documented ordering rules."""
+    build = build_module.collect(REPO_ROOT, REPO_ROOT / "data" / "traces")[0]
+    group = build.groups[-1]
+    info = implementers.reconcile(build.traces, group.versions)["pytest_runtest_setup"]
+    order = [item.plugin for item in info.current]
+
+    assert order.index("logging-plugin") < order.index("runner")
+    assert order.index("runner") < order.index("threadexception")
+
+
+def test_owner_strips_the_hook_name_and_keeps_the_class():
+    assert (
+        implementers._owner(
+            {"module": "_pytest.capture", "function": "CaptureManager.pytest_runtest_setup"},
+            "pytest_runtest_setup",
+        )
+        == "_pytest.capture.CaptureManager"
+    )
+    assert (
+        implementers._owner(
+            {"module": "_pytest.runner", "function": "pytest_runtest_setup"},
+            "pytest_runtest_setup",
+        )
+        == "_pytest.runner"
+    )
+
+
+def test_label_adds_the_registered_name_only_when_it_differs():
+    plain = implementers.Implementation(plugin="runner", owner="_pytest.runner")
+    renamed = implementers.Implementation(
+        plugin="logging-plugin", owner="_pytest.logging.LoggingPlugin"
+    )
+
+    assert plain.label == "_pytest.runner"
+    assert renamed.label == "_pytest.logging.LoggingPlugin (logging-plugin)"
