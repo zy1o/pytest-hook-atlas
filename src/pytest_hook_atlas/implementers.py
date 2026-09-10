@@ -44,6 +44,19 @@ class Implementation:
     def key(self) -> tuple[str, str]:
         return (self.plugin, self.owner)
 
+    @property
+    def internal(self) -> bool:
+        """Is this one of pytest's own plugins?
+
+        pytest implements nearly all of itself as plugins, so on most hooks the
+        list is entirely internal. Someone debugging their own plugins wants
+        the handful that are not.
+        """
+        return self.owner.startswith(("_pytest.", "pytest.")) or self.owner in {
+            "_pytest",
+            "pytest",
+        }
+
 
 @dataclass(frozen=True)
 class Run:

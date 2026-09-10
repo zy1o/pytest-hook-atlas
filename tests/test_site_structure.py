@@ -276,3 +276,41 @@ def test_documentation_links_are_never_an_unverified_pin(built, builds):
     page = (docs / "scenarios" / item.scenario.id / f"{item.latest.key}.md").read_text()
 
     assert "docs.pytest.org/en/stable/" in page
+
+
+def test_implementers_are_tagged_internal_or_external(built, builds):
+    """So the filter can hide pytest's own plugins without guessing."""
+    docs, _ = built
+    conftest_build = next((b for b in builds if b.scenario.generated_conftest), None)
+    if conftest_build is None:
+        pytest.skip("no scenario with a conftest")
+
+    page = (
+        docs / "scenarios" / conftest_build.scenario.id / f"{conftest_build.latest.key}.md"
+    ).read_text()
+
+    assert 'class="ha-impl ha-external"' in page
+    assert 'class="ha-impl ha-internal"' in page
+    assert '<div class="ha-hook-table"' in page
+
+
+def test_a_scenario_without_third_party_plugins_has_nothing_external(built, builds):
+    """The baseline suite is plain pytest, so the filter should find nothing
+    to offer - the script checks this and adds no checkbox."""
+    docs, _ = built
+    baseline = next((b for b in builds if b.scenario.id == "baseline"), None)
+    if baseline is None:
+        pytest.skip("no baseline scenario")
+
+    page = (docs / "scenarios" / "baseline" / f"{baseline.latest.key}.md").read_text()
+
+    assert "ha-external" not in page
+
+
+def test_the_filter_script_is_written_and_registered(built):
+    docs, _ = built
+
+    script = (docs / "assets" / "filter.js").read_text()
+    assert "document$" in script, "must use Material's hook, not DOMContentLoaded"
+    assert "ha-hook-table" in script
+    assert "assets/filter.js" in (REPO_ROOT / "mkdocs.yml").read_text()

@@ -212,3 +212,29 @@ def test_deltas_name_the_module_not_just_the_plugin():
 
     assert gained, "expected pytest_configure to gain implementers in this range"
     assert all(name.startswith("_pytest.") for name in gained), gained
+
+
+def test_pytest_own_plugins_are_classified_as_internal():
+    internal = implementers.Implementation(plugin="runner", owner="_pytest.runner")
+    nested = implementers.Implementation(
+        plugin="capturemanager", owner="_pytest.capture.CaptureManager"
+    )
+
+    assert internal.internal
+    assert nested.internal
+
+
+def test_a_conftest_and_third_party_plugins_are_external():
+    """These are what someone debugging their own suite came to see."""
+    conftest = implementers.Implementation(plugin="conftest.py", owner="conftest")
+    third_party = implementers.Implementation(plugin="xdist", owner="xdist.plugin")
+
+    assert not conftest.internal
+    assert not third_party.internal
+
+
+def test_a_module_merely_starting_with_pytest_is_not_internal():
+    """pytest_subtests is a third-party distribution, not part of pytest."""
+    plugin = implementers.Implementation(plugin="subtests", owner="pytest_subtests.plugin")
+
+    assert not plugin.internal

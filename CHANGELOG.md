@@ -44,6 +44,17 @@ built or presented, never what was observed.
   Offline builds now fall back to `stable`.
 - Long hook names no longer break mid-word in tables.
 
+- A **"hide pytest's own plugins" toggle** on the hook table. pytest
+  implements nearly all of itself as plugins, so most hooks list a dozen
+  internal entries and the one or two that came from a `conftest.py` or a
+  third-party plugin are lost among them. Hiding the internals leaves exactly
+  what the project under test contributes, which is what someone debugging
+  their own plugins is looking for.
+
+  The toggle only appears where there is something to reveal, so it is absent
+  from scenarios that are plain pytest. It is progressive enhancement: with
+  scripting off, everything is shown.
+
 This needed no re-capture: the data was already in every committed trace.
 
 ## [1.0.0] - 2026-09-10

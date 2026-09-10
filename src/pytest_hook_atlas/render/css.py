@@ -154,6 +154,28 @@ BASE = """/* Diagrams are inlined SVG so their links stay clickable and CSS can 
   fill: none;
 }
 
+/* The "hide pytest's own plugins" toggle. Added by assets/filter.js only
+   when a table actually has something outside pytest to show. */
+.ha-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 0.6rem;
+  font-size: 0.75rem;
+  color: var(--md-default-fg-color--light);
+  cursor: pointer;
+}
+.ha-hide-internal .ha-internal {
+  display: none;
+}
+/* separators would otherwise pile up where entries were hidden */
+.ha-hide-internal td br {
+  display: none;
+}
+.ha-hide-internal .ha-impl {
+  display: block;
+}
+
 /* Hook tables. Hook names are long and full of underscores, which browsers
    happily break mid-word into "pytest_cmdline" / "_main". */
 .md-typeset table td code,

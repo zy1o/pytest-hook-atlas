@@ -32,6 +32,9 @@ theme:
 extra_css:
   - assets/atlas.css
 
+extra_javascript:
+  - assets/filter.js
+
 markdown_extensions:
   - admonition
   - attr_list
