@@ -165,3 +165,104 @@ def test_stylesheet_fills_match_the_baked_renderer(theme):
             )
             assert match, f"no rule for {theme}/{phase}/{step}"
             assert match.group(1) == expected
+
+
+def _rules(sheet: str):
+    """Very small CSS reader: (selector, declarations, order) for class rules."""
+    import re
+
+    stripped = re.sub(r"/\*.*?\*/", "", sheet, flags=re.S)
+    found = []
+    for order, block in enumerate(stripped.split("}")):
+        if "{" not in block:
+            continue
+        selectors, _, body = block.partition("{")
+        declarations = {}
+        for piece in body.split(";"):
+            if ":" in piece:
+                name, _, value = piece.partition(":")
+                declarations[name.strip()] = value.strip()
+        for selector in selectors.split(","):
+            selector = selector.strip()
+            if selector:
+                found.append((selector, declarations, order))
+    return found
+
+
+def _matches(selector: str, ancestors: list[set[str]], element: set[str]) -> bool:
+    """Descendant selectors of class tokens only; anything else does not match."""
+    compounds = selector.split()
+    if not compounds:
+        return False
+    if any(not part.startswith(".") for part in compounds):
+        return False
+
+    def classes(part: str) -> set[str]:
+        return set(part.strip(".").split("."))
+
+    if not classes(compounds[-1]) <= element:
+        return False
+    remaining = list(compounds[:-1])
+    for ancestor in ancestors:
+        if remaining and classes(remaining[0]) <= ancestor:
+            remaining.pop(0)
+    return not remaining
+
+
+def _specificity(selector: str) -> int:
+    return selector.count(".")
+
+
+def winning_display(sheet: str, ancestors: list[set[str]], element: set[str]) -> str | None:
+    """What `display` the cascade actually settles on for this element."""
+    best = None
+    for selector, declarations, order in _rules(sheet):
+        if "display" not in declarations:
+            continue
+        if not _matches(selector, ancestors, element):
+            continue
+        rank = (_specificity(selector), order)
+        if best is None or rank >= best[0]:
+            best = (rank, declarations["display"])
+    return best[1] if best else None
+
+
+FILTERING = [{"ha-hook-table", "ha-hide-internal"}]
+
+
+def test_filtering_actually_hides_internal_implementers():
+    """Regression: two rules of equal specificity fought, and the later one -
+    `.ha-hide-internal .ha-impl { display: block }` - silently un-hid
+    everything `.ha-hide-internal .ha-internal { display: none }` had hidden.
+
+    Checking that the stylesheet *contains* a hide rule was not enough; what
+    matters is which declaration wins.
+    """
+    sheet = css.stylesheet()
+
+    assert winning_display(sheet, FILTERING, {"ha-impl", "ha-internal"}) == "none"
+
+
+def test_filtering_keeps_external_implementers_visible():
+    sheet = css.stylesheet()
+    result = winning_display(sheet, FILTERING, {"ha-impl", "ha-external"})
+
+    assert result != "none"
+
+
+def test_nothing_is_hidden_when_the_filter_is_off():
+    sheet = css.stylesheet()
+    unfiltered = [{"ha-hook-table"}]
+
+    assert winning_display(sheet, unfiltered, {"ha-impl", "ha-internal"}) != "none"
+    assert winning_display(sheet, unfiltered, {"ha-impl", "ha-external"}) != "none"
+
+
+def test_the_cascade_evaluator_detects_the_bug_it_guards_against():
+    """Guard the guard: the old stylesheet must fail this check."""
+    broken = (
+        ".ha-hide-internal .ha-internal { display: none; }\n"
+        ".ha-hide-internal .ha-impl { display: block; }\n"
+    )
+
+    assert winning_display(broken, FILTERING, {"ha-impl", "ha-internal"}) == "block"

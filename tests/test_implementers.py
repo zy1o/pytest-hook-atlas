@@ -238,3 +238,39 @@ def test_a_module_merely_starting_with_pytest_is_not_internal():
     plugin = implementers.Implementation(plugin="subtests", owner="pytest_subtests.plugin")
 
     assert not plugin.internal
+
+
+def test_a_conftest_is_labelled_by_its_path():
+    """Every conftest imports as the module "conftest", so the module name
+    distinguishes nothing. In a project with nested conftests the path is the
+    only thing that tells them apart."""
+    root = implementers.Implementation(plugin="conftest.py", owner="conftest")
+    nested = implementers.Implementation(plugin="sub_a/deeper/conftest.py", owner="conftest")
+
+    assert root.label == "conftest.py"
+    assert nested.label == "sub_a/deeper/conftest.py"
+    assert not nested.internal
+
+
+def test_nested_conftests_stay_distinct(tmp_path):
+    """A multi-directory project must not collapse its conftests together."""
+    paths = ["conftest.py", "sub_a/conftest.py", "sub_a/deeper/conftest.py", "sub_b/conftest.py"]
+    trace = {
+        "calls": [
+            {
+                "name": "pytest_runtest_setup",
+                "impls": [
+                    {"plugin": path, "module": "conftest", "function": "pytest_runtest_setup"}
+                    for path in reversed(paths)
+                ],
+                "children": [],
+            }
+        ],
+        "hookspecs": {},
+    }
+
+    info = implementers.reconcile({"1.0.0": trace}, ("1.0.0",))["pytest_runtest_setup"]
+    labels = [item.label for item in info.current]
+
+    assert labels == paths
+    assert all(not item.internal for item in info.current)

@@ -36,6 +36,26 @@ already takes its output path from an environment variable for exactly this.
 Also the first scenario to bring genuine third-party plugins, which is when the
 "hide pytest's own plugins" filter starts earning itself.
 
+## Conftest scoping is flattened
+
+A conftest's hook implementations only apply to items **below its directory**,
+but the hook table merges the implementations seen across every call of that
+hook. In a project with nested conftests the table therefore lists all of them
+against one hook, which reads as though all four run for every test. They do
+not.
+
+Confirmed with a four-directory probe: `sub_a/conftest.py` and
+`sub_b/conftest.py` both appear under `pytest_runtest_setup`, though neither
+runs for the other's tests.
+
+Fixing it means showing implementations per call rather than merged, or marking
+which are directory-scoped. Worth solving before the nested-conftest scenario
+lands, since that scenario exists precisely to show this.
+
+(Related gotcha for whoever writes that scenario: two test files sharing a
+basename in sibling directories fail collection with "import file mismatch"
+unless the directories have `__init__.py`. Give them distinct names.)
+
 ## Record where each hook was called from
 
 Alongside who implements it. Measured at about 4 microseconds per call, and the

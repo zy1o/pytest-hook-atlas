@@ -165,15 +165,21 @@ BASE = """/* Diagrams are inlined SVG so their links stay clickable and CSS can 
   color: var(--md-default-fg-color--light);
   cursor: pointer;
 }
-.ha-hide-internal .ha-internal {
+/* Both selectors name two classes deliberately. An earlier version paired
+   `.ha-hide-internal .ha-internal { display: none }` with
+   `.ha-hide-internal .ha-impl { display: block }` - equal specificity, and the
+   second came later, so it silently un-hid everything the filter had just
+   hidden. Matching internal and external separately leaves nothing to fight
+   over. */
+.ha-hide-internal .ha-impl.ha-external {
+  display: block;
+}
+.ha-hide-internal .ha-impl.ha-internal {
   display: none;
 }
 /* separators would otherwise pile up where entries were hidden */
 .ha-hide-internal td br {
   display: none;
-}
-.ha-hide-internal .ha-impl {
-  display: block;
 }
 
 /* Hook tables. Hook names are long and full of underscores, which browsers

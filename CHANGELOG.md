@@ -55,6 +55,10 @@ built or presented, never what was observed.
   from scenarios that are plain pytest. It is progressive enhancement: with
   scripting off, everything is shown.
 
+- A `conftest.py` is labelled by its path rather than by its module name.
+  Every conftest imports as the module `conftest`, so in a project with nested
+  conftests the module name distinguished nothing at all.
+
 This needed no re-capture: the data was already in every committed trace.
 
 ## [1.0.0] - 2026-09-10

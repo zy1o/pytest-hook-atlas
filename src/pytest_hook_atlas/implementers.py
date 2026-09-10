@@ -33,6 +33,11 @@ class Implementation:
         registered name is what you would pass to ``-p`` or look up with
         ``pluginmanager.get_plugin()``. Showing only one loses something.
         """
+        # Every conftest imports as the module "conftest", so the module name
+        # distinguishes nothing - the path is the identity, and in a project
+        # with nested conftests it is the only thing that tells them apart.
+        if self.plugin.endswith(".py"):
+            return self.plugin
         if not self.owner:
             return self.plugin
         tail = self.owner.rsplit(".", 1)[-1]
