@@ -123,6 +123,11 @@ repoint a published URL at different content.
   `tests/test_changelog.py` fails a version bump with no entry.
 - **Explain *why* in comments**, not what. Most non-obvious code here exists
   because something failed in a specific way; say which.
+- **Test in an environment that matches CI.** A local venv usually has the
+  `docs` extra installed; the test job does not. A test importing something
+  that only arrives with mkdocs passes locally and fails in CI. When adding a
+  test dependency, declare it in the `dev` extra and check with a clean
+  `pip install -e ".[dev]"`.
 - **Verify against reality, not against your own output.** Two bugs here
   survived a green build: a stylesheet whose selectors matched nothing, and a
   preview script that rendered a picture proving nothing. "Tests pass and the
