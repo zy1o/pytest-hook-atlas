@@ -237,3 +237,60 @@ def test_raised_handles_both_pluggy_result_shapes():
     assert tracer._raised(Modern())
     assert tracer._raised(Ancient())
     assert not tracer._raised(Clean())
+
+
+def test_traces_are_reproducible_as_whole_files(tmp_path):
+    """Two captures of the same version must be byte-identical.
+
+    Not just the call tree - the entire file. Capture runs in a throwaway
+    directory, and absolute paths leaking into argv or into a conftest's plugin
+    name made every capture produce a diff. In a file whose purpose is that a
+    real change shows up as a reviewable diff, that noise is corrosive.
+    """
+    (tmp_path / "conftest.py").write_text("def pytest_configure(config):\n    pass\n")
+    (tmp_path / "test_x.py").write_text("def test_x():\n    assert True\n")
+
+    def capture(run: int) -> str:
+        workdir = tmp_path / f"run{run}"
+        workdir.mkdir()
+        for name in ("conftest.py", "test_x.py"):
+            (workdir / name).write_text((tmp_path / name).read_text())
+        destination = workdir / "trace.json"
+        subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "pytest",
+                "-p",
+                "pytest_hook_atlas.tracer",
+                str(workdir),
+                "-q",
+                "-p",
+                "no:cacheprovider",
+            ],
+            cwd=workdir,
+            env={
+                **os.environ,
+                "HOOK_ATLAS_TRACE": str(destination),
+                "HOOK_ATLAS_SCENARIO": "repro",
+            },
+            capture_output=True,
+            text=True,
+        )
+        return destination.read_text()
+
+    assert capture(1) == capture(2)
+
+
+def test_recorded_argv_carries_no_absolute_paths(trace):
+    for argument in trace["scenario"]["argv"]:
+        assert not argument.startswith("/"), f"absolute path in argv: {argument}"
+
+
+def test_conftest_plugins_are_named_relatively(trace):
+    """Readable as well as stable: 'conftest.py', not a temp directory."""
+    plugins = {
+        impl["plugin"] for node in _walk(trace["calls"]) for impl in node["impls"] if impl["plugin"]
+    }
+    for plugin in plugins:
+        assert not plugin.startswith("/"), f"absolute plugin path: {plugin}"

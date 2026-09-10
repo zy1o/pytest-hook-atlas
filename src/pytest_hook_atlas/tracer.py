@@ -80,6 +80,26 @@ class CallNode:
         return node
 
 
+def _portable_argv() -> list[str]:
+    """Command line with the project path made relative.
+
+    Capture runs in a throwaway directory, so the absolute path changes every
+    time. Recording it verbatim made every capture produce a diff even when
+    nothing about the run had changed - noise in a file whose whole purpose is
+    that a real change shows up as a reviewable diff.
+    """
+    working = os.getcwd()
+    portable = []
+    for argument in sys.argv[1:]:
+        if argument == working:
+            portable.append(".")
+        elif argument.startswith(working + os.sep):
+            portable.append(os.path.relpath(argument, working))
+        else:
+            portable.append(argument)
+    return portable
+
+
 def _raised(outcome: Any) -> bool:
     """Did the hook call raise?
 
@@ -104,7 +124,15 @@ def _plugin_name(impl: Any) -> str | None:
     if name is None:
         return None
     name = str(name)
-    return "<anonymous>" if name.isdigit() else name
+    if name.isdigit():
+        return "<anonymous>"
+    # A conftest is named by its absolute path, which during capture is a
+    # throwaway directory. Relative is both stable across runs and more useful
+    # to a reader: "conftest.py" rather than /tmp/hook-atlas-matrix-ubv1z_iu/...
+    working = os.getcwd()
+    if name.startswith(working + os.sep):
+        return os.path.relpath(name, working)
+    return name
 
 
 def _impl_info(impl: Any) -> dict[str, Any]:
@@ -217,8 +245,7 @@ class HookRecorder:
             },
             "scenario": {
                 "id": os.environ.get(ENV_SCENARIO),
-                "argv": sys.argv[1:],
-                "invocation_dir": os.getcwd(),
+                "argv": _portable_argv(),
             },
             "stats": {
                 "total_calls": self._seq,

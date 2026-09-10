@@ -60,6 +60,11 @@ five years.
   characters rather than a suffix so `pytest_addhooks` became `pytest_add`, and
   a substring filter matching any line containing "hook". Pinned URLs are now
   verified before use, with a documented fallback.
+- Captured traces are reproducible as whole files. The throwaway capture
+  directory leaked into the recorded command line and into conftest plugin
+  names, so every capture produced a diff even when nothing had changed - noise
+  in exactly the file whose purpose is that a real change shows up as a
+  reviewable diff.
 - Diagram colours are computed for contrast in both themes. The palette in use
   was selected by simulating dichromatic vision: the conventional choice put two
   of its four hues at a colour difference of 3.9 under deuteranopia, which is
