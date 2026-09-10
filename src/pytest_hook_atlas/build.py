@@ -14,6 +14,7 @@ stops working either way.
 
 from __future__ import annotations
 
+import re
 import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -26,9 +27,18 @@ from .grouping import Group
 from .render import css, dot
 from .scenarios import Scenario, discover
 
-LANGUAGE_BY_SUFFIX = {".py": "python", ".toml": "toml", ".ini": "ini", ".cfg": "ini"}
-
 OUTLINE_DEPTH = 2
+
+#: Mirrors python-markdown's default heading slugifier, which is what turns a
+#: "## Collection" heading into id="collection". Derived from the same title
+#: that generates the heading, so the two cannot drift apart.
+_SLUG_STRIP = re.compile(r"[^\w\s-]")
+_SLUG_SPACES = re.compile(r"[-\s]+")
+
+
+def heading_anchor(title: str) -> str:
+    return _SLUG_SPACES.sub("-", _SLUG_STRIP.sub("", title).strip().lower())
+
 
 #: Render the last N pytest majors. Retention governs rendering only - every
 #: trace stays committed, so raising this and rebuilding brings them back.
@@ -74,13 +84,6 @@ def collect(repo_root: Path, traces_dir: Path) -> list[ScenarioBuild]:
     return builds
 
 
-def _fence(path: Path) -> str:
-    language = LANGUAGE_BY_SUFFIX.get(path.suffix, "")
-    body = path.read_text().strip()
-    indented = "\n".join(f"    {line}" if line else "" for line in body.splitlines())
-    return f'??? example "{path.name}"\n\n    ```{language}\n{indented}\n    ```\n'
-
-
 def _diagram(
     nodes: list[flow.FlowNode],
     hookspecs: dict[str, Any],
@@ -104,13 +107,17 @@ def _overview(trace: dict[str, Any], base_url: str, totals: dict[str, int]) -> s
     pytest's complexity is, and the picture should say so.
     """
     columns = []
+    links = {}
     for phase in analysis.PHASES:
         variants = flow.phase_variants(analysis.find_subtrees(trace["calls"], phase.anchors))
         if variants:
             columns.append((phase.key, phase.title, flow.prune(variants[0].flow, OUTLINE_DEPTH)))
+            links[phase.key] = f"#{heading_anchor(phase.title)}"
     if not columns:
         return ""
-    svg = dot.to_inline_svg(dot.build_columns(columns, trace["hookspecs"], base_url, totals))
+    svg = dot.to_inline_svg(
+        dot.build_columns(columns, trace["hookspecs"], base_url, totals, anchors=links)
+    )
     return f'<div class="ha-diagram">\n{svg}\n</div>\n'
 
 
@@ -168,7 +175,13 @@ def _provenance(scenario: Scenario, trace: dict[str, Any], group: Group) -> str:
         f"- **Observed:** {trace['stats']['total_calls']} hook calls, "
         f"{trace['stats']['unique_hooks']} distinct hooks\n",
     ]
-    lines.extend(_fence(path) for path in scenario.source_files())
+    names = ", ".join(f"`{path.name}`" for path in scenario.source_files())
+    if names:
+        lines.append(
+            f"The project is {names}. Browse it in the repository rather than "
+            "inline here - scenarios grow directory trees, and GitHub renders "
+            "them better than a collapsed block can.\n"
+        )
     return "\n".join(lines)
 
 
@@ -217,7 +230,8 @@ def group_page(build: ScenarioBuild, group: Group, verify_links: bool = True) ->
     parts.append(
         "Phases left to right, steps top to bottom. Colour says which phase a "
         "hook belongs to; how dark a step is says how often it was called. "
-        "Each phase below expands one of these columns in full. "
+        "**Click a column heading** to jump to that phase in full detail, or "
+        "any hook to open its pytest documentation. "
         "[Why it looks like this](../../design-notes.md)\n"
     )
     parts.append(_overview(trace, base_url, totals))
