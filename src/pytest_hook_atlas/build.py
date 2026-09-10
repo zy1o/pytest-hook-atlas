@@ -398,7 +398,8 @@ def site_index(builds: list[ScenarioBuild]) -> str:
     parts.append(
         "\n[Every captured release](versions.md) - "
         "[What changed between releases](changes.md) - "
-        "[Why the diagrams look like this](design-notes.md)\n"
+        "[Why the diagrams look like this](design-notes.md) - "
+        "[Changelog](changelog.md)\n"
     )
     return "\n".join(parts)
 
@@ -497,6 +498,7 @@ def _nav(builds: list[ScenarioBuild]) -> str:
     lines.append(f"{NAV_INDENT}- Every release: versions.md")
     lines.append(f"{NAV_INDENT}- What changed: changes.md")
     lines.append(f"{NAV_INDENT}- Design notes: design-notes.md")
+    lines.append(f"{NAV_INDENT}- Changelog: changelog.md")
     # alias and latest pages are intentionally absent from the nav
     lines.append("not_in_nav: |")
     lines.append(f"{NAV_INDENT}/scenarios/*/latest.md")
@@ -543,6 +545,13 @@ def build(
             latest = directory / "latest.md"
             latest.write_text(latest_page(item.scenario, item.latest))
             written.append(latest)
+
+    changelog = repo_root / "CHANGELOG.md"
+    if changelog.exists():
+        # copied rather than regenerated: the changelog is written by hand and
+        # lives at the repository root, where GitHub shows it too
+        (docs_dir / "changelog.md").write_text(changelog.read_text())
+        written.append(docs_dir / "changelog.md")
 
     for name, content in (
         ("index.md", site_index(builds)),
