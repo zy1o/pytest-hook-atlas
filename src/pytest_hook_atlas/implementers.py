@@ -86,13 +86,17 @@ class HookImplementers:
         pytest_configure is implemented by eighteen plugins and changed five
         times across one page's range; printing the whole list five times is
         unreadable. What changed is short, and is what a reader wants.
+
+        Gains and losses are full labels, not bare plugin names: "gained
+        ``_pytest.unraisableexception``" says where to look, where "gained
+        ``unraisableexception``" only says what it is called.
         """
         changes = []
         for older, newer in zip(self.runs, self.runs[1:], strict=False):
-            before = {item.key for item in older.implementations}
-            after = {item.key for item in newer.implementations}
-            gained = tuple(sorted(p for p, _ in after - before))
-            lost = tuple(sorted(p for p, _ in before - after))
+            before = {item.key: item for item in older.implementations}
+            after = {item.key: item for item in newer.implementations}
+            gained = tuple(sorted(after[k].label for k in after.keys() - before.keys()))
+            lost = tuple(sorted(before[k].label for k in before.keys() - after.keys()))
             changes.append((newer.versions[0], gained, lost))
         return changes
 

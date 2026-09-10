@@ -29,6 +29,7 @@ built or presented, never what was observed.
   full name of what implements them - `_pytest.capture.CaptureManager` rather
   than `capturemanager`, with the registered plugin name alongside when the two
   differ.
+- Footnotes describing an implementer change name the full module - "gained `_pytest.unraisableexception`" says where to look, where the bare plugin name only says what it is called.
 
 ### Fixed
 

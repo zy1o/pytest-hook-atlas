@@ -66,7 +66,7 @@ def test_a_change_splits_into_runs():
     assert info.changed_at == "8.2.0"
     assert names(info) == ("fixtures",)
     assert [run.label for run in info.runs] == ["8.1.1 - 8.1.2", "8.2.0"]
-    assert info.deltas() == [("8.2.0", ("fixtures",), ("python",))]
+    assert info.deltas() == [("8.2.0", ("_pytest.fixtures",), ("_pytest.python",))]
 
 
 def test_a_reverted_change_does_not_merge_runs():
@@ -199,3 +199,16 @@ def test_label_adds_the_registered_name_only_when_it_differs():
 
     assert plain.label == "_pytest.runner"
     assert renamed.label == "_pytest.logging.LoggingPlugin (logging-plugin)"
+
+
+def test_deltas_name_the_module_not_just_the_plugin():
+    """ "gained _pytest.unraisableexception" says where to look; "gained
+    unraisableexception" only says what it is called."""
+    build = build_module.collect(REPO_ROOT, REPO_ROOT / "data" / "traces")[0]
+    group = next(g for g in build.groups if len(g) > 10)
+    info = implementers.reconcile(build.traces, group.versions)["pytest_configure"]
+
+    gained = [name for _, gains, _ in info.deltas() for name in gains]
+
+    assert gained, "expected pytest_configure to gain implementers in this range"
+    assert all(name.startswith("_pytest.") for name in gained), gained
