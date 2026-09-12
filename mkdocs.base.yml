@@ -32,9 +32,14 @@ theme:
 extra_css:
   - assets/atlas.css
 
+extra_javascript:
+  - assets/filter.js
+
 markdown_extensions:
   - admonition
   - attr_list
+  # implementer lists that changed mid-range are rendered as footnotes
+  - footnotes
   - md_in_html
   - tables
   - toc:

@@ -12,6 +12,55 @@ built or presented, never what was observed.
 
 ## [Unreleased]
 
+### Added
+
+- Every hook's table now names the **plugins that implement it** rather than
+  counting them. pytest implements most of itself as plugins, so this shows
+  that `pytest_runtest_setup` is served by `runner`, `skipping`,
+  `capturemanager` and others.
+- Implementers are reconciled across the releases a page covers. They can
+  differ within a range even when the flow does not - pytest moved
+  `pytest_cmdline_main` from its `python` plugin to `fixtures` at 8.2.0, and
+  dropped `python_path` at 8.4.0, neither of which changed what happens. Where
+  a range disagrees, the table shows the newest answer and a footnote gives the
+  rest, so the page never misdescribes the releases it covers.
+
+- Implementers are listed **in pluggy's call order**, one per line, with the
+  full name of what implements them - `_pytest.capture.CaptureManager` rather
+  than `capturemanager`, with the registered plugin name alongside when the two
+  differ.
+- Footnotes describing an implementer change name the full module - "gained `_pytest.unraisableexception`" says where to look, where the bare plugin name only says what it is called.
+
+### Fixed
+
+- Implementers were listed in pluggy's *storage* order, which is the reverse of
+  the order it calls them. The table read upside down: `trylast`
+  implementations appeared first.
+- The plugin registered as `<anonymous>` was written bare into a table cell and
+  swallowed as an HTML tag, so that row began with a stray comma.
+- An offline build (`--no-verify-links`) emitted an unverified pinned
+  documentation URL. pytest's own 9.1.x docs currently serve a redirect loop, so
+  those links were dead - the exact failure the link checking exists to prevent.
+  Offline builds now fall back to `stable`.
+- Long hook names no longer break mid-word in tables.
+
+- A **"hide pytest's own plugins" toggle** on the hook table. pytest
+  implements nearly all of itself as plugins, so most hooks list a dozen
+  internal entries and the one or two that came from a `conftest.py` or a
+  third-party plugin are lost among them. Hiding the internals leaves exactly
+  what the project under test contributes, which is what someone debugging
+  their own plugins is looking for.
+
+  The toggle only appears where there is something to reveal, so it is absent
+  from scenarios that are plain pytest. It is progressive enhancement: with
+  scripting off, everything is shown.
+
+- A `conftest.py` is labelled by its path rather than by its module name.
+  Every conftest imports as the module `conftest`, so in a project with nested
+  conftests the module name distinguished nothing at all.
+
+This needed no re-capture: the data was already in every committed trace.
+
 ## [1.0.0] - 2026-09-10
 
 First real release. A ground-up rework of `doc_pytest_flow_chart`, which

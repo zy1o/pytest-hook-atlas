@@ -60,7 +60,11 @@ def resolve_base_url(pytest_version: str, verify: bool = True, timeout: float = 
     """
     slug = version_slug(pytest_version)
     if not verify:
-        return reference_url(slug)
+        # Fall back rather than emitting an unverified pin. Some pinned docs do
+        # not exist - 9.1.x currently serves a redirect loop - so an offline
+        # build that guessed would produce dead links, which is precisely the
+        # failure this module exists to prevent.
+        return reference_url(FALLBACK_SLUG)
 
     if slug in _base_cache:
         return _base_cache[slug]

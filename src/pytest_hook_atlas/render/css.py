@@ -154,6 +154,47 @@ BASE = """/* Diagrams are inlined SVG so their links stay clickable and CSS can 
   fill: none;
 }
 
+/* The "hide pytest's own plugins" toggle. Added by assets/filter.js only
+   when a table actually has something outside pytest to show. */
+.ha-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 0.6rem;
+  font-size: 0.75rem;
+  color: var(--md-default-fg-color--light);
+  cursor: pointer;
+}
+/* Both selectors name two classes deliberately. An earlier version paired
+   `.ha-hide-internal .ha-internal { display: none }` with
+   `.ha-hide-internal .ha-impl { display: block }` - equal specificity, and the
+   second came later, so it silently un-hid everything the filter had just
+   hidden. Matching internal and external separately leaves nothing to fight
+   over. */
+.ha-hide-internal .ha-impl.ha-external {
+  display: block;
+}
+.ha-hide-internal .ha-impl.ha-internal {
+  display: none;
+}
+/* separators would otherwise pile up where entries were hidden */
+.ha-hide-internal td br {
+  display: none;
+}
+
+/* Hook tables. Hook names are long and full of underscores, which browsers
+   happily break mid-word into "pytest_cmdline" / "_main". */
+.md-typeset table td code,
+.md-typeset table th code {
+  white-space: nowrap;
+}
+.md-typeset table td:first-child {
+  white-space: nowrap;
+}
+.md-typeset table td {
+  vertical-align: top;
+}
+
 /* Version picker. Readers think in pytest versions; the site is organised by
    distinct flows, so picking any version lands on the flow covering it. */
 .ha-version-picker {

@@ -22,7 +22,7 @@ from typing import Any
 
 from packaging.version import Version
 
-from . import analysis, doclinks, flow, grouping
+from . import analysis, doclinks, flow, grouping, implementers
 from .grouping import Group
 from .render import css, dot
 from .scenarios import Scenario, discover
@@ -185,22 +185,82 @@ def _provenance(scenario: Scenario, trace: dict[str, Any], group: Group) -> str:
     return "\n".join(lines)
 
 
-def _hook_table(graph: analysis.HookGraph, base_url: str) -> str:
-    rows = ["| Hook | Calls | Semantics | Implementations |", "| --- | --: | --- | --: |"]
-    labels = {
-        "plain": "",
-        "historic": "historic",
-        "firstresult": "firstresult",
-        "both": "historic, firstresult",
-    }
+SEMANTIC_LABELS = {
+    "plain": "",
+    "historic": "historic",
+    "firstresult": "firstresult",
+    "both": "historic, firstresult",
+}
+
+
+def _hook_table(
+    graph: analysis.HookGraph,
+    base_url: str,
+    implemented: dict[str, implementers.HookImplementers],
+) -> str:
+    """Every hook observed, with the plugins behind it in call order.
+
+    pytest implements most of itself as plugins, so this column is mostly
+    pytest's own internals - which is the point. Names are wrapped in code
+    spans, which is not only style: one plugin registers as ``<anonymous>``,
+    and unescaped that is swallowed as an HTML tag.
+    """
+    rows = [
+        "| Hook | Calls | Semantics | Implemented by, in call order |",
+        "| --- | --: | --- | --- |",
+    ]
     for name in sorted(graph.hooks):
         hook = graph.hooks[name]
         url = doclinks.hook_url(name, base_url)
+        info = implemented.get(name)
+        if info and info.current:
+            listed = "<br>".join(
+                f'<span class="ha-impl ha-{"internal" if item.internal else "external"}">'
+                f"`{item.label}`</span>"
+                for item in info.current
+            )
+        else:
+            listed = "<br>".join(f"`{plugin}`" for plugin in hook.plugins) or "-"
+        if info and not info.stable:
+            listed += f"<br>[^{name}]"
         rows.append(
             f"| [`{name}`]({url}) | {hook.call_count} | "
-            f"{labels[hook.semantics]} | {len(hook.plugins)} |"
+            f"{SEMANTIC_LABELS[hook.semantics]} | {listed} |"
         )
     return "\n".join(rows)
+
+
+def _implementer_changes(
+    implemented: dict[str, implementers.HookImplementers], group: Group
+) -> list[str]:
+    """Footnotes for hooks whose implementers changed inside this range.
+
+    Written as deltas rather than full re-listings. ``pytest_configure`` has
+    eighteen implementers and changed five times across one range; printing the
+    whole list five times is unreadable, and what changed is both short and the
+    thing worth knowing.
+    """
+    varying = [info for info in implemented.values() if not info.stable]
+    if not varying:
+        return []
+
+    lines = [
+        f"\n*{len(varying)} of these changed implementer somewhere in "
+        f"{group.label} without changing the flow - pytest moves "
+        "implementations between its own plugins. The table shows the newest; "
+        "what changed along the way is below.*\n",
+    ]
+    for info in sorted(varying, key=lambda item: item.hook):
+        changes = []
+        for version, gained, lost in info.deltas():
+            bits = []
+            if gained:
+                bits.append("gained " + ", ".join(f"`{p}`" for p in gained))
+            if lost:
+                bits.append("lost " + ", ".join(f"`{p}`" for p in lost))
+            changes.append(f"**{version}** {' and '.join(bits) or 'reordered'}")
+        lines.append(f"[^{info.hook}]: " + "; ".join(changes) + "\n")
+    return lines
 
 
 def group_page(build: ScenarioBuild, group: Group, verify_links: bool = True) -> str:
@@ -269,7 +329,13 @@ def group_page(build: ScenarioBuild, group: Group, verify_links: bool = True) ->
             parts.append("")
 
     parts.append("## Every hook observed\n")
-    parts.append(_hook_table(full, base_url) + "\n")
+    implemented = implementers.reconcile(build.traces, group.versions)
+    # wrapped so the filter script can find this table specifically; markdown="1"
+    # keeps the table inside it rendered as markdown
+    parts.append('<div class="ha-hook-table" markdown="1">\n')
+    parts.append(_hook_table(full, base_url, implemented) + "\n")
+    parts.append("</div>\n")
+    parts.extend(_implementer_changes(implemented, group))
     return "\n".join(parts)
 
 
@@ -510,6 +576,53 @@ def _nav(builds: list[ScenarioBuild]) -> str:
     return "\n".join(lines) + "\n"
 
 
+FILTER_SCRIPT = """/* Hide pytest's own plugins in the hook table, leaving whatever
+   the project under test contributes - a conftest, third-party plugins, your
+   own. pytest implements nearly all of itself as plugins, so on most hooks the
+   list is entirely internal and the few entries that are not get lost in it.
+
+   Uses Material's document$ rather than DOMContentLoaded: navigation.instant
+   swaps pages without a reload, so a one-shot listener would stop working after
+   the first navigation.
+
+   Progressive enhancement - with scripting off, everything is shown, which is
+   the correct default. Generated by pytest_hook_atlas.build. */
+document$.subscribe(function () {
+  document.querySelectorAll(".ha-hook-table").forEach(function (container) {
+    if (container.querySelector(".ha-filter")) return;
+
+    const table = container.querySelector("table");
+    if (!table) return;
+    const rows = Array.from(table.querySelectorAll("tbody tr"));
+    // nothing outside pytest itself means nothing worth filtering
+    if (!rows.some((row) => row.querySelector(".ha-external"))) return;
+
+    const box = document.createElement("input");
+    box.type = "checkbox";
+    box.id = "ha-hide-internal";
+
+    const label = document.createElement("label");
+    label.className = "ha-filter";
+    label.htmlFor = box.id;
+    label.appendChild(box);
+    label.appendChild(
+      document.createTextNode(" Hide pytest's own plugins")
+    );
+
+    box.addEventListener("change", function () {
+      container.classList.toggle("ha-hide-internal", box.checked);
+      rows.forEach(function (row) {
+        // a row with nothing left to show is noise, not information
+        row.hidden = box.checked && !row.querySelector(".ha-external");
+      });
+    });
+
+    container.insertBefore(label, container.firstChild);
+  });
+});
+"""
+
+
 def build(
     repo_root: Path, docs_dir: Path, traces_dir: Path, verify_links: bool = True
 ) -> list[Path]:
@@ -518,6 +631,7 @@ def build(
         shutil.rmtree(docs_dir)
     (docs_dir / "assets").mkdir(parents=True, exist_ok=True)
     (docs_dir / "assets" / "atlas.css").write_text(css.stylesheet())
+    (docs_dir / "assets" / "filter.js").write_text(FILTER_SCRIPT)
 
     builds = collect(repo_root, traces_dir)
     written: list[Path] = []

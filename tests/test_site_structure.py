@@ -187,3 +187,130 @@ def test_overview_columns_link_to_their_phase_headings(built, builds):
         linked += 1
 
     assert linked >= 3, "expected most phases present in the baseline scenario"
+
+
+def test_hook_table_names_implementers_rather_than_counting_them(built, builds):
+    """The plugins behind a hook are the interesting part, not how many."""
+    docs, _ = built
+    item = builds[0]
+    page = (docs / "scenarios" / item.scenario.id / f"{item.latest.key}.md").read_text()
+
+    assert "Implemented by, in call order" in page
+    assert "`_pytest.runner`" in page
+    assert "`_pytest.capture.CaptureManager`" in page
+
+
+def test_implementers_that_changed_mid_range_are_footnoted(built, builds):
+    """Showing only the newest release's answer would misdescribe the rest."""
+    from pytest_hook_atlas import implementers
+
+    docs, _ = built
+    item = builds[0]
+    group = next((g for g in item.rendered if "8.2.0" in g.versions), None)
+    if group is None:
+        pytest.skip("no captured group spans the 8.2.0 change")
+
+    page = (docs / "scenarios" / item.scenario.id / f"{group.key}.md").read_text()
+    varying = [
+        i for i in implementers.reconcile(item.traces, group.versions).values() if not i.stable
+    ]
+
+    assert varying, "expected at least one implementer change in this range"
+    for info in varying:
+        assert f"[^{info.hook}]" in page
+        assert f"[^{info.hook}]:" in page
+    assert "without changing the flow" in page
+
+
+def test_stable_groups_carry_no_footnotes(built, builds):
+    from pytest_hook_atlas import implementers
+
+    docs, _ = built
+    for item in builds:
+        for group in item.rendered:
+            reconciled = implementers.reconcile(item.traces, group.versions)
+            if any(not info.stable for info in reconciled.values()):
+                continue
+            page = (docs / "scenarios" / item.scenario.id / f"{group.key}.md").read_text()
+            assert "[^" not in page, f"{group.label} should have no footnotes"
+
+
+def test_anonymous_plugin_survives_rendering(built, builds):
+    """One plugin registers as <anonymous>.
+
+    Written bare into a table cell the renderer swallows it as an HTML tag, and
+    the list silently begins with a stray comma. Inside a code span it survives.
+    """
+    docs, _ = built
+    item = builds[0]
+    page = (docs / "scenarios" / item.scenario.id / f"{item.latest.key}.md").read_text()
+
+    if "anonymous" not in page:
+        pytest.skip("no anonymous plugin in this capture")
+
+    for line in page.splitlines():
+        if "<anonymous>" in line:
+            before = line.split("<anonymous>")[0]
+            assert before.count("`") % 2 == 1, "must sit inside a code span"
+            break
+    else:
+        raise AssertionError("anonymous plugin was mangled out of the page")
+
+
+def test_implementers_are_listed_one_per_line(built, builds):
+    docs, _ = built
+    item = builds[0]
+    page = (docs / "scenarios" / item.scenario.id / f"{item.latest.key}.md").read_text()
+
+    row = next(line for line in page.splitlines() if line.startswith("| [`pytest_runtest_setup`]"))
+    cell = row.split("|")[4]
+
+    assert cell.count("<br>") >= 3, "implementers should be one per line"
+    assert "`_pytest.runner`" in cell
+
+
+def test_documentation_links_are_never_an_unverified_pin(built, builds):
+    """9.1.x serves a redirect loop, so an offline build must not link to it."""
+    docs, _ = built
+    item = builds[0]
+    page = (docs / "scenarios" / item.scenario.id / f"{item.latest.key}.md").read_text()
+
+    assert "docs.pytest.org/en/stable/" in page
+
+
+def test_implementers_are_tagged_internal_or_external(built, builds):
+    """So the filter can hide pytest's own plugins without guessing."""
+    docs, _ = built
+    conftest_build = next((b for b in builds if b.scenario.generated_conftest), None)
+    if conftest_build is None:
+        pytest.skip("no scenario with a conftest")
+
+    page = (
+        docs / "scenarios" / conftest_build.scenario.id / f"{conftest_build.latest.key}.md"
+    ).read_text()
+
+    assert 'class="ha-impl ha-external"' in page
+    assert 'class="ha-impl ha-internal"' in page
+    assert '<div class="ha-hook-table"' in page
+
+
+def test_a_scenario_without_third_party_plugins_has_nothing_external(built, builds):
+    """The baseline suite is plain pytest, so the filter should find nothing
+    to offer - the script checks this and adds no checkbox."""
+    docs, _ = built
+    baseline = next((b for b in builds if b.scenario.id == "baseline"), None)
+    if baseline is None:
+        pytest.skip("no baseline scenario")
+
+    page = (docs / "scenarios" / "baseline" / f"{baseline.latest.key}.md").read_text()
+
+    assert "ha-external" not in page
+
+
+def test_the_filter_script_is_written_and_registered(built):
+    docs, _ = built
+
+    script = (docs / "assets" / "filter.js").read_text()
+    assert "document$" in script, "must use Material's hook, not DOMContentLoaded"
+    assert "ha-hook-table" in script
+    assert "assets/filter.js" in (REPO_ROOT / "mkdocs.yml").read_text()
