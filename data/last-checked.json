@@ -1,9 +1,5 @@
 {
-  "checked_at": "2026-09-10T15:23:09+00:00",
+  "checked_at": "2026-09-12T11:38:50+00:00",
   "releases_seen": 53,
-  "captured_this_run": [
-    "7.3.2",
-    "7.4.0",
-    "7.4.1"
-  ]
+  "captured_this_run": []
 }
