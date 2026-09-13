@@ -99,8 +99,11 @@ supports - no hand-maintained table.
 
 ## Smaller things
 
-- Hoist the duplicated `hookspecs` block out of each scenario's trace and store
-  it once per pytest version. Roughly a third off the trace size, which is
-  around 19 MB today.
+- Trace files are 93 MB pretty-printed, which is 2.5 million lines and makes
+  any branch touching them look enormous. Writing them compact is 41 MB and one
+  line per file - measured, not estimated. Diffs are no more readable at 20,000
+  lines per file than at one, and git stores both about the same. Hoisting the
+  duplicated `hookspecs` block out is *not* the lever it was recorded as: it is
+  3.8% of the bytes, not "roughly a third". `calls` is 91%.
 - The changes page compares hook *sets*, so a pure reordering reports "same
   hooks, different order" without saying what moved.
