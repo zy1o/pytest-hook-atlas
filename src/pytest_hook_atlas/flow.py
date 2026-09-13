@@ -14,6 +14,7 @@ step marked "x8" instead of eight copies.
 
 from __future__ import annotations
 
+from collections import Counter
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -26,9 +27,17 @@ class FlowNode:
     count: int = 1
     children: list[FlowNode] = field(default_factory=list)
 
+    #: When set, this node is a summary standing in for a long stretch of
+    #: steps drawn from these few hooks, rather than a hook call itself.
+    folded: tuple[str, ...] = ()
+
     @property
     def is_leaf(self) -> bool:
         return not self.children
+
+    @property
+    def is_summary(self) -> bool:
+        return bool(self.folded)
 
 
 def signature(node: dict[str, Any]) -> tuple:
@@ -140,3 +149,100 @@ def prune(nodes: list[FlowNode], max_depth: int) -> list[FlowNode]:
         )
         for node in nodes
     ]
+
+
+#: A stretch at least this long, drawing on no more than this many distinct
+#: hooks, is a candidate for folding when rendering. The threshold is
+#: deliberately high: a dozen steps are worth reading, ninety are not, and
+#: folding too eagerly would hide the handful of xdist hooks that make the
+#: controller's startup worth looking at in the first place.
+FOLD_MIN_RUN = 20
+FOLD_MAX_DISTINCT = 5
+
+#: Fold only if at least this many steps would actually disappear. Replacing
+#: four steps with a box saying "four steps happened" helps nobody.
+FOLD_MIN_SAVING = 4
+
+
+def _representative_prefix(nodes: list[FlowNode], names: set[str]) -> int:
+    """How many leading nodes it takes to show each hook in ``names`` once.
+
+    That prefix is one cycle of the loop: enough to see what the repetition is
+    made of, in the order it actually happens.
+    """
+    outstanding = set(names)
+    for position, node in enumerate(nodes, start=1):
+        outstanding.discard(node.name)
+        if not outstanding:
+            return position
+    return len(nodes)
+
+
+def fold_repetitive(
+    nodes: list[FlowNode],
+    min_run: int = FOLD_MIN_RUN,
+    max_distinct: int = FOLD_MAX_DISTINCT,
+) -> list[FlowNode]:
+    """Fold the tail of long stretches that only shuffle a handful of hooks.
+
+    Under xdist the controller's run loop is ninety-odd steps of results
+    arriving from workers - logstart, logreport, report_from_serializable,
+    logfinish - in an order that depends on which worker finished first. It
+    collapses to nothing, because consecutive steps are rarely identical, and
+    renders as seven thousand pixels of noise that says only "reports came
+    back".
+
+    One cycle is kept drawn in full and only the remainder is summarised, so the
+    diagram still shows what the loop is made of. Applied when rendering, never
+    in the fingerprint: this changes how a flow is *drawn*, and must not change
+    which releases are judged to share a flow.
+    """
+    folded: list[FlowNode] = []
+    index = 0
+    while index < len(nodes):
+        run_end, seen = index, set()
+        while run_end < len(nodes):
+            candidate = seen | {nodes[run_end].name}
+            if len(candidate) > max_distinct:
+                break
+            seen = candidate
+            run_end += 1
+
+        # A hook appearing once in the stretch is not part of the loop, it is
+        # the thing that ends it - pytest_collection_modifyitems closing
+        # collection, say. Left inside the run it would either be swallowed by
+        # the summary or, if kept, pin the representative prefix to the whole
+        # stretch and defeat the fold entirely.
+        run = nodes[index:run_end]
+        occurrences = Counter(node.name for node in run)
+        while run and occurrences[run[-1].name] == 1:
+            occurrences[run.pop().name] -= 1
+        seen = {node.name for node in run}
+
+        if run and occurrences[run[0].name] > 1 and len(run) >= min_run and len(seen) > 1:
+            keep = _representative_prefix(run, seen)
+            tail = run[keep:]
+            steps = sum(node.count for node in tail)
+            if steps >= FOLD_MIN_SAVING:
+                folded.extend(fold_repetitive(run[:keep], min_run, max_distinct))
+                names = tuple(sorted({node.name for node in tail}))
+                plural = "" if len(names) == 1 else "s"
+                folded.append(
+                    FlowNode(
+                        name=f"{steps} further steps of {len(names)} hook{plural}",
+                        folded=names,
+                    )
+                )
+                index += len(run)
+                continue
+
+        node = nodes[index]
+        folded.append(
+            FlowNode(
+                name=node.name,
+                count=node.count,
+                children=fold_repetitive(node.children, min_run, max_distinct),
+            )
+        )
+        index += 1
+    return folded

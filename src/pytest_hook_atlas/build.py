@@ -50,8 +50,41 @@ class ScenarioBuild:
     """Everything needed to render one scenario's pages."""
 
     scenario: Scenario
-    traces: dict[str, dict[str, Any]]
+    #: version -> process -> trace. An ordinary scenario has the single
+    #: process "main"; a distributed one has "controller" and a worker each.
+    traces: dict[str, dict[str, dict[str, Any]]]
     groups: list[Group] = field(default_factory=list)
+
+    def processes(self, version: str) -> list[str]:
+        """Processes captured for a version, controller first then workers."""
+        return sorted(self.traces.get(version, {}), key=lambda name: (name != "controller", name))
+
+    def trace(self, version: str, process: str | None = None) -> dict[str, Any]:
+        """One process's trace, defaulting to the one that ran the session."""
+        captured = self.traces[version]
+        return captured[process] if process else captured[self.processes(version)[0]]
+
+    def per_version(self, process: str | None = None) -> dict[str, dict[str, Any]]:
+        """One trace per version, for reconciling implementers across a range.
+
+        Defaults to whichever process ran the session, so callers that predate
+        distributed scenarios - and every non-distributed scenario - keep seeing
+        exactly one trace per version.
+        """
+        found = {}
+        for version, captured in self.traces.items():
+            name = process or self.processes(version)[0]
+            if name in captured:
+                found[version] = captured[name]
+        return found
+
+    def captures(self) -> list[tuple[str, str, dict[str, Any]]]:
+        """Every ``(version, process, trace)`` this scenario recorded."""
+        return [
+            (version, process, trace)
+            for version, captured in sorted(self.traces.items())
+            for process, trace in sorted(captured.items())
+        ]
 
     @property
     def rendered(self) -> list[Group]:
@@ -68,18 +101,50 @@ class ScenarioBuild:
         return None
 
 
+def _process_of(trace_path: Path, scenario_id: str) -> str:
+    """``xdist.gw0.json`` -> ``gw0``; ``baseline.json`` -> ``main``."""
+    stem = trace_path.name[: -len(trace_path.suffix)]
+    return stem[len(scenario_id) :].lstrip(".") or "main"
+
+
+def _combined_fingerprint(captured: dict[str, dict[str, Any]]) -> str:
+    """One fingerprint for a version across all its processes.
+
+    Workers are compared as an unordered set. Which worker picks up which chunk
+    of a run is a race, so the same two flows appear as gw0/gw1 in one capture
+    and gw1/gw0 in the next - keyed by name that made almost every pytest
+    release its own group, 18 of 29, for a difference that is only a label.
+    """
+    primary = [name for name in captured if name in ("main", "controller")]
+    workers = sorted(set(captured) - set(primary))
+    lead = "+".join(grouping.fingerprint(captured[name]) for name in sorted(primary))
+    rest = sorted(grouping.fingerprint(captured[name]) for name in workers)
+    return "+".join([lead, *rest])
+
+
 def collect(repo_root: Path, traces_dir: Path) -> list[ScenarioBuild]:
-    """Load every trace, fingerprint it, and group the versions per scenario."""
+    """Load every trace, fingerprint it, and group the versions per scenario.
+
+    A distributed scenario contributes several traces per version. Versions are
+    grouped on the fingerprints of *all* its processes combined, so a change in
+    any one of them starts a new group - a worker's flow changing matters as
+    much as the controller's.
+    """
     builds = []
     for scenario in discover(repo_root / "scenarios"):
-        traces = {}
+        traces: dict[str, dict[str, dict[str, Any]]] = {}
         for version_dir in sorted(traces_dir.iterdir(), key=lambda p: p.name):
-            trace_path = version_dir / f"{scenario.id}.json"
-            if trace_path.exists():
-                traces[version_dir.name] = analysis.load_trace(trace_path)
+            found = sorted(version_dir.glob(f"{scenario.id}.json")) + sorted(
+                version_dir.glob(f"{scenario.id}.*.json")
+            )
+            for trace_path in found:
+                process = _process_of(trace_path, scenario.id)
+                traces.setdefault(version_dir.name, {})[process] = analysis.load_trace(trace_path)
         if not traces:
             continue
-        fingerprints = {v: grouping.fingerprint(t) for v, t in traces.items()}
+        fingerprints = {
+            version: _combined_fingerprint(captured) for version, captured in traces.items()
+        }
         builds.append(ScenarioBuild(scenario, traces, grouping.group_versions(fingerprints)))
     return builds
 
@@ -94,11 +159,29 @@ def _diagram(
     """Inline the SVG so its links stay clickable and CSS can theme it."""
     if not nodes:
         return ""
-    svg = dot.render_inline_svg(nodes, hookspecs, base_url, phase, totals)
-    return f'<div class="ha-diagram">\n{svg}\n</div>\n'
+    drawn = flow.fold_repetitive(nodes)
+    svg = dot.render_inline_svg(drawn, hookspecs, base_url, phase, totals)
+    diagram = f'<div class="ha-diagram">\n{svg}\n</div>\n'
+    if _has_summary(drawn):
+        diagram += (
+            "*A dashed box stands in for a long stretch that only reorders the "
+            "few hooks it names - under xdist, results arriving from workers in "
+            "whatever order they happened to finish. Every hook is still listed "
+            "below.*\n"
+        )
+    return diagram
 
 
-def _overview(trace: dict[str, Any], base_url: str, totals: dict[str, int]) -> str:
+def _has_summary(nodes: list[flow.FlowNode]) -> bool:
+    return any(node.is_summary or _has_summary(node.children) for node in nodes)
+
+
+def _overview(
+    trace: dict[str, Any],
+    base_url: str,
+    totals: dict[str, int],
+    anchors: dict[str, str] | None = None,
+) -> str:
     """The whole session as columns: phases left to right, steps top to bottom.
 
     Depth-limited on purpose. At full depth the collection column alone runs to
@@ -109,10 +192,12 @@ def _overview(trace: dict[str, Any], base_url: str, totals: dict[str, int]) -> s
     columns = []
     links = {}
     for phase in analysis.PHASES:
-        variants = flow.phase_variants(analysis.find_subtrees(trace["calls"], phase.anchors))
+        variants = flow.phase_variants(analysis.phase_subtrees(trace, phase))
         if variants:
-            columns.append((phase.key, phase.title, flow.prune(variants[0].flow, OUTLINE_DEPTH)))
-            links[phase.key] = f"#{heading_anchor(phase.title)}"
+            # fold first: pruning depth does nothing about ninety siblings
+            outline = flow.prune(flow.fold_repetitive(variants[0].flow), OUTLINE_DEPTH)
+            columns.append((phase.key, phase.title, outline))
+            links[phase.key] = (anchors or {}).get(phase.key, f"#{heading_anchor(phase.title)}")
     if not columns:
         return ""
     svg = dot.to_inline_svg(
@@ -266,30 +351,46 @@ def _implementer_changes(
     return lines
 
 
-def group_page(build: ScenarioBuild, group: Group, verify_links: bool = True) -> str:
-    """The canonical page for one distinct flow."""
+PROCESS_TITLES = {
+    "controller": "The controller",
+    "main": "",
+}
+
+
+def process_title(process: str) -> str:
+    return PROCESS_TITLES.get(process) or f"Worker {process}"
+
+
+def _phase_heading(phase: analysis.Phase, process: str, distributed: bool) -> str:
+    """Phase headings must be unique per process, or their anchors collide.
+
+    The overview columns link to these headings, so two processes both headed
+    "Collection" would send one of them to the wrong diagram.
+    """
+    if not distributed:
+        return phase.title
+    label = "controller" if process == "controller" else process
+    return f"{phase.title} ({label})"
+
+
+def _process_section(
+    build: ScenarioBuild,
+    group: Group,
+    process: str,
+    base_url: str,
+    heading_level: str,
+) -> list[str]:
+    """Overview, phases and hook table for one process."""
     scenario = build.scenario
-    trace = build.traces[group.newest]
-    # a group's links point at the newest pytest version it covers
-    base_url = doclinks.resolve_base_url(group.newest, verify=verify_links)
+    trace = build.trace(group.newest, process)
     hookspecs = trace["hookspecs"]
     totals = {n: h.call_count for n, h in analysis.full_graph(trace).hooks.items()}
+    distributed = scenario.distributed
+    parts: list[str] = []
 
-    parts = [
-        f"# {scenario.title}\n",
-        _version_picker(build, group.newest),
-        f"**{group.label}** - {scenario.summary}\n",
-    ]
-    if len(group) > 1:
-        parts.append(
-            f"These {len(group)} releases produced an identical flow, so they "
-            "share one page. *Identical as far as this scenario can measure* - "
-            "a scenario exercising more hooks may tell them apart.\n"
-        )
-    parts.append(f"{scenario.description}\n")
-    parts.append(_provenance(scenario, trace, group))
+    if distributed:
+        parts.append(f"{heading_level} {process_title(process)}\n")
 
-    parts.append("## The whole run\n")
     parts.append(
         "Phases left to right, steps top to bottom. Colour says which phase a "
         "hook belongs to; how dark a step is says how often it was called. "
@@ -297,13 +398,18 @@ def group_page(build: ScenarioBuild, group: Group, verify_links: bool = True) ->
         "any hook to open its pytest documentation. "
         "[Why it looks like this](../../design-notes.md)\n"
     )
-    parts.append(_overview(trace, base_url, totals))
+    anchors = {
+        phase.key: f"#{heading_anchor(_phase_heading(phase, process, distributed))}"
+        for phase in analysis.PHASES
+    }
+    parts.append(_overview(trace, base_url, totals, anchors))
 
+    sub = heading_level + "#" if distributed else heading_level
     for phase in analysis.PHASES:
-        variants = flow.phase_variants(analysis.find_subtrees(trace["calls"], phase.anchors))
+        variants = flow.phase_variants(analysis.phase_subtrees(trace, phase))
         if not variants:
             continue
-        parts.append(f"## {phase.title}\n")
+        parts.append(f"{sub} {_phase_heading(phase, process, distributed)}\n")
         parts.append(f"{phase.description}\n")
         parts.append(_diagram(variants[0].flow, hookspecs, base_url, phase.key, totals))
 
@@ -320,7 +426,7 @@ def group_page(build: ScenarioBuild, group: Group, verify_links: bool = True) ->
     if scenario.generated_conftest:
         blind = analysis.conftest_blind_spots(full)
         if blind:
-            parts.append("## Hooks a conftest cannot serve\n")
+            parts.append(f"{sub} Hooks a conftest cannot serve\n")
             parts.append(
                 "This scenario's `conftest.py` implements **every** hook pytest "
                 "declares. The hooks below still fired *without* it: the "
@@ -334,14 +440,77 @@ def group_page(build: ScenarioBuild, group: Group, verify_links: bool = True) ->
             )
             parts.append("")
 
-    parts.append("## Every hook observed\n")
-    implemented = implementers.reconcile(build.traces, group.versions)
+    # unique per process, or two identical headings collide as anchors
+    heading = (
+        f"{sub} Every hook observed ({process})\n" if distributed else "## Every hook observed\n"
+    )
+    parts.append(heading)
+    implemented = implementers.reconcile(build.per_version(process), group.versions)
     # wrapped so the filter script can find this table specifically; markdown="1"
     # keeps the table inside it rendered as markdown
     parts.append('<div class="ha-hook-table" markdown="1">\n')
     parts.append(_hook_table(full, base_url, implemented, hookspecs) + "\n")
     parts.append("</div>\n")
     parts.extend(_implementer_changes(implemented, group))
+    return parts
+
+
+def _worker_differences(build: ScenarioBuild, group: Group, shown: str, other: str) -> list[str]:
+    """How a second worker differed from the one drawn in full.
+
+    Two diagrams of near-identical workers would be a waste of a long page; what
+    is worth saying is what one reached that the other did not.
+    """
+    first = set(analysis.full_graph(build.trace(group.newest, shown)).hooks)
+    second = set(analysis.full_graph(build.trace(group.newest, other)).hooks)
+    gained, lost = sorted(second - first), sorted(first - second)
+    if not gained and not lost:
+        return [f"*Worker {other} reached exactly the same hooks as {shown}.*\n"]
+
+    lines = [
+        f"**Worker {other}** ran a different share of the suite, so its flow "
+        f"differs from {shown}:\n"
+    ]
+    if gained:
+        lines.append("- reached " + ", ".join(f"`{name}`" for name in gained))
+    if lost:
+        lines.append("- never reached " + ", ".join(f"`{name}`" for name in lost))
+    lines.append("")
+    return lines
+
+
+def group_page(build: ScenarioBuild, group: Group, verify_links: bool = True) -> str:
+    """The canonical page for one distinct flow."""
+    scenario = build.scenario
+    # a group's links point at the newest pytest version it covers
+    base_url = doclinks.resolve_base_url(group.newest, verify=verify_links)
+    processes = build.processes(group.newest)
+
+    parts = [
+        f"# {scenario.title}\n",
+        _version_picker(build, group.newest),
+        f"**{group.label}** - {scenario.summary}\n",
+    ]
+    if len(group) > 1:
+        parts.append(
+            f"These {len(group)} releases produced an identical flow, so they "
+            "share one page. *Identical as far as this scenario can measure* - "
+            "a scenario exercising more hooks may tell them apart.\n"
+        )
+    parts.append(f"{scenario.description}\n")
+    parts.append(_provenance(scenario, build.trace(group.newest), group))
+
+    if not scenario.distributed:
+        parts.append("## The whole run\n")
+        parts.extend(_process_section(build, group, processes[0], base_url, "##"))
+        return "\n".join(parts)
+
+    workers = [name for name in processes if name != "controller"]
+    shown = ["controller", *workers[:1]]
+    for process in shown:
+        parts.extend(_process_section(build, group, process, base_url, "##"))
+    for other in workers[1:]:
+        parts.extend(_worker_differences(build, group, workers[0], other))
     return "\n".join(parts)
 
 
@@ -424,8 +593,8 @@ def changes_page(builds: list[ScenarioBuild]) -> str:
             parts.append("No changes observed across the captured releases.\n")
             continue
         for older, newer in zip(groups, groups[1:], strict=False):
-            before = set(analysis.full_graph(build.traces[older.newest]).hooks)
-            after = set(analysis.full_graph(build.traces[newer.newest]).hooks)
+            before = set(analysis.full_graph(build.trace(older.newest)).hooks)
+            after = set(analysis.full_graph(build.trace(newer.newest)).hooks)
             parts.append(f"### {older.newest} to {newer.key}\n")
             added, removed = sorted(after - before), sorted(before - after)
             if added:
@@ -488,6 +657,20 @@ setup, call and teardown are each followed by their own `makereport` and
 
 Arrows now mean **what happened next**, in the order the trace recorded.
 Nesting is drawn as a box inside a box.
+
+## Why some stretches are folded away
+
+A run has stretches where nothing new happens for a long time. The xdist
+controller's run loop is over a hundred steps of `logstart`, `logreport`,
+`report_from_serializable` and `logfinish` as results come back from workers -
+in whatever order the workers happened to finish, which is why they do not
+collapse into a repeat count the way identical consecutive steps do.
+
+Drawn in full that is seven thousand pixels saying "reports came back". So one
+cycle is drawn and the rest becomes a dashed box naming the hooks it stands
+for. Folding happens **when drawing only**: it never enters the fingerprint
+that decides which releases share a flow, and the hook table below each diagram
+still lists everything that ran.
 
 ## Why the implementers are in that order
 

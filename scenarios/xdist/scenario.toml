@@ -1,0 +1,44 @@
+id = "xdist"
+title = "Distributed across workers"
+order = 6
+# -n 2 rather than 1: two workers show that *every* worker collects the whole
+# suite independently, which a single worker would hide.
+# --dist loadfile rather than the default: with `load`, which tests land on
+# which worker is decided by timing, so worker traces differ between runs. With
+# loadfile the split follows the files and the traces are reproducible.
+args = ["-q", "-n", "2", "--dist", "loadfile"]
+# Pinned, not floated. Traces are immutable and the watcher only captures
+# pytest releases it is missing, so a floating plugin would freeze at whatever
+# pip resolved and never be re-captured. See AGENTS.md before bumping it.
+requires = ["pytest-xdist==3.8.0"]
+distributed = true
+min_hooks = 20
+expects = [
+    "pytest_xdist_make_scheduler",
+    "pytest_xdist_setupnodes",
+    "pytest_configure_node",
+    "pytest_testnodeready",
+    "pytest_testnodedown",
+    "pytest_xdist_node_collection_finished",
+    "pytest_report_to_serializable",
+    "pytest_report_from_serializable",
+]
+summary = "The controller and its workers, which see completely different runs."
+description = """
+Run under `pytest-xdist`, a session is several processes, and they do not see
+the same thing at all. The process you launched - the controller - never
+collects a test and never runs one. It starts workers, hands out work, and
+receives results. Each worker collects the entire suite for itself, then runs
+whatever it was given.
+
+That is why this page has a diagram per process rather than one. The controller
+reaches around 25 hooks, a worker around 36, and the overlap between them is
+small.
+
+This scenario also reaches the last two hooks pytest declares but never calls
+itself: `pytest_report_to_serializable` in the workers, where a result is packed
+up to be sent, and `pytest_report_from_serializable` in the controller, where it
+is unpacked. And it brings twelve hooks of xdist's own, which pytest knows
+nothing about - they are described here because hookspecs are read from the
+running plugin manager rather than from pytest's source.
+"""

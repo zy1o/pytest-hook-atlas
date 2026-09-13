@@ -32,35 +32,16 @@ Worth checking early: a large suite traces a lot of calls. Consecutive-repeat
 collapsing should handle it well - a thousand tests should collapse to a
 handful of variants - but nobody has measured it.
 
-## The last five hooks
+## The last hook
 
-49 of pytest 9.1's 52 hooks are observed. The remainder, and why:
+51 of pytest 9.1's 52 hooks are observed. The one that is not:
 
 - `pytest_cmdline_parse` - structurally unobservable. Monitoring can only be
   installed once a plugin manager exists, and plugins are loaded *inside* this
   call. Confirmed for both `-p` and `pytest11` entry-point plugins.
-- `pytest_report_to_serializable` and `pytest_report_from_serializable` -
-  pytest itself never calls these. They belong to plugins that move reports
-  between processes, so they arrive with xdist.
 
-## xdist
-
-pytest-xdist's hookspec needs no version axis. Across its 19 releases from 2.0
-it has three distinct hookspecs, and none since 2.3.0 in 2021 - 15 consecutive
-releases identical, no removals and no signature changes, ever.
-
-So the scenario pins one xdist version in `requires` rather than floating. A
-floating version would never be re-captured - the watcher only looks for pytest
-releases it is missing - so it would silently freeze and the page would show an
-ageing version. See AGENTS.md for the full reasoning and how to bump it.
-
-
-A scenario running under `pytest-xdist`. The controller and each worker run
-different flows, so this needs per-process traces and a merged view. The tracer
-already takes its output path from an environment variable for exactly this.
-
-Also the first scenario to bring genuine third-party plugins, which is when the
-"hide pytest's own plugins" filter starts earning itself.
+The two report-serialization hooks pytest never calls itself arrived with the
+xdist scenario, which is where reports actually cross a process boundary.
 
 ## Conftest scoping is flattened
 
@@ -94,9 +75,8 @@ Two constraints established while evaluating it:
   precision nobody needs. Module and function only.
 - **it must not reach the fingerprint**, or grouping fragments.
 
-Needs `schema_version` 2 and a re-capture of every release, so it is best
-folded into the same re-capture xdist will force. The builder must tolerate
-schema 1 traces so a half-migrated state still builds.
+Needs `schema_version` 3 and a re-capture of every release. The builder must
+tolerate older traces so a half-migrated state still builds.
 
 ## Backfill pytest 6.0 - 7.3
 

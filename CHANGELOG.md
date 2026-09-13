@@ -15,6 +15,13 @@ built or presented, never what was observed.
   version, so a capture can say which xdist - or which project - produced it.
   Read from `__version__` or stdlib metadata, never by adding a dependency to
   the environment being measured.
+- An `xdist` scenario, drawn once per process - the controller never collects
+  or runs a test, and only it sees the report-serialization hooks. The second
+  worker is summarised as a delta against the first.
+- Long repetitive stretches fold when drawn: one cycle, then a dashed box
+  naming the hooks it stands for. The xdist controller's run loop is a hundred
+  steps of reports arriving in whatever order workers finish, so it collapses
+  to nothing and rendered seven thousand pixels tall. Never fingerprinted.
 - Scenarios can run across several processes. Each writes its own trace,
   named `<scenario>.<process>.json` after xdist's logical worker names, and a
   scenario can declare the packages its capture virtualenv needs. Groundwork
@@ -51,6 +58,8 @@ built or presented, never what was observed.
 
 ### Fixed
 
+- The page sweep only looked at single-process pages, so nothing checked the
+  xdist pages it was written to cover.
 - `every-hook-conftest` was silently broken on pytest 8.0.x and 9.0.x. pytest
   treats its own removal warnings as errors, so the conftest failed to import
   and the run collapsed to five hook calls while the page still claimed every

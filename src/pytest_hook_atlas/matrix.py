@@ -135,25 +135,38 @@ def provision(pytest_version: str, workdir: Path, requires: tuple[str, ...] = ()
 def capture_release(
     release: Release, scenarios: list[Scenario], traces_dir: Path, workdir: Path
 ) -> CaptureResult:
-    """Capture every scenario against one pytest release."""
-    requires = tuple(sorted({package for item in scenarios for package in item.requires}))
-    try:
-        python = provision(release.version, workdir, requires)
-    except subprocess.CalledProcessError as error:
-        return CaptureResult(release.version, [], f"install failed: {error.stderr.strip()[:400]}")
+    """Capture every scenario against one pytest release.
 
+    One virtualenv per distinct set of requirements, not one shared between
+    scenarios. Installing the union would let a plugin one scenario asked for
+    show up in every other scenario's trace: the xdist scenario's dependency
+    put twelve xdist hookspecs into the baseline scenario's pages, which is
+    precisely the environment poisoning this project refuses to do.
+    """
     destination = traces_dir / release.version
-    written = []
+    written: list[Path] = []
+
+    by_requirements: dict[tuple[str, ...], list[Scenario]] = {}
     for scenario in scenarios:
+        by_requirements.setdefault(tuple(sorted(scenario.requires)), []).append(scenario)
+
+    for requires, group in sorted(by_requirements.items()):
         try:
-            written.extend(
-                capture(
-                    scenario,
-                    destination / f"{scenario.id}.json",
-                    workdir,
-                    python=str(python),
-                )
+            python = provision(release.version, workdir, requires)
+        except subprocess.CalledProcessError as error:
+            return CaptureResult(
+                release.version, written, f"install failed: {error.stderr.strip()[:400]}"
             )
-        except Exception as error:  # noqa: BLE001 - one bad scenario must not stop the run
-            return CaptureResult(release.version, written, f"{scenario.id}: {error}")
+        for scenario in group:
+            try:
+                written.extend(
+                    capture(
+                        scenario,
+                        destination / f"{scenario.id}.json",
+                        workdir,
+                        python=str(python),
+                    )
+                )
+            except Exception as error:  # noqa: BLE001 - one bad scenario must not stop the run
+                return CaptureResult(release.version, written, f"{scenario.id}: {error}")
     return CaptureResult(release.version, written)

@@ -222,7 +222,9 @@ def test_implementers_that_changed_mid_range_are_footnoted(built, builds):
 
     page = (docs / "scenarios" / item.scenario.id / f"{group.key}.md").read_text()
     varying = [
-        i for i in implementers.reconcile(item.traces, group.versions).values() if not i.stable
+        i
+        for i in implementers.reconcile(item.per_version(), group.versions).values()
+        if not i.stable
     ]
 
     assert varying, "expected at least one implementer change in this range"
@@ -238,8 +240,16 @@ def test_stable_groups_carry_no_footnotes(built, builds):
     docs, _ = built
     for item in builds:
         for group in item.rendered:
-            reconciled = implementers.reconcile(item.traces, group.versions)
-            if any(not info.stable for info in reconciled.values()):
+            # a distributed scenario reconciles each process separately, and
+            # footnotes any of them that varies
+            reconciled = [
+                info
+                for process in item.processes(group.newest)
+                for info in implementers.reconcile(
+                    item.per_version(process), group.versions
+                ).values()
+            ]
+            if any(not info.stable for info in reconciled):
                 continue
             page = (docs / "scenarios" / item.scenario.id / f"{group.key}.md").read_text()
             assert "[^" not in page, f"{group.label} should have no footnotes"

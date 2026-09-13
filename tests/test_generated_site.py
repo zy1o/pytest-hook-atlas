@@ -60,8 +60,44 @@ def group_pages(docs: Path) -> list[Path]:
     return sorted(
         path
         for path in (docs / "scenarios").rglob("*.md")
-        if path.stem not in {"index", "latest"} and "## The whole run" in path.read_text()
+        # every group page carries this heading; a version that merely points at
+        # its group is a redirect stub, and a distributed scenario heads its
+        # sections per process rather than "The whole run"
+        if path.stem not in {"index", "latest"} and "## How this was produced" in path.read_text()
     )
+
+
+#: A page documents one process per section: "The whole run" when a scenario
+#: runs in a single process, "The controller" and "Worker gw0" when it does
+#: not. Phase headings repeat per process and carry the process in brackets, so
+#: that their anchors stay unique - these helpers let the sweep below ask the
+#: same questions of both page shapes.
+OVERVIEW_HEADING = re.compile(r"^## (The whole run|The controller|Worker \S+)$", re.M)
+
+
+def process_sections(text: str) -> dict[str, str]:
+    """Each process section on a page, keyed by its heading."""
+    found = {}
+    for match in OVERVIEW_HEADING.finditer(text):
+        end = OVERVIEW_HEADING.search(text, match.end())
+        found[match.group(1)] = text[match.end() : end.start() if end else len(text)]
+    return found
+
+
+def overview_of(section: str) -> str:
+    """The part of a process section before its first phase."""
+    return re.split(r"^#{2,3} ", section, maxsplit=1, flags=re.M)[0]
+
+
+def phase_sections(text: str, phase) -> list[str]:
+    """Every rendering of one phase on a page, one per process."""
+    heading = re.compile(rf"^#{{2,3}} {re.escape(phase.title)}(?: \(\S+\))?$", re.M)
+    following = re.compile(r"^#{2,3} ", re.M)
+    found = []
+    for match in heading.finditer(text):
+        end = following.search(text, match.end())
+        found.append(text[match.end() : end.start() if end else len(text)])
+    return found
 
 
 # --------------------------------------------------------------------------
@@ -82,10 +118,10 @@ def test_every_capture_meets_the_expectation_its_scenario_declares(builds):
     """
     for item in builds:
         floor = item.scenario.min_hooks
-        for version, trace in item.traces.items():
+        for version, process, trace in item.captures():
             observed = trace["stats"]["unique_hooks"]
             assert not collapsed(trace, floor), (
-                f"{item.scenario.id} on pytest {version} saw only {observed} hooks, "
+                f"{item.scenario.id}/{process} on pytest {version} saw only {observed} hooks, "
                 f"below its declared minimum of {floor}"
             )
 
@@ -99,8 +135,15 @@ def test_every_scenario_reaches_the_hooks_it_exists_for(builds):
     for item in builds:
         if not item.scenario.expects:
             continue
-        for version, trace in item.traces.items():
-            observed = set(analysis.full_graph(trace).hooks)
+        # what a scenario exists to show is a property of the whole run, so a
+        # distributed scenario satisfies it across its processes: the xdist
+        # controller never runs a test, and its workers never serialize one
+        for version in item.traces:
+            observed = {
+                hook
+                for process in item.processes(version)
+                for hook in analysis.full_graph(item.trace(version, process)).hooks
+            }
             missing = [hook for hook in item.scenario.expects if hook not in observed]
             assert not missing, f"{item.scenario.id} on pytest {version} never reached {missing}"
 
@@ -120,8 +163,8 @@ def test_the_collapse_check_respects_a_declared_floor():
 
 def test_no_capture_recorded_a_desync(builds):
     for item in builds:
-        for version, trace in item.traces.items():
-            assert trace["desyncs"] == [], f"{item.scenario.id} on {version}"
+        for version, process, trace in item.captures():
+            assert trace["desyncs"] == [], f"{item.scenario.id}/{process} on {version}"
 
 
 def test_every_capture_exercises_every_phase(builds):
@@ -129,14 +172,16 @@ def test_every_capture_exercises_every_phase(builds):
     for item in builds:
         if not item.scenario.complete_run:
             continue
-        for version, trace in item.traces.items():
+        for version, process, trace in item.captures():
             present = {
                 phase.key
                 for phase in analysis.PHASES
-                if flow.phase_variants(analysis.find_subtrees(trace["calls"], phase.anchors))
+                if flow.phase_variants(analysis.phase_subtrees(trace, phase))
             }
             missing = {phase.key for phase in analysis.PHASES} - present
-            assert not missing, f"{item.scenario.id} on pytest {version} is missing {missing}"
+            assert not missing, (
+                f"{item.scenario.id}/{process} on pytest {version} is missing {missing}"
+            )
 
 
 # --------------------------------------------------------------------------
@@ -154,11 +199,12 @@ def test_every_group_page_has_every_stage(site, builds):
     for page in group_pages(site):
         scenario = scenario_of(page, builds)
         text = page.read_text()
-        assert "## The whole run" in text, f"{page} has no overview"
+        sections = process_sections(text)
+        assert sections, f"{page} has no overview"
         if not scenario.complete_run:
             continue
         for phase in analysis.PHASES:
-            assert f"## {phase.title}" in text, f"{page} is missing '{phase.title}'"
+            assert phase_sections(text, phase), f"{page} is missing '{phase.title}'"
 
 
 def test_every_stage_is_followed_by_a_rendered_diagram(site):
@@ -166,11 +212,11 @@ def test_every_stage_is_followed_by_a_rendered_diagram(site):
     for page in group_pages(site):
         text = page.read_text()
         for phase in analysis.PHASES:
-            if f"## {phase.title}" not in text:
-                continue
-            section = text.split(f"## {phase.title}", 1)[1].split("\n## ", 1)[0]
-            assert '<div class="ha-diagram">' in section, f"{page.name}: {phase.key} has no diagram"
-            assert "<svg" in section, f"{page.name}: {phase.key} diagram is empty"
+            for section in phase_sections(text, phase):
+                assert '<div class="ha-diagram">' in section, (
+                    f"{page.name}: {phase.key} has no diagram"
+                )
+                assert "<svg" in section, f"{page.name}: {phase.key} diagram is empty"
 
 
 def test_every_diagram_is_well_formed_and_not_collapsed(site):
@@ -199,13 +245,23 @@ def test_the_overview_columns_are_all_present_and_clickable(site, builds):
     """Every phase the run actually reached gets a clickable column."""
     for page in group_pages(site):
         text = page.read_text()
-        overview = text.split("## The whole run", 1)[1].split("\n## ", 1)[0]
-        for phase in analysis.PHASES:
-            if f"## {phase.title}" not in text:
-                continue
-            assert f"ha&#45;{phase.key}" in overview, f"{page.name}: no {phase.key} column"
-            anchor = build_module.heading_anchor(phase.title)
-            assert f'xlink:href="#{anchor}"' in overview, f"{page.name}: {phase.key} not clickable"
+        for label, section in process_sections(text).items():
+            overview = overview_of(section)
+            for phase in analysis.PHASES:
+                if not re.search(
+                    rf"^#{{2,3}} {re.escape(phase.title)}(?: \(\S+\))?$", section, re.M
+                ):
+                    continue
+                assert f"ha&#45;{phase.key}" in overview, (
+                    f"{page.name} ({label}): no {phase.key} column"
+                )
+                heading = re.search(
+                    rf"^#{{2,3}} ({re.escape(phase.title)}(?: \(\S+\))?)$", section, re.M
+                ).group(1)
+                anchor = build_module.heading_anchor(heading)
+                assert f'xlink:href="#{anchor}"' in overview, (
+                    f"{page.name} ({label}): {phase.key} not clickable"
+                )
 
 
 def test_every_group_page_carries_provenance_and_a_picker(site):
@@ -373,12 +429,12 @@ def test_call_order_is_consistent_with_pluggys_ordering_rules(builds):
             yield from walk(node.get("children", []))
 
     for item in builds:
-        for version, trace in item.traces.items():
+        for version, process, trace in item.captures():
             for node in walk(trace["calls"]):
                 # the trace stores pluggy's list verbatim, which is reversed
                 order = [rank(impl) for impl in reversed(node["impls"])]
                 assert order == sorted(order), (
-                    f"{item.scenario.id} on {version}: {node['name']} implementations "
+                    f"{item.scenario.id}/{process} on {version}: {node['name']} implementations "
                     "are not in pluggy's call order"
                 )
 
