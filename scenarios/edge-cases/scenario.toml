@@ -7,6 +7,16 @@ order = 3
 #   --pdb --pdbcls   pytest_enter_pdb / pytest_leave_pdb, with a Pdb that
 #                    continues immediately so the session still finishes
 args = ["-k", "not deselect_me", "--pdb", "--pdbcls=autopdb:AutoPdb"]
+min_hooks = 30
+expects = [
+    "pytest_assertion_pass",
+    "pytest_assertrepr_compare",
+    "pytest_deselected",
+    "pytest_enter_pdb",
+    "pytest_leave_pdb",
+    "pytest_markeval_namespace",
+    "pytest_report_header",
+]
 summary = "Assertion comparison, deselection, string conditions and the debugger."
 description = """
 A plain test run reaches about three quarters of pytest's hooks. The rest need

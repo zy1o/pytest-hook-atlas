@@ -1,0 +1,16 @@
+id = "interrupted"
+title = "A run cut short by Ctrl-C"
+order = 4
+args = ["-q"]
+complete_run = false
+expects = ["pytest_keyboard_interrupt"]
+summary = "What pytest does when a test raises KeyboardInterrupt."
+description = """
+The second test raises `KeyboardInterrupt`, which is what pressing Ctrl-C during
+a run amounts to. pytest stops immediately: the third test is never collected
+for running, and the session unwinds through `pytest_keyboard_interrupt` before
+reaching `pytest_sessionfinish`.
+
+The flow is shorter than a normal run, and deliberately so - this page is here
+to show the shape of an abandoned session, not a healthy one.
+"""

@@ -2,6 +2,8 @@ id = "baseline"
 title = "Baseline"
 order = 1
 args = ["-q"]
+min_hooks = 30
+expects = ["pytest_runtest_protocol", "pytest_fixture_setup", "pytest_exception_interact"]
 summary = "A plain test suite with no conftest and no plugins."
 description = """
 The reference shape of a pytest run: parametrised tests, a yield fixture, a

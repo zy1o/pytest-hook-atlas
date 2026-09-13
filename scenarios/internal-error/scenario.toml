@@ -1,0 +1,15 @@
+id = "internal-error"
+title = "A run that dies during collection"
+order = 5
+args = ["-q"]
+complete_run = false
+expects = ["pytest_internalerror"]
+summary = "What pytest does when a hook implementation raises."
+description = """
+The `conftest.py` here raises from `pytest_collection_modifyitems`. Nothing
+catches it, so pytest abandons the session and reports an internal error.
+
+No test ever runs, so the whole run-test phase is missing from this diagram -
+which is the point. It shows how little of a session happens when a hook
+implementation fails early, and which hooks still get their chance to clean up.
+"""

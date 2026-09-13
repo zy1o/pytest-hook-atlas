@@ -35,6 +35,21 @@ class Scenario:
     order: int = 99
     generated_conftest: bool = False
 
+    #: Hooks this scenario exists to reach. Checked by the test suite, so a
+    #: scenario that silently stops doing its job fails loudly.
+    expects: tuple[str, ...] = ()
+
+    #: Does the session run to completion? Some scenarios end early on purpose -
+    #: a KeyboardInterrupt, an exception escaping a hook - and their traces are
+    #: legitimately short and missing whole phases.
+    complete_run: bool = True
+
+    #: Fewest hooks a healthy capture of this scenario should see. Zero means no
+    #: expectation: nothing in the tooling requires a minimum, because a run
+    #: that dies in its first hookimpl should still be drawn as it happened.
+    #: This is a statement about what *we* host, not a rule the tool enforces.
+    min_hooks: int = 0
+
     @property
     def source_url(self) -> str:
         """Where a reader can go to read the code behind a diagram."""
@@ -57,6 +72,9 @@ def load_scenario(directory: Path) -> Scenario:
         args=tuple(data.get("args", [])),
         order=data.get("order", 99),
         generated_conftest=data.get("generated_conftest", False),
+        expects=tuple(data.get("expects", [])),
+        complete_run=data.get("complete_run", True),
+        min_hooks=data.get("min_hooks", 0),
         path=directory,
     )
 

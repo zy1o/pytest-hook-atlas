@@ -29,19 +29,11 @@ handful of variants - but nobody has measured it.
 
 ## The last five hooks
 
-47 of pytest 9.1's 52 hooks are now observed. The remainder, and why:
+49 of pytest 9.1's 52 hooks are observed. The remainder, and why:
 
 - `pytest_cmdline_parse` - structurally unobservable. Monitoring can only be
   installed once a plugin manager exists, and plugins are loaded *inside* this
   call. Confirmed for both `-p` and `pytest11` entry-point plugins.
-- `pytest_keyboard_interrupt` and `pytest_internalerror` - both reachable, but
-  each ends the session, so neither can share a run with anything else. They
-  need a scenario apiece: a test raising `KeyboardInterrupt` (captures 35
-  hooks), and a conftest hook raising during collection (captures 23).
-
-  Note the second would trip the sweep's collapse check, which assumes a
-  healthy run sees at least 30 hooks. A deliberately truncated scenario wants
-  to declare its own floor - a `min_hooks` field in `scenario.toml`.
 - `pytest_report_to_serializable` and `pytest_report_from_serializable` -
   pytest itself never calls these. They belong to plugins that move reports
   between processes, so they arrive with xdist.
