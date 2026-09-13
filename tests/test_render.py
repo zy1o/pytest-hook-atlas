@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+
 import pytest
 
 from pytest_hook_atlas.flow import FlowNode
@@ -112,3 +114,32 @@ def test_a_folded_summary_names_its_hooks_and_links_to_nothing():
     assert "ha&#45;summary" in svg
     assert "stroke-dasharray" in svg
     assert "xlink:href" not in svg
+
+
+def test_overview_columns_start_at_the_same_height():
+    """A cluster's label is two lines when its hook has semantics to show and
+    one when it does not, which pushed some column tops 12pt below others."""
+    columns = [
+        ("startup", "Startup", [FlowNode("pytest_configure", children=[FlowNode("a")])]),
+        ("runtest", "Run", [FlowNode("pytest_runtest_protocol", children=[FlowNode("b")])]),
+    ]
+
+    svg = dot.to_inline_svg(dot.build_columns(columns, HOOKSPECS, BASE, {}))
+
+    tops = []
+    for key, _, _ in columns:
+        index = svg.index(f'class="cluster ha&#45;column ha&#45;{key}"')
+        path = re.search(r'<path[^>]*\sd="([^"]+)"', svg[index : index + 1200]).group(1)
+        tops.append(min(float(y) for _, y in re.findall(r"([-\d.]+),([-\d.]+)", path)))
+
+    assert len(set(tops)) == 1, f"column tops differ: {tops}"
+
+
+def test_the_alignment_anchor_leaves_nothing_visible():
+    """It is an invisible node and an invisible edge; Graphviz drops both."""
+    columns = [("startup", "Startup", [FlowNode("pytest_configure")])]
+
+    svg = dot.to_inline_svg(dot.build_columns(columns, HOOKSPECS, BASE, {}))
+
+    assert "_top" not in svg
+    assert svg.count("<polygon") == 0, "an invisible edge must draw no arrowhead"
