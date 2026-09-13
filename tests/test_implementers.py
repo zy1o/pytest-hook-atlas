@@ -274,3 +274,51 @@ def test_nested_conftests_stay_distinct(tmp_path):
 
     assert labels == paths
     assert all(not item.internal for item in info.current)
+
+
+def test_ordering_flags_are_captured_and_formatted():
+    trace = {
+        "calls": [
+            {
+                "name": "h",
+                "impls": [
+                    {"plugin": "last", "module": "m", "function": "h", "trylast": True},
+                    {"plugin": "plain", "module": "m", "function": "h"},
+                    {"plugin": "first", "module": "m", "function": "h", "wrapper": True},
+                ],
+                "children": [],
+            }
+        ],
+        "hookspecs": {},
+    }
+
+    current = implementers.reconcile({"1.0.0": trace}, ("1.0.0",))["h"].current
+
+    assert [item.plugin for item in current] == ["first", "plain", "last"]
+    assert current[0].annotation == "[wrapper]"
+    assert current[1].annotation == ""
+    assert current[2].annotation == "[trylast]"
+
+
+def test_a_flag_change_alone_does_not_split_a_run():
+    """The table shows the newest answer; splitting a page over a flag would
+    fragment it over something the diagrams never show."""
+
+    def trace(flag):
+        return {
+            "calls": [
+                {
+                    "name": "h",
+                    "impls": [{"plugin": "p", "module": "m", "function": "h", **flag}],
+                    "children": [],
+                }
+            ],
+            "hookspecs": {},
+        }
+
+    info = implementers.reconcile(
+        {"1.0.0": trace({}), "1.1.0": trace({"tryfirst": True})}, ("1.0.0", "1.1.0")
+    )["h"]
+
+    assert info.stable
+    assert info.current[0].annotation == "[tryfirst]"

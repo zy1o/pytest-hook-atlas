@@ -154,6 +154,14 @@ BASE = """/* Diagrams are inlined SVG so their links stay clickable and CSS can 
   fill: none;
 }
 
+/* pluggy's ordering opts, shown beside each implementation because they are
+   what makes the call order the order it is. Muted: they annotate the name
+   rather than competing with it. */
+.ha-flags {
+  color: var(--md-default-fg-color--light);
+  font-size: 0.72rem;
+}
+
 /* The "hide pytest's own plugins" toggle. Added by assets/filter.js only
    when a table actually has something outside pytest to show. */
 .ha-filter {

@@ -310,3 +310,46 @@ def test_html_did_not_swallow_the_anonymous_plugin(html):
     assert pages, "expected the anonymous plugin somewhere in the rendered site"
     for page in pages:
         assert "&lt;anonymous&gt;" in page.read_text(), f"{page}: escaped form is missing"
+
+
+def test_call_order_is_consistent_with_pluggys_ordering_rules(builds):
+    """Wrappers outermost, then tryfirst, then plain, then trylast.
+
+    A strong check on the whole capture path: if implementations were recorded
+    in pluggy's storage order rather than its call order - as they were once -
+    every call here would violate this.
+    """
+
+    def rank(impl):
+        if impl.get("wrapper") or impl.get("hookwrapper"):
+            return 0
+        if impl.get("tryfirst"):
+            return 1
+        if impl.get("trylast"):
+            return 3
+        return 2
+
+    def walk(nodes):
+        for node in nodes:
+            yield node
+            yield from walk(node.get("children", []))
+
+    for item in builds:
+        for version, trace in item.traces.items():
+            for node in walk(trace["calls"]):
+                # the trace stores pluggy's list verbatim, which is reversed
+                order = [rank(impl) for impl in reversed(node["impls"])]
+                assert order == sorted(order), (
+                    f"{item.scenario.id} on {version}: {node['name']} implementations "
+                    "are not in pluggy's call order"
+                )
+
+
+def test_ordering_flags_are_shown_beside_implementations(site):
+    for page in group_pages(site):
+        text = page.read_text()
+        if "ha-flags" not in text:
+            continue
+        assert "[wrapper]" in text or "[tryfirst]" in text or "[trylast]" in text
+        return
+    raise AssertionError("no page annotated any ordering flags")
