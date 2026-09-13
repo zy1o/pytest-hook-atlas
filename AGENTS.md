@@ -46,8 +46,17 @@ A scenario may declare `requires` (packages installed into its capture
 virtualenv, which is how it brings a plugin) and `distributed = true` (it runs
 across several processes). A distributed scenario writes one trace per process,
 named `<scenario>.<process>.json` - `controller`, `gw0`, `gw1` under xdist.
-Those are xdist's logical worker names, not pids, so they stay meaningful in a
+Those are xdist's logical worker names, not pids, so they stay stable in a
 committed trace. Scenario ids therefore may not contain a dot.
+
+**A worker's name is not its identity.** Under a splitting scheduler
+(`loadfile`, `loadscope`, `load`, `worksteal`) the split is reproducible but
+which worker draws which half is a race - captured twice in a row, `gw0` and
+`gw1` swap flows. So pages group workers by the flow they produced and never
+by name, and the fingerprint compares workers as an unordered set. Every
+distinct worker flow is drawn in full, however many there are: a real suite
+across a dozen workers may genuinely produce a dozen, and that is the thing
+worth seeing rather than something to summarise away.
 
 1. Create `scenarios/<id>/` containing a small pytest project.
 2. Add `scenarios/<id>/scenario.toml`:

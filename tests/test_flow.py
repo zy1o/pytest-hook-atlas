@@ -121,6 +121,32 @@ def test_one_cycle_survives_a_fold():
     assert "57 further steps" in folded[3].name
 
 
+def test_a_hook_ending_the_stretch_twice_is_not_swallowed():
+    """`pytest_testnodedown` fires once per worker, so it is not a singleton.
+
+    It still ends the run rather than belonging to it. Recognised only by the
+    singleton rule, it pinned the kept prefix to the whole stretch, nothing
+    folded, and the controller drew at 14530pt.
+    """
+    nodes = [*loop(["a", "b"], 30), flow.FlowNode(name="down"), flow.FlowNode(name="down")]
+
+    folded = flow.fold_repetitive(nodes)
+
+    assert [node.name for node in folded[-2:]] == ["down", "down"]
+    assert any(node.is_summary for node in folded)
+
+
+def test_the_kept_prefix_is_bounded():
+    """Covering every hook in a stretch is unbounded; the diagram is not."""
+    nodes = [flow.FlowNode(name=f"h{index % 4}") for index in range(200)]
+    nodes.insert(150, flow.FlowNode(name="h0"))
+
+    folded = flow.fold_repetitive(nodes)
+
+    assert len(folded) <= flow.FOLD_KEEP_MAX + 1, "prefix must stay bounded"
+    assert any(node.is_summary for node in folded)
+
+
 def test_a_hook_that_ends_the_stretch_is_not_swallowed():
     """pytest_collection_modifyitems closes collection; it is not the loop.
 

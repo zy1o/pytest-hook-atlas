@@ -163,19 +163,30 @@ FOLD_MAX_DISTINCT = 5
 #: four steps with a box saying "four steps happened" helps nobody.
 FOLD_MIN_SAVING = 4
 
+#: Never keep more than this many steps of a folded stretch drawn. Without a
+#: bound, one hook appearing late in a long stretch keeps the whole thing.
+FOLD_KEEP_MAX = 24
 
-def _representative_prefix(nodes: list[FlowNode], names: set[str]) -> int:
-    """How many leading nodes it takes to show each hook in ``names`` once.
 
-    That prefix is one cycle of the loop: enough to see what the repetition is
-    made of, in the order it actually happens.
+def _cycle(nodes: list[FlowNode], cap: int = FOLD_KEEP_MAX) -> int:
+    """How much of the stretch to keep drawn: enough to show every hook in it.
+
+    Bounded, and that bound is the whole point. Asking only for "every name once"
+    is unbounded: under `--dist each` the controller's report traffic ends with
+    two `pytest_testnodedown` calls, which dragged the prefix to the end of a
+    188-step stretch, left nothing to fold and drew a 14530pt diagram. Cutting
+    instead at the first repeat is bounded but too blunt - it threw away the
+    nested `collect_file` -> `pycollect_makemodule` structure that makes a
+    worker's collection worth looking at.
+
+    So: cover what is there, up to a readable number of steps.
     """
-    outstanding = set(names)
-    for position, node in enumerate(nodes, start=1):
+    outstanding = {node.name for node in nodes}
+    for position, node in enumerate(nodes[:cap], start=1):
         outstanding.discard(node.name)
         if not outstanding:
             return position
-    return len(nodes)
+    return min(cap, len(nodes))
 
 
 def fold_repetitive(
@@ -183,19 +194,18 @@ def fold_repetitive(
     min_run: int = FOLD_MIN_RUN,
     max_distinct: int = FOLD_MAX_DISTINCT,
 ) -> list[FlowNode]:
-    """Fold the tail of long stretches that only shuffle a handful of hooks.
+    """Fold the middle of long stretches that only shuffle a handful of hooks.
 
-    Under xdist the controller's run loop is ninety-odd steps of results
+    Under xdist the controller's run loop is hundreds of steps of results
     arriving from workers - logstart, logreport, report_from_serializable,
     logfinish - in an order that depends on which worker finished first. It
     collapses to nothing, because consecutive steps are rarely identical, and
-    renders as seven thousand pixels of noise that says only "reports came
-    back".
+    renders as thousands of pixels of noise that says only "reports came back".
 
-    One cycle is kept drawn in full and only the remainder is summarised, so the
-    diagram still shows what the loop is made of. Applied when rendering, never
-    in the fingerprint: this changes how a flow is *drawn*, and must not change
-    which releases are judged to share a flow.
+    One turn of the loop is drawn in full, and whatever follows the loop stays
+    drawn too; only the repetition between them is summarised. Applied when
+    rendering, never in the fingerprint: this changes how a flow is *drawn*, and
+    must not change which releases are judged to share a flow.
     """
     folded: list[FlowNode] = []
     index = 0
@@ -208,33 +218,36 @@ def fold_repetitive(
             seen = candidate
             run_end += 1
 
-        # A hook appearing once in the stretch is not part of the loop, it is
-        # the thing that ends it - pytest_collection_modifyitems closing
-        # collection, say. Left inside the run it would either be swallowed by
-        # the summary or, if kept, pin the representative prefix to the whole
-        # stretch and defeat the fold entirely.
+        # Whatever follows the loop is not the loop: `pytest_testnodedown`
+        # closing the run, `pytest_collection_modifyitems` closing collection.
+        # Those are worth drawing, so they are trimmed off the stretch and left
+        # alone - twice, because the two ways of recognising them catch
+        # different things. A hook appearing once is one; and after the cycle is
+        # known, so is anything trailing that the cycle never used.
         run = nodes[index:run_end]
         occurrences = Counter(node.name for node in run)
         while run and occurrences[run[-1].name] == 1:
             occurrences[run.pop().name] -= 1
-        seen = {node.name for node in run}
 
-        if run and occurrences[run[0].name] > 1 and len(run) >= min_run and len(seen) > 1:
-            keep = _representative_prefix(run, seen)
-            tail = run[keep:]
-            steps = sum(node.count for node in tail)
-            if steps >= FOLD_MIN_SAVING:
-                folded.extend(fold_repetitive(run[:keep], min_run, max_distinct))
-                names = tuple(sorted({node.name for node in tail}))
-                plural = "" if len(names) == 1 else "s"
-                folded.append(
-                    FlowNode(
-                        name=f"{steps} further steps of {len(names)} hook{plural}",
-                        folded=names,
-                    )
+        keep = _cycle(run)
+        body = {node.name for node in run[:keep]}
+        while run and run[-1].name not in body:
+            run.pop()
+
+        tail = run[keep:]
+        steps = sum(node.count for node in tail)
+        if len(run) >= min_run and len(body) > 1 and steps >= FOLD_MIN_SAVING:
+            folded.extend(fold_repetitive(run[:keep], min_run, max_distinct))
+            names = tuple(sorted({node.name for node in tail}))
+            plural = "" if len(names) == 1 else "s"
+            folded.append(
+                FlowNode(
+                    name=f"{steps} further steps of {len(names)} hook{plural}",
+                    folded=names,
                 )
-                index += len(run)
-                continue
+            )
+            index += len(run)
+            continue
 
         node = nodes[index]
         folded.append(

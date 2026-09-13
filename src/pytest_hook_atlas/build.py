@@ -45,6 +45,13 @@ def heading_anchor(title: str) -> str:
 RETAINED_MAJORS = 4
 
 
+def _natural(name: str) -> tuple:
+    """Sort key treating digit runs as numbers: gw2 before gw10."""
+    return tuple(
+        (1, int(part)) if part.isdigit() else (0, part) for part in re.split(r"(\d+)", name) if part
+    )
+
+
 @dataclass
 class ScenarioBuild:
     """Everything needed to render one scenario's pages."""
@@ -56,8 +63,16 @@ class ScenarioBuild:
     groups: list[Group] = field(default_factory=list)
 
     def processes(self, version: str) -> list[str]:
-        """Processes captured for a version, controller first then workers."""
-        return sorted(self.traces.get(version, {}), key=lambda name: (name != "controller", name))
+        """Processes captured for a version, controller first then workers.
+
+        Workers sort naturally, so `gw2` comes before `gw10` rather than after
+        it - which is what a plain sort does, and reads as a mistake on any run
+        with ten or more workers.
+        """
+        return sorted(
+            self.traces.get(version, {}),
+            key=lambda name: (name != "controller", _natural(name)),
+        )
 
     def trace(self, version: str, process: str | None = None) -> dict[str, Any]:
         """One process's trace, defaulting to the one that ran the session."""
@@ -247,7 +262,10 @@ def _variant_notes(variants: list[flow.Variant]) -> list[str]:
 
 def _provenance(scenario: Scenario, trace: dict[str, Any], group: Group) -> str:
     environment = trace["environment"]
-    invocation = " ".join(["pytest", *scenario.args])
+    # from the trace, not rebuilt from scenario.args: the trace is what a
+    # capture of someone else's project will have, and it is the record of what
+    # actually ran rather than what we meant to run
+    invocation = " ".join(["pytest", *invocation_of(trace)])
     covered = f"{len(group)} releases" if len(group) > 1 else "1 release"
     lines = [
         "## How this was produced\n",
@@ -373,12 +391,57 @@ def _phase_heading(phase: analysis.Phase, process: str, distributed: bool) -> st
     return f"{phase.title} ({label})"
 
 
+#: Flags this project adds to instrument the run. They are not part of the
+#: command being documented, so they are stripped before it is shown.
+INSTRUMENTATION = ("hook_atlas_tracer", "no:cacheprovider")
+
+
+def invocation_of(trace: dict[str, Any]) -> list[str]:
+    """The pytest command this process ran, without our own instrumentation.
+
+    Only ``-p <ours>`` pairs are dropped. A project loading its own plugin with
+    ``-p`` is part of the command being documented and must survive.
+    """
+    argv = trace.get("scenario", {}).get("argv") or []
+    kept: list[str] = []
+    index = 0
+    while index < len(argv):
+        if (
+            argv[index] == "-p"
+            and argv[index + 1 : index + 2]
+            and argv[index + 1] in INSTRUMENTATION
+        ):
+            index += 2
+            continue
+        kept.append(argv[index])
+        index += 1
+    return kept
+
+
+def _command(trace: dict[str, Any], process: str) -> str:
+    """What this process was launched with.
+
+    Worth printing per process rather than once per page: the flow depends on
+    the command, and under xdist the workers do not have one. They are started
+    over execnet and handed a config, which is why their argv is empty - a
+    genuine fact about how distribution works, not a gap in the capture.
+    """
+    argv = invocation_of(trace)
+    if argv:
+        return f"**Command:** `{' '.join(['pytest', *argv])}`\n"
+    return (
+        "**Command:** none. xdist starts a worker over execnet and hands it a "
+        "configuration, so it has no command line of its own.\n"
+    )
+
+
 def _process_section(
     build: ScenarioBuild,
     group: Group,
     process: str,
     base_url: str,
     heading_level: str,
+    shared: WorkerFlow | None = None,
 ) -> list[str]:
     """Overview, phases and hook table for one process."""
     scenario = build.scenario
@@ -389,7 +452,12 @@ def _process_section(
     parts: list[str] = []
 
     if distributed:
-        parts.append(f"{heading_level} {process_title(process)}\n")
+        total = len(build.processes(group.newest)) - 1
+        title = worker_heading(shared, total) if shared else process_title(process)
+        parts.append(f"{heading_level} {title}\n")
+        if shared:
+            parts.append(worker_note(shared, total))
+        parts.append(_command(trace, process))
 
     parts.append(
         "Phases left to right, steps top to bottom. Colour says which phase a "
@@ -455,28 +523,66 @@ def _process_section(
     return parts
 
 
-def _worker_differences(build: ScenarioBuild, group: Group, shown: str, other: str) -> list[str]:
-    """How a second worker differed from the one drawn in full.
+@dataclass
+class WorkerFlow:
+    """One distinct flow, and every worker that produced it."""
 
-    Two diagrams of near-identical workers would be a waste of a long page; what
-    is worth saying is what one reached that the other did not.
+    #: worker names sharing this flow, in xdist's order
+    workers: list[str]
+    #: the worker actually drawn - the first, and the one anchors are keyed on
+    drawn: str
+
+    @property
+    def shared(self) -> bool:
+        return len(self.workers) > 1
+
+
+def worker_flows(build: ScenarioBuild, version: str) -> list[WorkerFlow]:
+    """Group a version's workers by the flow they produced.
+
+    Workers are grouped rather than labelled because worker *names* are a race.
+    Captured twice in a row under a splitting scheduler, gw0 and gw1 swap: the
+    split is reproducible, which worker draws which half is not. Keyed by name,
+    a page would report a difference between two workers that is only who won.
+
+    Every distinct flow is drawn in full, however many there are. A real suite
+    across a dozen workers may well produce a dozen different flows, and that is
+    the thing worth seeing rather than something to summarise away.
     """
-    first = set(analysis.full_graph(build.trace(group.newest, shown)).hooks)
-    second = set(analysis.full_graph(build.trace(group.newest, other)).hooks)
-    gained, lost = sorted(second - first), sorted(first - second)
-    if not gained and not lost:
-        return [f"*Worker {other} reached exactly the same hooks as {shown}.*\n"]
+    flows: dict[str, WorkerFlow] = {}
+    for worker in build.processes(version):
+        if worker == "controller":
+            continue
+        key = grouping.fingerprint(build.trace(version, worker))
+        if key in flows:
+            flows[key].workers.append(worker)
+        else:
+            flows[key] = WorkerFlow(workers=[worker], drawn=worker)
+    return list(flows.values())
 
-    lines = [
-        f"**Worker {other}** ran a different share of the suite, so its flow "
-        f"differs from {shown}:\n"
-    ]
-    if gained:
-        lines.append("- reached " + ", ".join(f"`{name}`" for name in gained))
-    if lost:
-        lines.append("- never reached " + ", ".join(f"`{name}`" for name in lost))
-    lines.append("")
-    return lines
+
+def worker_note(shared: WorkerFlow, total: int) -> str:
+    """Say which workers this flow covers, and which one is drawn."""
+    count = len(shared.workers)
+    if count == total:
+        who = "Both workers" if total == 2 else f"All {total} workers"
+        return f"*{who} produced this flow. `{shared.drawn}` is drawn.*\n"
+    if count == 1:
+        return f"*Only `{shared.drawn}` produced this flow, of {total} workers.*\n"
+    return (
+        f"*{count} of the {total} workers produced this flow - "
+        f"{', '.join(shared.workers)}. `{shared.drawn}` is drawn.*\n"
+    )
+
+
+def worker_heading(shared: WorkerFlow, total: int) -> str:
+    """Name a worker section by which workers it covers."""
+    if len(shared.workers) == total:
+        return "Every worker" if total > 1 else f"Worker {shared.drawn}"
+    if not shared.shared:
+        return f"Worker {shared.drawn}"
+    names = ", ".join(shared.workers[:-1]) + f" and {shared.workers[-1]}"
+    return f"Workers {names}"
 
 
 def group_page(build: ScenarioBuild, group: Group, verify_links: bool = True) -> str:
@@ -505,12 +611,9 @@ def group_page(build: ScenarioBuild, group: Group, verify_links: bool = True) ->
         parts.extend(_process_section(build, group, processes[0], base_url, "##"))
         return "\n".join(parts)
 
-    workers = [name for name in processes if name != "controller"]
-    shown = ["controller", *workers[:1]]
-    for process in shown:
-        parts.extend(_process_section(build, group, process, base_url, "##"))
-    for other in workers[1:]:
-        parts.extend(_worker_differences(build, group, workers[0], other))
+    parts.extend(_process_section(build, group, "controller", base_url, "##"))
+    for shared in worker_flows(build, group.newest):
+        parts.extend(_process_section(build, group, shared.drawn, base_url, "##", shared=shared))
     return "\n".join(parts)
 
 

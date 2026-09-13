@@ -3,10 +3,16 @@ title = "Distributed across workers"
 order = 6
 # -n 2 rather than 1: two workers show that *every* worker collects the whole
 # suite independently, which a single worker would hide.
-# --dist loadfile rather than the default: with `load`, which tests land on
-# which worker is decided by timing, so worker traces differ between runs. With
-# loadfile the split follows the files and the traces are reproducible.
-args = ["-q", "-n", "2", "--dist", "loadfile"]
+#
+# --dist each rather than a splitting scheduler. Under `loadfile`, `loadscope`,
+# `load` or `worksteal` the workers split the suite, and then which worker draws
+# which tests is a race: captured twice in a row, gw0 and gw1 swap flows. The
+# split itself is stable, the labels are not, so the page would claim a
+# difference between "gw0" and "gw1" that is only who won. `each` gives every
+# worker the whole suite, so they are genuinely identical and the page can say
+# so. The cost is honest and stated on the page: `each` is the one mode whose
+# *controller* flow differs from the other four, which all agree.
+args = ["-q", "-n", "2", "--dist", "each"]
 # Pinned, not floated. Traces are immutable and the watcher only captures
 # pytest releases it is missing, so a floating plugin would freeze at whatever
 # pip resolved and never be re-captured. See AGENTS.md before bumping it.
@@ -32,8 +38,16 @@ receives results. Each worker collects the entire suite for itself, then runs
 whatever it was given.
 
 That is why this page has a diagram per process rather than one. The controller
-reaches around 25 hooks, a worker around 36, and the overlap between them is
+reaches around 25 hooks, a worker around 41, and the overlap between them is
 small.
+
+**The scheduler changes what you see, so the command is printed with every
+diagram below.** This capture uses `--dist each`, which gives every worker the
+whole suite: the workers are then identical, and the page draws them once.
+Under a splitting scheduler - `loadfile`, `loadscope`, `load`, `worksteal` -
+workers differ by the tests they happened to draw, and this page would show one
+section per distinct worker flow. The controller differs too: those four modes
+all produce one controller flow, and `each` produces another.
 
 This scenario also reaches the last two hooks pytest declares but never calls
 itself: `pytest_report_to_serializable` in the workers, where a result is packed

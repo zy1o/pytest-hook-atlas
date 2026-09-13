@@ -43,6 +43,18 @@ handful of variants - but nobody has measured it.
 The two report-serialization hooks pytest never calls itself arrived with the
 xdist scenario, which is where reports actually cross a process boundary.
 
+## A second distributed scenario
+
+The `xdist` scenario runs `--dist each`, which gives every worker the whole
+suite: workers come out identical, and the race over which worker draws which
+half does not arise. The cost is that `each` is the one mode whose *controller*
+flow differs from the other four - `loadfile`, `loadscope`, `load` and
+`worksteal` all agree with each other.
+
+A scenario under a splitting scheduler would document that common controller,
+and would be the only place the site shows more than one worker flow. Today
+that path exists and is covered by tests, but no page exercises it.
+
 ## Conftest scoping is flattened
 
 A conftest's hook implementations only apply to items **below its directory**,
