@@ -38,7 +38,23 @@ def reference_url(slug: str) -> str:
     return f"{DOCS_ROOT}/{slug}/reference/reference.html"
 
 
-def hook_url(hook_name: str, base_url: str) -> str:
+#: Hookspec modules whose documentation we know how to link to. Anything else
+#: - a project's own hooks, a plugin we have no URL for - renders unlinked
+#: rather than pointing at pytest's reference, where the anchor does not exist.
+#: Adding an entry here is how a new source of hooks gains links.
+DOCUMENTED_NAMESPACES = {"_pytest.hookspec"}
+
+
+def hook_url(hook_name: str, base_url: str, declared_in: str | None = None) -> str | None:
+    """Documentation URL for a hook, or ``None`` if we have none.
+
+    ``declared_in`` is the module that declared the hookspec. Hooks that pytest
+    did not declare - xdist contributes twelve, and any project can add its own
+    - have no entry in pytest's reference, so linking them there would produce
+    exactly the dead anchors this module exists to prevent.
+    """
+    if declared_in is not None and declared_in not in DOCUMENTED_NAMESPACES:
+        return None
     return f"{base_url}#{ANCHOR_PREFIX}.{hook_name}"
 
 

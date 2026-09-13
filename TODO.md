@@ -23,6 +23,11 @@ precisely so it can run anywhere. What is missing:
 - a **manual**: how to check the project out, point it at a suite, and read
   the result
 
+Hookspec discovery is done: the tracer reads them from the live plugin
+manager, so a project's own hooks arrive with their semantics and no list
+has to be supplied. Only documentation *links* need a per-project answer,
+and `DOCUMENTED_NAMESPACES` in `doclinks.py` is where that goes.
+
 Worth checking early: a large suite traces a lot of calls. Consecutive-repeat
 collapsing should handle it well - a thousand tests should collapse to a
 handful of variants - but nobody has measured it.

@@ -160,12 +160,18 @@ class _Builder:
         elements: list[tuple[str, str, str | None]] = []
         for node in nodes:
             total = self.totals.get(node.name)
-            common = {
+            # a hook pytest did not declare has no entry in pytest's reference,
+            # so it is drawn without a link rather than with a dead one
+            url = hook_url(
+                node.name, self.base_url, self.hookspecs.get(node.name, {}).get("declared_in")
+            )
+            common: dict[str, Any] = {
                 "label": _label(node, self.hookspecs, total),
-                "href": hook_url(node.name, self.base_url),
-                "target": "_blank",
                 "tooltip": node.name,
             }
+            if url:
+                common["href"] = url
+                common["target"] = "_blank"
             if node.is_leaf:
                 node_id = self._uid()
                 graph.node(

@@ -58,3 +58,21 @@ def test_anchor_exists():
 
     assert doclinks.anchor_exists(page, "pytest_configure")
     assert not doclinks.anchor_exists(page, "pytest_nonexistent")
+
+
+def test_hooks_pytest_did_not_declare_get_no_link():
+    """xdist declares twelve hooks; a project can declare its own. None of them
+    have an entry in pytest's reference, so linking there would produce exactly
+    the dead anchors this module exists to prevent."""
+    base = doclinks.reference_url("stable")
+
+    assert doclinks.hook_url("pytest_runtest_setup", base, "_pytest.hookspec")
+    assert doclinks.hook_url("pytest_xdist_make_scheduler", base, "xdist.newhooks") is None
+    assert doclinks.hook_url("pytest_company_thing", base, "acme.hooks") is None
+
+
+def test_an_unknown_origin_still_links():
+    """Callers that do not know where a hook came from keep the old behaviour."""
+    base = doclinks.reference_url("stable")
+
+    assert doclinks.hook_url("pytest_runtest_setup", base) is not None

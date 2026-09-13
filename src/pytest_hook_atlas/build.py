@@ -197,6 +197,7 @@ def _hook_table(
     graph: analysis.HookGraph,
     base_url: str,
     implemented: dict[str, implementers.HookImplementers],
+    hookspecs: dict[str, Any],
 ) -> str:
     """Every hook observed, with the plugins behind it in call order.
 
@@ -211,7 +212,8 @@ def _hook_table(
     ]
     for name in sorted(graph.hooks):
         hook = graph.hooks[name]
-        url = doclinks.hook_url(name, base_url)
+        url = doclinks.hook_url(name, base_url, hookspecs.get(name, {}).get("declared_in"))
+        label = f"[`{name}`]({url})" if url else f"`{name}`"
         info = implemented.get(name)
         if info and info.current:
             listed = "<br>".join(
@@ -226,8 +228,7 @@ def _hook_table(
         if info and not info.stable:
             listed += f"<br>[^{name}]"
         rows.append(
-            f"| [`{name}`]({url}) | {hook.call_count} | "
-            f"{SEMANTIC_LABELS[hook.semantics]} | {listed} |"
+            f"| {label} | {hook.call_count} | {SEMANTIC_LABELS[hook.semantics]} | {listed} |"
         )
     return "\n".join(rows)
 
@@ -327,7 +328,10 @@ def group_page(build: ScenarioBuild, group: Group, verify_links: bool = True) ->
                 "conftest had not been imported yet when the hook ran, or sits "
                 "below the level the hook applies to.\n"
             )
-            parts.extend(f"- [`{name}`]({doclinks.hook_url(name, base_url)})" for name in blind)
+            parts.extend(
+                f"- [`{name}`]({doclinks.hook_url(name, base_url, '_pytest.hookspec')})"
+                for name in blind
+            )
             parts.append("")
 
     parts.append("## Every hook observed\n")
@@ -335,7 +339,7 @@ def group_page(build: ScenarioBuild, group: Group, verify_links: bool = True) ->
     # wrapped so the filter script can find this table specifically; markdown="1"
     # keeps the table inside it rendered as markdown
     parts.append('<div class="ha-hook-table" markdown="1">\n')
-    parts.append(_hook_table(full, base_url, implemented) + "\n")
+    parts.append(_hook_table(full, base_url, implemented, hookspecs) + "\n")
     parts.append("</div>\n")
     parts.extend(_implementer_changes(implemented, group))
     return "\n".join(parts)

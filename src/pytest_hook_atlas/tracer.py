@@ -33,7 +33,7 @@ import pluggy
 import pytest
 
 #: Bumped whenever the on-disk trace format changes incompatibly.
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 #: Hooks whose *original* invocation happens before monitoring can be installed.
 #:
@@ -154,54 +154,62 @@ def _impl_info(impl: Any) -> dict[str, Any]:
     }
 
 
-def _spec_opts(hookspec_function: Any) -> dict[str, Any]:
-    """Read pluggy's hookspec options off a hookspec function.
+def hookspec_metadata(pluginmanager: Any) -> dict[str, dict[str, Any]]:
+    """Static facts about every hook *this plugin manager knows about*.
 
-    pluggy stores these as ``<project_name>_spec``; pytest's project name is
-    ``pytest``, but fall back to scanning so this survives a rename upstream.
+    Read from the live plugin manager rather than by importing
+    ``_pytest.hookspec``, so a project's own hooks are described too. pytest
+    contributes 52; pytest-xdist adds 12 more, and any plugin or conftest that
+    calls ``add_hookspecs`` contributes its own. Hardcoding pytest's module
+    would have meant those rendering with no semantics at all - and it is the
+    reason this can be pointed at an arbitrary project.
+
+    Called as late as possible, because plugins register their hookspecs during
+    ``pytest_addhooks``: read at ``pytest_addoption`` time, xdist's twelve are
+    not there yet.
     """
-    opts = getattr(hookspec_function, "pytest_spec", None)
-    if isinstance(opts, dict):
-        return opts
-    for attribute in dir(hookspec_function):
-        if attribute.endswith("_spec"):
-            candidate = getattr(hookspec_function, attribute)
-            if isinstance(candidate, dict):
-                return candidate
-    return {}
-
-
-def hookspec_metadata() -> dict[str, dict[str, Any]]:
-    """Static facts about every declared pytest hook.
-
-    These are the semantics that prose documents badly and a diagram can show
-    at a glance: ``historic`` hooks replay for plugins registered later, and
-    ``firstresult`` hooks stop at the first non-``None`` return.
-    """
-    import _pytest.hookspec as hookspec_module
-
     metadata: dict[str, dict[str, Any]] = {}
-    for name in sorted(dir(hookspec_module)):
-        if not name.startswith("pytest_"):
+    relay = getattr(pluginmanager, "hook", None)
+    for name, caller in sorted(vars(relay).items()) if relay else ():
+        if name.startswith("_"):
             continue
-        function = getattr(hookspec_module, name)
-        if not callable(function):
+        spec = getattr(caller, "spec", None)
+        if spec is None:
             continue
-        opts = _spec_opts(function)
-        doc = inspect.getdoc(function) or ""
+        opts = getattr(spec, "opts", None) or {}
+        function = getattr(spec, "function", None)
+        doc = inspect.getdoc(function) if function else ""
+        try:
+            argnames = list(inspect.signature(function).parameters) if function else []
+        except (TypeError, ValueError):
+            argnames = []
+        namespace = getattr(spec, "namespace", None)
         metadata[name] = {
             "historic": bool(opts.get("historic")),
             "firstresult": bool(opts.get("firstresult")),
-            "argnames": list(inspect.signature(function).parameters),
-            "summary": doc.split("\n\n")[0].replace("\n", " ").strip(),
+            "argnames": argnames,
+            "summary": (doc or "").split("\n\n")[0].replace("\n", " ").strip(),
+            # which module declared it - the basis for deciding whose
+            # documentation, if any, a hook should link to
+            "declared_in": getattr(namespace, "__name__", None) or _namespace_name(namespace),
         }
     return metadata
+
+
+def _namespace_name(namespace: Any) -> str:
+    """A readable name for a hookspec namespace that is a class, not a module."""
+    if namespace is None:
+        return ""
+    module = getattr(namespace, "__module__", "")
+    qualname = getattr(namespace, "__qualname__", "")
+    return ".".join(part for part in (module, qualname) if part) or str(namespace)
 
 
 class HookRecorder:
     """Builds a call tree from pluggy's before/after monitoring callbacks."""
 
-    def __init__(self) -> None:
+    def __init__(self, pluginmanager: Any = None) -> None:
+        self.pluginmanager = pluginmanager
         self.roots: list[CallNode] = []
         self.desyncs: list[str] = []
         self._stack: list[CallNode] = []
@@ -252,7 +260,7 @@ class HookRecorder:
                 "unique_hooks": len({n for n in _walk_names(self.roots)}),
             },
             "desyncs": self.desyncs,
-            "hookspecs": hookspec_metadata(),
+            "hookspecs": hookspec_metadata(self.pluginmanager),
             "calls": [root.to_dict() for root in self.roots],
         }
 
@@ -290,6 +298,6 @@ def pytest_addoption(parser, pluginmanager) -> None:
     global _recorder
     if _recorder is not None:
         return
-    _recorder = HookRecorder()
+    _recorder = HookRecorder(pluginmanager)
     pluginmanager.add_hookcall_monitoring(_recorder.before, _recorder.after)
     atexit.register(write_trace)

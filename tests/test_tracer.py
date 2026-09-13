@@ -161,21 +161,83 @@ def test_historic_hooks_replay_for_late_registered_plugins(tmp_path):
     assert "pytest_addoption" in tracer.PROLOGUE_HOOKS
 
 
-def test_hookspec_metadata_classifies_hook_semantics():
-    metadata = tracer.hookspec_metadata()
+class FakeSpec:
+    def __init__(self, function, opts, namespace):
+        self.function, self.opts, self.namespace = function, opts, namespace
+
+
+class FakeCaller:
+    def __init__(self, spec):
+        self.spec = spec
+
+
+class FakeRelay:
+    pass
+
+
+class FakeManager:
+    """Enough of a plugin manager to read hookspecs off."""
+
+    def __init__(self, specs):
+        self.hook = FakeRelay()
+        for name, (function, opts, namespace) in specs.items():
+            setattr(self.hook, name, FakeCaller(FakeSpec(function, opts, namespace)))
+
+
+def test_hookspec_metadata_reads_the_live_plugin_manager():
+    """Not `import _pytest.hookspec`.
+
+    Hardcoding pytest's module would leave every other project's hooks - the
+    twelve pytest-xdist declares, or a test framework's own - with no semantics
+    at all, and is what would stop this being pointable at an arbitrary project.
+    """
+    import _pytest.hookspec as pytest_hooks
+
+    manager = FakeManager(
+        {
+            "pytest_configure": (
+                pytest_hooks.pytest_configure,
+                {"historic": True, "firstresult": False},
+                pytest_hooks,
+            ),
+            "pytest_made_up_hook": (
+                lambda session: None,
+                {"historic": False, "firstresult": True},
+                type("somepluginhooks", (), {"__name__": "somepluginhooks"}),
+            ),
+        }
+    )
+
+    metadata = tracer.hookspec_metadata(manager)
+
+    assert metadata["pytest_configure"]["historic"] is True
+    assert metadata["pytest_configure"]["declared_in"] == "_pytest.hookspec"
+    assert metadata["pytest_configure"]["summary"]
+
+    other = metadata["pytest_made_up_hook"]
+    assert other["firstresult"] is True
+    assert other["declared_in"] == "somepluginhooks"
+    assert other["argnames"] == ["session"]
+
+
+def test_hookspec_metadata_of_a_manager_with_nothing_registered():
+    assert tracer.hookspec_metadata(FakeManager({})) == {}
+    assert tracer.hookspec_metadata(None) == {}
+
+
+def test_captured_hookspecs_classify_semantics(trace):
+    """Against a real capture rather than a stand-in."""
+    metadata = trace["hookspecs"]
 
     assert metadata["pytest_configure"]["historic"] is True
     assert metadata["pytest_runtest_setup"]["historic"] is False
-
     assert metadata["pytest_runtest_protocol"]["firstresult"] is True
-    assert metadata["pytest_runtest_setup"]["firstresult"] is False
-
     assert metadata["pytest_collection_modifyitems"]["argnames"] == [
         "session",
         "config",
         "items",
     ]
-    assert metadata["pytest_configure"]["summary"]
+    assert all(spec["declared_in"] for spec in metadata.values())
 
 
 def test_recorder_builds_nested_tree_without_pytest():
