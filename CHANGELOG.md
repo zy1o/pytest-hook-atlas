@@ -11,6 +11,12 @@ built or presented, never what was observed.
 
 ### Added
 
+- Hookspecs are read from the live plugin manager rather than by importing
+  `_pytest.hookspec`, so hooks a *project* declares are described too - pytest
+  contributes 52, pytest-xdist adds 12, and any conftest or plugin calling
+  `add_hookspecs` contributes its own. Traces record which module declared each
+  hook, and hooks pytest did not declare render without a documentation link
+  rather than with a dead one. Trace schema is now 2.
 - Three scenarios reaching hooks no other scenario touched: `edge-cases`
   (assertion comparison and assertion-pass, deselection, string `skipif`
   conditions, the report header, both debugger hooks), `interrupted` (a run

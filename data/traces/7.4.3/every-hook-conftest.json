@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "environment": {
     "pytest": "7.4.3",
     "pluggy": "1.6.0",
@@ -31,7 +31,8 @@
       "argnames": [
         "pluginmanager"
       ],
-      "summary": "Called at plugin registration time to allow adding new hooks via a call to ``pluginmanager.add_hookspecs(module_or_class, prefix)``."
+      "summary": "Called at plugin registration time to allow adding new hooks via a call to ``pluginmanager.add_hookspecs(module_or_class, prefix)``.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_addoption": {
       "historic": true,
@@ -40,7 +41,8 @@
         "parser",
         "pluginmanager"
       ],
-      "summary": "Register argparse-style options and ini-style config values, called once at the beginning of a test run."
+      "summary": "Register argparse-style options and ini-style config values, called once at the beginning of a test run.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_assertion_pass": {
       "historic": false,
@@ -51,7 +53,8 @@
         "orig",
         "expl"
       ],
-      "summary": "Called whenever an assertion passes."
+      "summary": "Called whenever an assertion passes.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_assertrepr_compare": {
       "historic": false,
@@ -62,7 +65,8 @@
         "left",
         "right"
       ],
-      "summary": "Return explanation for comparisons in failing assert expressions."
+      "summary": "Return explanation for comparisons in failing assert expressions.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_cmdline_main": {
       "historic": false,
@@ -70,7 +74,8 @@
       "argnames": [
         "config"
       ],
-      "summary": "Called for performing the main command line action. The default implementation will invoke the configure hooks and runtest_mainloop."
+      "summary": "Called for performing the main command line action. The default implementation will invoke the configure hooks and runtest_mainloop.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_cmdline_parse": {
       "historic": false,
@@ -79,7 +84,8 @@
         "pluginmanager",
         "args"
       ],
-      "summary": "Return an initialized :class:`~pytest.Config`, parsing the specified args."
+      "summary": "Return an initialized :class:`~pytest.Config`, parsing the specified args.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_cmdline_preparse": {
       "historic": false,
@@ -88,7 +94,8 @@
         "config",
         "args"
       ],
-      "summary": "(**Deprecated**) modify command line arguments before option parsing."
+      "summary": "(**Deprecated**) modify command line arguments before option parsing.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_collect_file": {
       "historic": false,
@@ -98,7 +105,8 @@
         "path",
         "parent"
       ],
-      "summary": "Create a :class:`~pytest.Collector` for the given path, or None if not relevant."
+      "summary": "Create a :class:`~pytest.Collector` for the given path, or None if not relevant.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_collection": {
       "historic": false,
@@ -106,7 +114,8 @@
       "argnames": [
         "session"
       ],
-      "summary": "Perform the collection phase for the given session."
+      "summary": "Perform the collection phase for the given session.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_collection_finish": {
       "historic": false,
@@ -114,7 +123,8 @@
       "argnames": [
         "session"
       ],
-      "summary": "Called after collection has been performed and modified."
+      "summary": "Called after collection has been performed and modified.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_collection_modifyitems": {
       "historic": false,
@@ -124,7 +134,8 @@
         "config",
         "items"
       ],
-      "summary": "Called after collection has been performed. May filter or re-order the items in-place."
+      "summary": "Called after collection has been performed. May filter or re-order the items in-place.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_collectreport": {
       "historic": false,
@@ -132,7 +143,8 @@
       "argnames": [
         "report"
       ],
-      "summary": "Collector finished collecting."
+      "summary": "Collector finished collecting.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_collectstart": {
       "historic": false,
@@ -140,7 +152,8 @@
       "argnames": [
         "collector"
       ],
-      "summary": "Collector starts collecting."
+      "summary": "Collector starts collecting.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_configure": {
       "historic": true,
@@ -148,7 +161,8 @@
       "argnames": [
         "config"
       ],
-      "summary": "Allow plugins and conftest files to perform initial configuration."
+      "summary": "Allow plugins and conftest files to perform initial configuration.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_deselected": {
       "historic": false,
@@ -156,7 +170,8 @@
       "argnames": [
         "items"
       ],
-      "summary": "Called for deselected test items, e.g. by keyword."
+      "summary": "Called for deselected test items, e.g. by keyword.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_enter_pdb": {
       "historic": false,
@@ -165,7 +180,8 @@
         "config",
         "pdb"
       ],
-      "summary": "Called upon pdb.set_trace()."
+      "summary": "Called upon pdb.set_trace().",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_exception_interact": {
       "historic": false,
@@ -175,7 +191,8 @@
         "call",
         "report"
       ],
-      "summary": "Called when an exception was raised which can potentially be interactively handled."
+      "summary": "Called when an exception was raised which can potentially be interactively handled.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_fixture_post_finalizer": {
       "historic": false,
@@ -184,7 +201,8 @@
         "fixturedef",
         "request"
       ],
-      "summary": "Called after fixture teardown, but before the cache is cleared, so the fixture result ``fixturedef.cached_result`` is still available (not ``None``)."
+      "summary": "Called after fixture teardown, but before the cache is cleared, so the fixture result ``fixturedef.cached_result`` is still available (not ``None``).",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_fixture_setup": {
       "historic": false,
@@ -193,7 +211,8 @@
         "fixturedef",
         "request"
       ],
-      "summary": "Perform fixture setup execution."
+      "summary": "Perform fixture setup execution.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_generate_tests": {
       "historic": false,
@@ -201,7 +220,8 @@
       "argnames": [
         "metafunc"
       ],
-      "summary": "Generate (multiple) parametrized calls to a test function."
+      "summary": "Generate (multiple) parametrized calls to a test function.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_ignore_collect": {
       "historic": false,
@@ -211,7 +231,8 @@
         "path",
         "config"
       ],
-      "summary": "Return True to prevent considering this path for collection."
+      "summary": "Return True to prevent considering this path for collection.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_internalerror": {
       "historic": false,
@@ -220,7 +241,8 @@
         "excrepr",
         "excinfo"
       ],
-      "summary": "Called for internal errors."
+      "summary": "Called for internal errors.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_itemcollected": {
       "historic": false,
@@ -228,7 +250,8 @@
       "argnames": [
         "item"
       ],
-      "summary": "We just collected a test item."
+      "summary": "We just collected a test item.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_keyboard_interrupt": {
       "historic": false,
@@ -236,7 +259,8 @@
       "argnames": [
         "excinfo"
       ],
-      "summary": "Called for keyboard interrupt."
+      "summary": "Called for keyboard interrupt.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_leave_pdb": {
       "historic": false,
@@ -245,7 +269,8 @@
         "config",
         "pdb"
       ],
-      "summary": "Called when leaving pdb (e.g. with continue after pdb.set_trace())."
+      "summary": "Called when leaving pdb (e.g. with continue after pdb.set_trace()).",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_load_initial_conftests": {
       "historic": false,
@@ -255,7 +280,8 @@
         "parser",
         "args"
       ],
-      "summary": "Called to implement the loading of initial conftest files ahead of command line option parsing."
+      "summary": "Called to implement the loading of initial conftest files ahead of command line option parsing.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_make_collect_report": {
       "historic": false,
@@ -263,7 +289,8 @@
       "argnames": [
         "collector"
       ],
-      "summary": "Perform :func:`collector.collect() <pytest.Collector.collect>` and return a :class:`~pytest.CollectReport`."
+      "summary": "Perform :func:`collector.collect() <pytest.Collector.collect>` and return a :class:`~pytest.CollectReport`.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_make_parametrize_id": {
       "historic": false,
@@ -273,7 +300,8 @@
         "val",
         "argname"
       ],
-      "summary": "Return a user-friendly string representation of the given ``val`` that will be used by @pytest.mark.parametrize calls, or None if the hook doesn't know about ``val``."
+      "summary": "Return a user-friendly string representation of the given ``val`` that will be used by @pytest.mark.parametrize calls, or None if the hook doesn't know about ``val``.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_markeval_namespace": {
       "historic": false,
@@ -281,7 +309,8 @@
       "argnames": [
         "config"
       ],
-      "summary": "Called when constructing the globals dictionary used for evaluating string conditions in xfail/skipif markers."
+      "summary": "Called when constructing the globals dictionary used for evaluating string conditions in xfail/skipif markers.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_plugin_registered": {
       "historic": true,
@@ -290,7 +319,8 @@
         "plugin",
         "manager"
       ],
-      "summary": "A new pytest plugin got registered."
+      "summary": "A new pytest plugin got registered.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_pycollect_makeitem": {
       "historic": false,
@@ -300,7 +330,8 @@
         "name",
         "obj"
       ],
-      "summary": "Return a custom item/collector for a Python object in a module, or None."
+      "summary": "Return a custom item/collector for a Python object in a module, or None.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_pycollect_makemodule": {
       "historic": false,
@@ -310,7 +341,8 @@
         "path",
         "parent"
       ],
-      "summary": "Return a :class:`pytest.Module` collector or None for the given path."
+      "summary": "Return a :class:`pytest.Module` collector or None for the given path.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_pyfunc_call": {
       "historic": false,
@@ -318,7 +350,8 @@
       "argnames": [
         "pyfuncitem"
       ],
-      "summary": "Call underlying test function."
+      "summary": "Call underlying test function.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_report_collectionfinish": {
       "historic": false,
@@ -329,7 +362,8 @@
         "startdir",
         "items"
       ],
-      "summary": "Return a string or list of strings to be displayed after collection has finished successfully."
+      "summary": "Return a string or list of strings to be displayed after collection has finished successfully.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_report_from_serializable": {
       "historic": false,
@@ -338,7 +372,8 @@
         "config",
         "data"
       ],
-      "summary": "Restore a report object previously serialized with :hook:`pytest_report_to_serializable`."
+      "summary": "Restore a report object previously serialized with :hook:`pytest_report_to_serializable`.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_report_header": {
       "historic": false,
@@ -348,7 +383,8 @@
         "start_path",
         "startdir"
       ],
-      "summary": "Return a string or list of strings to be displayed as header info for terminal reporting."
+      "summary": "Return a string or list of strings to be displayed as header info for terminal reporting.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_report_teststatus": {
       "historic": false,
@@ -357,7 +393,8 @@
         "report",
         "config"
       ],
-      "summary": "Return result-category, shortletter and verbose word for status reporting."
+      "summary": "Return result-category, shortletter and verbose word for status reporting.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_report_to_serializable": {
       "historic": false,
@@ -366,7 +403,8 @@
         "config",
         "report"
       ],
-      "summary": "Serialize the given report object into a data structure suitable for sending over the wire, e.g. converted to JSON."
+      "summary": "Serialize the given report object into a data structure suitable for sending over the wire, e.g. converted to JSON.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_runtest_call": {
       "historic": false,
@@ -374,7 +412,8 @@
       "argnames": [
         "item"
       ],
-      "summary": "Called to run the test for test item (the call phase)."
+      "summary": "Called to run the test for test item (the call phase).",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_runtest_logfinish": {
       "historic": false,
@@ -383,7 +422,8 @@
         "nodeid",
         "location"
       ],
-      "summary": "Called at the end of running the runtest protocol for a single item."
+      "summary": "Called at the end of running the runtest protocol for a single item.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_runtest_logreport": {
       "historic": false,
@@ -391,7 +431,8 @@
       "argnames": [
         "report"
       ],
-      "summary": "Process the :class:`~pytest.TestReport` produced for each of the setup, call and teardown runtest phases of an item."
+      "summary": "Process the :class:`~pytest.TestReport` produced for each of the setup, call and teardown runtest phases of an item.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_runtest_logstart": {
       "historic": false,
@@ -400,7 +441,8 @@
         "nodeid",
         "location"
       ],
-      "summary": "Called at the start of running the runtest protocol for a single item."
+      "summary": "Called at the start of running the runtest protocol for a single item.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_runtest_makereport": {
       "historic": false,
@@ -409,7 +451,8 @@
         "item",
         "call"
       ],
-      "summary": "Called to create a :class:`~pytest.TestReport` for each of the setup, call and teardown runtest phases of a test item."
+      "summary": "Called to create a :class:`~pytest.TestReport` for each of the setup, call and teardown runtest phases of a test item.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_runtest_protocol": {
       "historic": false,
@@ -418,7 +461,8 @@
         "item",
         "nextitem"
       ],
-      "summary": "Perform the runtest protocol for a single test item."
+      "summary": "Perform the runtest protocol for a single test item.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_runtest_setup": {
       "historic": false,
@@ -426,7 +470,8 @@
       "argnames": [
         "item"
       ],
-      "summary": "Called to perform the setup phase for a test item."
+      "summary": "Called to perform the setup phase for a test item.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_runtest_teardown": {
       "historic": false,
@@ -435,7 +480,8 @@
         "item",
         "nextitem"
       ],
-      "summary": "Called to perform the teardown phase for a test item."
+      "summary": "Called to perform the teardown phase for a test item.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_runtestloop": {
       "historic": false,
@@ -443,7 +489,8 @@
       "argnames": [
         "session"
       ],
-      "summary": "Perform the main runtest loop (after collection finished)."
+      "summary": "Perform the main runtest loop (after collection finished).",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_sessionfinish": {
       "historic": false,
@@ -452,7 +499,8 @@
         "session",
         "exitstatus"
       ],
-      "summary": "Called after whole test run finished, right before returning the exit status to the system."
+      "summary": "Called after whole test run finished, right before returning the exit status to the system.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_sessionstart": {
       "historic": false,
@@ -460,7 +508,8 @@
       "argnames": [
         "session"
       ],
-      "summary": "Called after the ``Session`` object has been created and before performing collection and entering the run test loop."
+      "summary": "Called after the ``Session`` object has been created and before performing collection and entering the run test loop.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_terminal_summary": {
       "historic": false,
@@ -470,7 +519,8 @@
         "exitstatus",
         "config"
       ],
-      "summary": "Add a section to terminal summary reporting."
+      "summary": "Add a section to terminal summary reporting.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_unconfigure": {
       "historic": false,
@@ -478,7 +528,8 @@
       "argnames": [
         "config"
       ],
-      "summary": "Called before test process is exited."
+      "summary": "Called before test process is exited.",
+      "declared_in": "_pytest.hookspec"
     },
     "pytest_warning_recorded": {
       "historic": true,
@@ -489,7 +540,8 @@
         "nodeid",
         "location"
       ],
-      "summary": "Process a warning captured by the internal pytest warnings plugin."
+      "summary": "Process a warning captured by the internal pytest warnings plugin.",
+      "declared_in": "_pytest.hookspec"
     }
   },
   "calls": [

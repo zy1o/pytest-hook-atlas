@@ -60,9 +60,13 @@ def cmd_linkcheck(args: argparse.Namespace) -> int:
             trace = analysis.load_trace(trace_path)
             base = doclinks.resolve_base_url(trace["environment"]["pytest"])
             page = doclinks.fetch(base)
+            hookspecs = trace.get("hookspecs", {})
             for name in sorted(analysis.full_graph(trace).hooks):
-                if not doclinks.anchor_exists(page, name):
-                    print(f"DEAD  {trace_path.name}  {doclinks.hook_url(name, base)}")
+                # only hooks we actually link are worth checking; a project's
+                # own hooks have no pytest anchor and are rendered unlinked
+                url = doclinks.hook_url(name, base, hookspecs.get(name, {}).get("declared_in"))
+                if url and not doclinks.anchor_exists(page, name):
+                    print(f"DEAD  {trace_path.name}  {url}")
                     failures += 1
             print(f"  {trace_path} -> {base} ok")
     if failures:
