@@ -100,6 +100,41 @@ session finishes) and `min_hooks` (a floor, zero meaning none). The test suite
 checks the scenarios *we host* against their own declarations; it does not
 impose a rule on anyone pointing the tracer at their own suite.
 
+## Never add anything to the environment being measured
+
+The capture virtualenv holds exactly pytest and whatever a scenario declares in
+`requires`. Nothing else. The tracer is copied in as a single file rather than
+installed, so it must never acquire a dependency of its own.
+
+This is why trace provenance reads a package's `__version__`, falling back to
+stdlib `importlib.metadata`, instead of depending on the `importlib-metadata`
+backport with an environment marker. The backport would be more convenient and
+is almost certainly harmless - but installing anything into the environment
+under observation is a habit worth not having, because the one time it matters
+will not announce itself. It matters more once this is pointed at someone
+else's project: observing it should not mean installing into it.
+
+## Pinning a scenario's plugins
+
+A scenario's `requires` are pinned, not floated. Traces are immutable and the
+watcher only captures pytest releases it does not have, so a floating plugin
+would never trigger a re-capture - it would simply freeze at whatever pip
+resolved on the day, and the page would show an ageing version without saying
+so. Pinning makes the version a deliberate, reviewable fact.
+
+`pytest-xdist` is pinned after checking its history: across 19 releases from
+2.0 there are three distinct hookspecs, and none since 2.3.0 in 2021 - fifteen
+consecutive releases identical, with no removals or signature changes. A bump
+should be rare.
+
+**If a pinned version needs changing**, open a pull request bumping it - or an
+issue, if you would rather it were discussed first. The re-capture and the
+resulting diff are the point: they show whether the flow moved.
+
+Unpinned is right for the *standalone tool*, where someone pointing it at their
+own project should get whatever they already have installed. Pinning applies to
+the scenarios hosted here.
+
 ## The tracer is standalone on purpose
 
 `src/pytest_hook_atlas/tracer.py` must not import from its own package and must

@@ -421,3 +421,11 @@ def test_hookspec_sources_skip_what_they_cannot_determine():
     assert "_pytest.hookspec" in sources
     assert "module_that_is_not_imported.hooks" not in sources
     assert "" not in sources
+
+
+def test_version_lookup_falls_back_to_stdlib_metadata():
+    """Some packages expose no __version__; stdlib metadata still finds them,
+    and unlike the importlib-metadata backport it installs nothing into the
+    environment being measured."""
+    assert tracer._distribution_version("graphviz")
+    assert tracer._distribution_version("definitely_not_a_real_package") is None

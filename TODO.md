@@ -47,8 +47,12 @@ handful of variants - but nobody has measured it.
 
 pytest-xdist's hookspec needs no version axis. Across its 19 releases from 2.0
 it has three distinct hookspecs, and none since 2.3.0 in 2021 - 15 consecutive
-releases identical, no removals and no signature changes, ever. Pin whatever
-pip resolves; the trace records which version it was.
+releases identical, no removals and no signature changes, ever.
+
+So the scenario pins one xdist version in `requires` rather than floating. A
+floating version would never be re-captured - the watcher only looks for pytest
+releases it is missing - so it would silently freeze and the page would show an
+ageing version. See AGENTS.md for the full reasoning and how to bump it.
 
 
 A scenario running under `pytest-xdist`. The controller and each worker run

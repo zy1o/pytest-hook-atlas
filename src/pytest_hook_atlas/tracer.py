@@ -202,14 +202,46 @@ def hookspec_metadata(pluginmanager: Any) -> dict[str, dict[str, Any]]:
     return metadata
 
 
+def _distribution_version(package: str) -> str | None:
+    """Version of the distribution providing ``package``, from stdlib metadata.
+
+    Deliberately not the ``importlib-metadata`` backport, which would let us use
+    ``packages_distributions`` on every Python: the tracer is copied into the
+    virtualenv being measured, so any dependency of ours would have to be
+    installed there too. Adding anything to the environment under observation is
+    a bad habit even when the thing added is benign - it is too easy to overlook
+    something that turns out not to be.
+
+    ``importlib.metadata`` itself is stdlib from 3.8, so this costs nothing.
+    Only the top-level-to-distribution map has to be built by hand, because
+    ``packages_distributions`` arrived in 3.10.
+    """
+    try:
+        import importlib.metadata as metadata
+    except ImportError:  # pragma: no cover - importlib.metadata is stdlib from 3.8
+        return None
+
+    try:
+        for distribution in metadata.distributions():
+            top_level = distribution.read_text("top_level.txt") or ""
+            names = top_level.split() or [(distribution.metadata["Name"] or "").replace("-", "_")]
+            if package in names:
+                return distribution.version
+    except Exception:  # noqa: BLE001 - provenance is nice to have, never required
+        return None
+    return None
+
+
 def hookspec_sources(metadata: dict[str, dict[str, Any]]) -> dict[str, str]:
     """Version of whatever declared each set of hookspecs.
 
-    pytest's own version is already recorded, but a plugin contributing hooks
-    is otherwise anonymous: a trace could say a run used twelve xdist hooks
-    without saying which xdist. Read from the package's ``__version__`` rather
-    than importlib.metadata, whose ``packages_distributions`` needs Python 3.10
-    and this file has to import on 3.8.
+    pytest's own version is already recorded, but a plugin contributing hooks is
+    otherwise anonymous: a trace could say a run used twelve xdist hooks without
+    saying which xdist.
+
+    ``__version__`` is tried first because it is free and usually right; stdlib
+    metadata covers the packages that do not expose one, and resolves a
+    top-level name to its distribution - ``xdist`` is shipped by ``pytest-xdist``.
     """
     sources: dict[str, str] = {}
     for spec in metadata.values():
@@ -219,6 +251,7 @@ def hookspec_sources(metadata: dict[str, dict[str, Any]]) -> dict[str, str]:
             continue
         module = sys.modules.get(top)
         version = getattr(module, "__version__", None) if module else None
+        version = version or _distribution_version(top)
         if version:
             sources[declared_in] = str(version)
     return sources

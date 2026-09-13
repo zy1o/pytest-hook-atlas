@@ -13,6 +13,8 @@ built or presented, never what was observed.
 
 - Traces record which plugin declared each set of hookspecs, and at what
   version, so a capture can say which xdist - or which project - produced it.
+  Read from `__version__` or stdlib metadata, never by adding a dependency to
+  the environment being measured.
 - Scenarios can run across several processes. Each writes its own trace,
   named `<scenario>.<process>.json` after xdist's logical worker names, and a
   scenario can declare the packages its capture virtualenv needs. Groundwork
