@@ -43,7 +43,9 @@ jobs:
                      /etc/apt/sources.list.d/*microsoft*
           sudo apt-get update
           sudo apt-get install -y graphviz
-      - run: pip install -e ".[dev]"
+      # docs extra too: the site sweep renders the real HTML, which is where
+      # swallowed markup and unrendered footnotes actually show up
+      - run: pip install -e ".[dev,docs]"
       - run: pytest -v
 
   linkcheck:

@@ -12,6 +12,26 @@ built or presented, never what was observed.
 
 ## [Unreleased]
 
+### Fixed
+
+- The `every-hook-conftest` scenario was silently broken on pytest 8.0.x and
+  9.0.x. Its generated conftest implements every declared hook, and pytest
+  turns its own deprecation warnings into errors - 8.0 rejected the deprecated
+  `pytest_cmdline_preparse` hook, and 9.0 rejected the deprecated `path`
+  argument. The conftest failed to import, the run collapsed from ~330 hook
+  calls to five, and the page went on claiming every hook was implemented while
+  showing four. The generator now skips deprecated hooks and arguments, and all
+  29 releases were re-captured.
+
+### Added
+
+- A sweep across every generated page, asserting that all four stages are
+  present, each is followed by a rendered diagram of plausible size, hooks link
+  to documentation, the overview columns are clickable, footnote references
+  resolve, and nothing was swallowed as HTML. It also checks the captures
+  themselves, which is what found the broken scenario above: a run that
+  collapses still builds a clean page.
+
 ### Added
 
 - Every hook's table now names the **plugins that implement it** rather than
