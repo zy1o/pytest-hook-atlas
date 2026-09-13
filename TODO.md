@@ -34,7 +34,8 @@ handful of variants - but nobody has measured it.
 
 ## The last hook
 
-51 of pytest 9.1's 52 hooks are observed. The one that is not:
+Every hook pytest declares is observed somewhere on the site except one, and
+that one is structural rather than a gap worth closing:
 
 - `pytest_cmdline_parse` - structurally unobservable. Monitoring can only be
   installed once a plugin manager exists, and plugins are loaded *inside* this
@@ -77,8 +78,8 @@ unless the directories have `__init__.py`. Give them distinct names.)
 
 ## Record where each hook was called from
 
-Alongside who implements it. Measured at about 4 microseconds per call, and the
-caller is usually a single stable site per hook.
+Alongside who implements it. Measured as cheap enough not to matter next to the
+hook call itself, and the caller is usually a single stable site per hook.
 
 Two constraints established while evaluating it:
 
@@ -92,18 +93,12 @@ tolerate older traces so a half-migrated state still builds.
 
 ## Backfill pytest 6.0 - 7.3
 
-Twenty-four releases that need older interpreters than the watcher runs, so
-they need a workflow with a Python matrix. The matrix can be derived from
+These releases need older interpreters than the watcher runs, so they need a
+workflow with a Python matrix. The matrix can be derived from
 `hook-atlas targets --detailed`, which already knows which Python each release
 supports - no hand-maintained table.
 
 ## Smaller things
 
-- Trace files are 93 MB pretty-printed, which is 2.5 million lines and makes
-  any branch touching them look enormous. Writing them compact is 41 MB and one
-  line per file - measured, not estimated. Diffs are no more readable at 20,000
-  lines per file than at one, and git stores both about the same. Hoisting the
-  duplicated `hookspecs` block out is *not* the lever it was recorded as: it is
-  3.8% of the bytes, not "roughly a third". `calls` is 91%.
 - The changes page compares hook *sets*, so a pure reordering reports "same
   hooks, different order" without saying what moved.

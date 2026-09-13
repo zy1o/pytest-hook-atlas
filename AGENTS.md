@@ -203,6 +203,20 @@ repoint a published URL at different content.
   python -m venv .venv && ./.venv/bin/pip install -e ".[dev,docs]"
   ./.venv/bin/pytest && git status --short   # must be empty
   ```
+- **Do not write down numbers that expire.** Line numbers, file sizes, byte
+  counts, ratios, percentages, timings, "N of M releases" - all true when
+  written and wrong a few commits later. A stale number is worse than none,
+  because it gets believed and acted on: a `TODO.md` entry here promised that
+  hoisting one block would take "roughly a third off the trace size", and when
+  it was finally measured it was a few percent - an entry that would have sent
+  whoever picked it up at the wrong thing. Say what to do and why it matters,
+  describe the relationship rather than the figure, and let whoever picks it up
+  measure it then. If the measurement *is* the point, write down how to reproduce it
+  instead of what it said.
+
+  This applies to living documents - `TODO.md`, `AGENTS.md`, `README.md`, code
+  comments. `CHANGELOG.md` entries and commit messages are different: they
+  describe a moment that has already passed, so a number in them stays true.
 - **Verify against reality, not against your own output.** Two bugs here
   survived a green build: a stylesheet whose selectors matched nothing, and a
   preview script that rendered a picture proving nothing. "Tests pass and the
