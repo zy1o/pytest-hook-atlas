@@ -121,6 +121,11 @@ repoint a published URL at different content.
 - **Never push to `main`.** Work on a branch and hand over the PR link.
 - **Record user-visible changes in `CHANGELOG.md`** under `[Unreleased]`.
   `tests/test_changelog.py` fails a version bump with no entry.
+- **Keep changelog entries to a line or two.** One bullet per change, leading
+  with what changed; the interesting *why* belongs in a trailing clause, not a
+  paragraph. Entries had drifted into three-paragraph explanations nobody was
+  going to read. If a change genuinely needs more room, the commit message is
+  the place for it - that is what it is for, and the changelog links to it.
 - **Explain *why* in comments**, not what. Most non-obvious code here exists
   because something failed in a specific way; say which.
 - **Test in an environment that matches CI.** A local venv usually has the
