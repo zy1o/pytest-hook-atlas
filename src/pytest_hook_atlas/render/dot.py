@@ -322,8 +322,25 @@ def build_columns(
                 **{"class": f"ha-column ha-{key}"},
             )
             builder = _Builder(hookspecs, base_url, key, totals, prefix=f"{key}_", theme=theme)
-            builder.chain(column, builder.emit(column, nodes))
+            elements = builder.emit(column, nodes)
+            builder.chain(column, elements)
+            _anchor_top(column, key, elements[0])
     return dot
+
+
+def _anchor_top(column: Any, key: str, first: tuple[str, str, str | None]) -> None:
+    """Pin a column's first step to a shared rank, so the column tops line up.
+
+    Without this the tops sit at different heights, because a cluster's label is
+    two lines when its hook has semantics to show (`firstresult`) and one when
+    it does not - and that difference lands on the box top. The anchor and its
+    edge are invisible, and Graphviz omits invisible nodes from the SVG
+    entirely, so this costs one rank of height and nothing else.
+    """
+    anchor = f"{key}_top"
+    column.node(anchor, style="invis", shape="point", width="0", height="0", label="")
+    entry, _, cluster = first
+    column.edge(anchor, entry, style="invis", **({"lhead": cluster} if cluster else {}))
 
 
 _XML_DECLARATION = re.compile(r"<\?xml.*?\?>\s*|<!DOCTYPE.*?>\s*", re.DOTALL)

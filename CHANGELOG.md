@@ -9,6 +9,8 @@ built or presented, never what was observed.
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-09-13
+
 ### Added
 
 - Traces record which plugin declared each set of hookspecs, and at what
@@ -20,6 +22,9 @@ built or presented, never what was observed.
   grouped by the flow they produced, not by name: under a splitting scheduler
   `gw0` and `gw1` swap flows between captures, so a name is a race, not an
   identity. Every distinct worker flow is drawn in full, however many there are.
+- Overview columns start at the same height. A cluster's label is two lines
+  when its hook has semantics to show and one when it does not, and that
+  difference was landing on the column top.
 - Each diagram says which command produced it, per process. A worker's is
   empty, because xdist starts it over execnet rather than from a command line.
 - Long repetitive stretches fold when drawn: one cycle, then a dashed box
@@ -143,5 +148,6 @@ single flat SVG from a scraped pytest log and had been dormant five years.
 - Cookiecutter scaffolding: `setup.py`, `setup.cfg`, `MANIFEST.in`, `tox.ini`,
   `Makefile`, and the unused Sphinx tree.
 
-[Unreleased]: https://github.com/zy1o/pytest-hook-atlas/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/zy1o/pytest-hook-atlas/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/zy1o/pytest-hook-atlas/releases/tag/v1.1.0
 [1.0.0]: https://github.com/zy1o/pytest-hook-atlas/releases/tag/v1.0.0
