@@ -52,9 +52,8 @@ def get_hook_implementation(hook_name: str) -> str:
     if not hookspec_item:
         return ""
     args_dict = inspect.signature(hookspec_item).parameters
-    unusable = deprecated_args(hook_name)
 
-    str_args = ", ".join(arg for arg in args_dict if arg not in unusable).strip(",")
+    str_args = ", ".join(arg for arg in args_dict).strip(",")
     hook_impl_str = f"""
 @pytest.hookimpl()
 def {hook_name}({str_args}):

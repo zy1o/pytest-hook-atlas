@@ -13,6 +13,8 @@
       "hook_atlas_tracer",
       ".",
       "-q",
+      "-W",
+      "ignore::pytest.PytestDeprecationWarning",
       "-p",
       "no:cacheprovider"
     ]

@@ -20,8 +20,18 @@ built or presented, never what was observed.
   `pytest_cmdline_preparse` hook, and 9.0 rejected the deprecated `path`
   argument. The conftest failed to import, the run collapsed from ~330 hook
   calls to five, and the page went on claiming every hook was implemented while
-  showing four. The generator now skips deprecated hooks and arguments, and all
-  29 releases were re-captured.
+  showing four.
+
+  The scenario now suppresses pytest's own removal warnings instead of dropping
+  the deprecated hooks, so it really does implement everything the version
+  declares. Every `PytestRemovedInNWarning` subclasses
+  `PytestDeprecationWarning`, so one filter covers every release. All 29
+  releases were re-captured.
+
+  This turned out to be worth doing rather than skipping: pytest 8.0 still
+  *calls* the deprecated `pytest_cmdline_preparse`, but too early for a
+  conftest to serve it - so it now appears, correctly, in that page's list of
+  hooks a conftest cannot serve.
 
 ### Added
 
