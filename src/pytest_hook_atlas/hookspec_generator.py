@@ -7,9 +7,40 @@ import inspect
 import _pytest.hookspec as hs
 
 
+def _spec_opts(hook_name):
+    """pluggy stores hookspec options on the function as <project>_spec."""
+    opts = getattr(getattr(hs, hook_name, None), "pytest_spec", None)
+    return opts if isinstance(opts, dict) else {}
+
+
+def is_deprecated(hook_name) -> bool:
+    """Does implementing this hook at all raise a deprecation warning?
+
+    pytest turns its own removal warnings into errors, so a conftest that
+    implements a deprecated hook fails to import and takes the whole run with
+    it. pytest 8.0 did this for pytest_cmdline_preparse.
+    """
+    return _spec_opts(hook_name).get("warn_on_impl") is not None
+
+
+def deprecated_args(hook_name) -> set:
+    """Arguments that cannot be named in an implementation without warning.
+
+    Same trap, one level down: pytest 9.0 errors on `path`, which it was in the
+    middle of replacing with `file_path`. Accepting the argument is enough to
+    fail; the implementation need never use it.
+    """
+    return set(_spec_opts(hook_name).get("warn_on_impl_args") or ())
+
+
 def get_hooks() -> list:
-    """Returns a list of pytest hooks"""
-    return [hook for hook in dir(hs) if hook.startswith("pytest_")]
+    """Hooks a conftest can implement without tripping a deprecation error."""
+    return [hook for hook in dir(hs) if hook.startswith("pytest_") and not is_deprecated(hook)]
+
+
+def skipped_hooks() -> list:
+    """Deprecated hooks left out, so a page can say what was excluded."""
+    return [hook for hook in dir(hs) if hook.startswith("pytest_") and is_deprecated(hook)]
 
 
 def get_hook_implementation(hook_name: str) -> str:
@@ -22,7 +53,7 @@ def get_hook_implementation(hook_name: str) -> str:
         return ""
     args_dict = inspect.signature(hookspec_item).parameters
 
-    str_args = ", ".join([arg for arg in args_dict]).strip(",")
+    str_args = ", ".join(arg for arg in args_dict).strip(",")
     hook_impl_str = f"""
 @pytest.hookimpl()
 def {hook_name}({str_args}):

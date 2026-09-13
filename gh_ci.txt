@@ -1,0 +1,508 @@
+Run pytest -v
+  pytest -v
+  shell: /usr/bin/bash -e {0}
+  env:
+    pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+    PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+    Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+    Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+    Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+    LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+============================= test session starts ==============================
+platform linux -- Python 3.12.14, pytest-9.1.1, pluggy-1.6.0 -- /opt/hostedtoolcache/Python/3.12.14/x64/bin/python
+cachedir: .pytest_cache
+rootdir: /home/runner/work/pytest-hook-atlas/pytest-hook-atlas
+configfile: pyproject.toml
+testpaths: tests
+collecting ... collected 197 items
+
+tests/test_analysis.py::test_repeated_subtrees_collapse_to_one_edge PASSED [  0%]
+tests/test_analysis.py::test_semantics_classification PASSED             [  1%]
+tests/test_analysis.py::test_semantics_handles_both_flags PASSED         [  1%]
+tests/test_analysis.py::test_plugin_provenance_is_collected PASSED       [  2%]
+tests/test_analysis.py::test_phase_graphs_skip_phases_this_scenario_never_ran PASSED [  2%]
+tests/test_analysis.py::test_find_subtrees_does_not_descend_into_a_match PASSED [  3%]
+tests/test_analysis.py::test_conftest_blind_spots_lists_hooks_no_conftest_served PASSED [  3%]
+tests/test_changelog.py::test_changelog_exists PASSED                    [  4%]
+tests/test_changelog.py::test_package_and_project_versions_agree PASSED  [  4%]
+tests/test_changelog.py::test_the_current_version_has_a_changelog_entry PASSED [  5%]
+tests/test_changelog.py::test_the_newest_entry_is_the_current_version PASSED [  5%]
+tests/test_changelog.py::test_an_unreleased_section_is_kept_open PASSED  [  6%]
+tests/test_changelog.py::test_entries_are_dated PASSED                   [  6%]
+tests/test_changelog.py::test_changelog_is_published_on_the_site PASSED  [  7%]
+tests/test_css.py::test_contrast_ratio_matches_known_values PASSED       [  7%]
+tests/test_css.py::test_column_titles_are_readable_in_both_themes[collection-dark] PASSED [  8%]
+tests/test_css.py::test_column_titles_are_readable_in_both_themes[collection-light] PASSED [  8%]
+tests/test_css.py::test_column_titles_are_readable_in_both_themes[finish-dark] PASSED [  9%]
+tests/test_css.py::test_column_titles_are_readable_in_both_themes[finish-light] PASSED [  9%]
+tests/test_css.py::test_column_titles_are_readable_in_both_themes[runtest-dark] PASSED [ 10%]
+tests/test_css.py::test_column_titles_are_readable_in_both_themes[runtest-light] PASSED [ 10%]
+tests/test_css.py::test_column_titles_are_readable_in_both_themes[startup-dark] PASSED [ 11%]
+tests/test_css.py::test_column_titles_are_readable_in_both_themes[startup-light] PASSED [ 11%]
+tests/test_css.py::test_body_and_muted_text_stay_readable_on_every_fill[collection-dark] PASSED [ 12%]
+tests/test_css.py::test_body_and_muted_text_stay_readable_on_every_fill[collection-light] PASSED [ 12%]
+tests/test_css.py::test_body_and_muted_text_stay_readable_on_every_fill[finish-dark] PASSED [ 13%]
+tests/test_css.py::test_body_and_muted_text_stay_readable_on_every_fill[finish-light] PASSED [ 13%]
+tests/test_css.py::test_body_and_muted_text_stay_readable_on_every_fill[runtest-dark] PASSED [ 14%]
+tests/test_css.py::test_body_and_muted_text_stay_readable_on_every_fill[runtest-light] PASSED [ 14%]
+tests/test_css.py::test_body_and_muted_text_stay_readable_on_every_fill[startup-dark] PASSED [ 15%]
+tests/test_css.py::test_body_and_muted_text_stay_readable_on_every_fill[startup-light] PASSED [ 15%]
+tests/test_css.py::test_node_borders_are_visible_against_their_own_fill[collection-dark] PASSED [ 16%]
+tests/test_css.py::test_node_borders_are_visible_against_their_own_fill[collection-light] PASSED [ 16%]
+tests/test_css.py::test_node_borders_are_visible_against_their_own_fill[finish-dark] PASSED [ 17%]
+tests/test_css.py::test_node_borders_are_visible_against_their_own_fill[finish-light] PASSED [ 17%]
+tests/test_css.py::test_node_borders_are_visible_against_their_own_fill[runtest-dark] PASSED [ 18%]
+tests/test_css.py::test_node_borders_are_visible_against_their_own_fill[runtest-light] PASSED [ 18%]
+tests/test_css.py::test_node_borders_are_visible_against_their_own_fill[startup-dark] PASSED [ 19%]
+tests/test_css.py::test_node_borders_are_visible_against_their_own_fill[startup-light] PASSED [ 19%]
+tests/test_css.py::test_fills_run_from_background_toward_the_hue PASSED  [ 20%]
+tests/test_css.py::test_stylesheet_covers_every_phase_and_step_in_both_themes PASSED [ 20%]
+tests/test_css.py::test_readable_on_returns_the_hue_unchanged_when_it_already_passes PASSED [ 21%]
+tests/test_css.py::test_shapes_are_wrapped_so_child_selectors_would_miss_them PASSED [ 21%]
+tests/test_css.py::test_stylesheet_uses_descendant_selectors_for_shapes PASSED [ 22%]
+tests/test_css.py::test_graphviz_groups_are_siblings_not_nested PASSED   [ 22%]
+tests/test_css.py::test_stylesheet_fills_match_the_baked_renderer[dark] PASSED [ 23%]
+tests/test_css.py::test_stylesheet_fills_match_the_baked_renderer[light] PASSED [ 23%]
+tests/test_css.py::test_filtering_actually_hides_internal_implementers PASSED [ 24%]
+tests/test_css.py::test_filtering_keeps_external_implementers_visible PASSED [ 24%]
+tests/test_css.py::test_nothing_is_hidden_when_the_filter_is_off PASSED  [ 25%]
+tests/test_css.py::test_the_cascade_evaluator_detects_the_bug_it_guards_against PASSED [ 25%]
+tests/test_doclinks.py::test_version_slug[9.1.1-9.1.x] PASSED            [ 26%]
+tests/test_doclinks.py::test_version_slug[8.0.2-8.0.x] PASSED            [ 26%]
+tests/test_doclinks.py::test_version_slug[10.0.0rc1-10.0.x] PASSED       [ 27%]
+tests/test_doclinks.py::test_version_slug[9-stable] PASSED               [ 27%]
+tests/test_doclinks.py::test_reference_url_uses_the_current_nested_path PASSED [ 28%]
+tests/test_doclinks.py::test_hook_url_targets_the_hookspec_anchor PASSED [ 28%]
+tests/test_doclinks.py::test_unverified_resolution_falls_back_rather_than_guessing PASSED [ 29%]
+tests/test_doclinks.py::test_resolution_falls_back_when_pinned_docs_are_unavailable PASSED [ 29%]
+tests/test_doclinks.py::test_resolution_prefers_the_pinned_version_when_it_works PASSED [ 30%]
+tests/test_doclinks.py::test_anchor_exists PASSED                        [ 30%]
+tests/test_flow.py::test_consecutive_identical_siblings_collapse_with_a_count PASSED [ 31%]
+tests/test_flow.py::test_non_consecutive_repeats_stay_separate PASSED    [ 31%]
+tests/test_flow.py::test_nodes_with_different_children_do_not_collapse PASSED [ 32%]
+tests/test_flow.py::test_order_is_preserved PASSED                       [ 32%]
+tests/test_flow.py::test_nesting_is_preserved PASSED                     [ 33%]
+tests/test_flow.py::test_prune_limits_depth PASSED                       [ 34%]
+tests/test_flow.py::test_group_variants_orders_by_frequency_and_diffs_against_the_common_one PASSED [ 34%]
+tests/test_flow.py::test_group_variants_reports_missing_steps PASSED     [ 35%]
+tests/test_flow.py::test_phase_variants_keeps_distinct_anchors_as_one_sequence PASSED [ 35%]
+tests/test_flow.py::test_phase_variants_splits_a_repeated_anchor PASSED  [ 36%]
+tests/test_flow.py::test_phase_variants_of_nothing PASSED                [ 36%]
+tests/test_generated_site.py::test_every_capture_saw_a_plausible_number_of_hooks PASSED [ 37%]
+tests/test_generated_site.py::test_the_collapse_check_recognises_a_collapsed_run PASSED [ 37%]
+tests/test_generated_site.py::test_no_capture_recorded_a_desync PASSED   [ 38%]
+tests/test_generated_site.py::test_every_capture_exercises_every_phase PASSED [ 38%]
+tests/test_generated_site.py::test_group_pages_were_generated PASSED     [ 39%]
+tests/test_generated_site.py::test_every_group_page_has_every_stage PASSED [ 39%]
+tests/test_generated_site.py::test_every_stage_is_followed_by_a_rendered_diagram PASSED [ 40%]
+tests/test_generated_site.py::test_every_diagram_is_well_formed_and_not_collapsed PASSED [ 40%]
+tests/test_generated_site.py::test_every_diagram_links_its_hooks_to_documentation PASSED [ 41%]
+tests/test_generated_site.py::test_the_overview_columns_are_all_present_and_clickable PASSED [ 41%]
+tests/test_generated_site.py::test_every_group_page_carries_provenance_and_a_picker PASSED [ 42%]
+tests/test_generated_site.py::test_every_group_page_lists_its_hooks PASSED [ 42%]
+tests/test_generated_site.py::test_no_footnote_reference_is_left_dangling PASSED [ 43%]
+tests/test_generated_site.py::test_angle_bracket_names_are_inside_code_spans PASSED [ 43%]
+tests/test_generated_site.py::test_no_page_is_an_empty_stub PASSED       [ 44%]
+tests/test_generated_site.py::test_top_level_pages_all_exist PASSED      [ 44%]
+tests/test_generated_site.py::test_the_navigation_points_only_at_pages_that_exist PASSED [ 45%]
+tests/test_generated_site.py::test_html_renders_a_diagram_on_every_group_page ERROR [ 45%]
+tests/test_generated_site.py::test_html_keeps_documentation_links_clickable ERROR [ 46%]
+tests/test_generated_site.py::test_html_renders_footnotes_rather_than_leaving_markup ERROR [ 46%]
+tests/test_generated_site.py::test_html_did_not_swallow_the_anonymous_plugin ERROR [ 47%]
+tests/test_grouping.py::test_fingerprint_is_stable_for_identical_traces PASSED [ 47%]
+tests/test_grouping.py::test_fingerprint_changes_when_the_flow_changes PASSED [ 48%]
+tests/test_grouping.py::test_bookkeeping_hooks_do_not_change_the_fingerprint PASSED [ 48%]
+tests/test_grouping.py::test_bookkeeping_count_differences_are_ignored PASSED [ 49%]
+tests/test_grouping.py::test_non_bookkeeping_counts_still_matter PASSED  [ 49%]
+tests/test_grouping.py::test_consecutive_versions_with_one_fingerprint_form_a_group PASSED [ 50%]
+tests/test_grouping.py::test_a_reverted_flow_does_not_rejoin_its_earlier_group PASSED [ 50%]
+tests/test_grouping.py::test_groups_are_named_by_their_first_version PASSED [ 51%]
+tests/test_grouping.py::test_group_versions_sorts_by_version_not_string PASSED [ 51%]
+tests/test_grouping.py::test_group_versions_of_nothing PASSED            [ 52%]
+tests/test_grouping.py::test_retention_keeps_the_last_n_majors PASSED    [ 52%]
+tests/test_grouping.py::test_retention_never_deletes_traces_only_limits_rendering PASSED [ 53%]
+tests/test_grouping.py::test_adding_a_scenario_marks_existing_versions_as_incomplete PASSED [ 53%]
+tests/test_grouping.py::test_captured_pairs_reports_version_and_scenario PASSED [ 54%]
+tests/test_grouping.py::test_real_traces_group_into_stable_urls PASSED   [ 54%]
+tests/test_hookspec_generator.py::test_get_hooks_finds_known_hooks PASSED [ 55%]
+tests/test_hookspec_generator.py::test_generated_conftest_reproduces_hook_signature PASSED [ 55%]
+tests/test_hookspec_generator.py::test_generated_conftest_is_valid_python PASSED [ 56%]
+tests/test_hookspec_generator.py::test_generator_includes_deprecated_hooks PASSED [ 56%]
+tests/test_hookspec_generator.py::test_deprecated_hooks_are_reported_not_hidden PASSED [ 57%]
+tests/test_hookspec_generator.py::test_generated_conftest_keeps_deprecated_arguments PASSED [ 57%]
+tests/test_implementers.py::test_identical_releases_collapse_to_one_run PASSED [ 58%]
+tests/test_implementers.py::test_a_change_splits_into_runs PASSED        [ 58%]
+tests/test_implementers.py::test_a_reverted_change_does_not_merge_runs PASSED [ 59%]
+tests/test_implementers.py::test_ordering_alone_does_not_split_a_run PASSED [ 59%]
+tests/test_implementers.py::test_missing_versions_are_ignored PASSED     [ 60%]
+tests/test_implementers.py::test_reconcile_of_nothing PASSED             [ 60%]
+tests/test_implementers.py::test_real_traces_show_pytest_moving_a_hookimpl PASSED [ 61%]
+tests/test_implementers.py::test_every_hook_in_a_group_is_reconciled PASSED [ 61%]
+tests/test_implementers.py::test_call_order_is_pluggys_execution_order_not_its_storage_order PASSED [ 62%]
+tests/test_implementers.py::test_real_traces_run_wrappers_before_trylast PASSED [ 62%]
+tests/test_implementers.py::test_owner_strips_the_hook_name_and_keeps_the_class PASSED [ 63%]
+tests/test_implementers.py::test_label_adds_the_registered_name_only_when_it_differs PASSED [ 63%]
+tests/test_implementers.py::test_deltas_name_the_module_not_just_the_plugin PASSED [ 64%]
+tests/test_implementers.py::test_pytest_own_plugins_are_classified_as_internal PASSED [ 64%]
+tests/test_implementers.py::test_a_conftest_and_third_party_plugins_are_external PASSED [ 65%]
+tests/test_implementers.py::test_a_module_merely_starting_with_pytest_is_not_internal PASSED [ 65%]
+tests/test_implementers.py::test_a_conftest_is_labelled_by_its_path PASSED [ 66%]
+tests/test_implementers.py::test_nested_conftests_stay_distinct PASSED   [ 67%]
+tests/test_pypi_and_matrix.py::test_classifiers_give_the_upper_python_bound PASSED [ 67%]
+tests/test_pypi_and_matrix.py::test_requires_python_gives_the_lower_bound PASSED [ 68%]
+tests/test_pypi_and_matrix.py::test_without_classifiers_only_the_lower_bound_applies PASSED [ 68%]
+tests/test_pypi_and_matrix.py::test_malformed_requires_python_does_not_crash PASSED [ 69%]
+tests/test_pypi_and_matrix.py::test_classifier_parsing_keeps_only_minor_versions PASSED [ 69%]
+tests/test_pypi_and_matrix.py::test_yanked_releases_are_never_captured PASSED [ 70%]
+tests/test_pypi_and_matrix.py::test_already_captured_releases_are_skipped PASSED [ 70%]
+tests/test_pypi_and_matrix.py::test_captured_versions_ignores_empty_directories PASSED [ 71%]
+tests/test_pypi_and_matrix.py::test_captured_versions_of_a_missing_directory PASSED [ 71%]
+tests/test_pypi_and_matrix.py::test_releases_unreachable_on_this_python_are_skipped PASSED [ 72%]
+tests/test_render.py::test_semantics_are_words_not_shapes PASSED         [ 72%]
+tests/test_render.py::test_repeat_counts_appear_in_labels PASSED         [ 73%]
+tests/test_render.py::test_every_hook_links_to_its_documentation PASSED  [ 73%]
+tests/test_render.py::test_inline_svg_is_embeddable PASSED               [ 74%]
+tests/test_render.py::test_svg_keeps_its_natural_size PASSED             [ 74%]
+tests/test_render.py::test_diagram_is_not_absurdly_offset PASSED         [ 75%]
+tests/test_render.py::test_nesting_becomes_a_cluster PASSED              [ 75%]
+tests/test_render.py::test_styling_hooks_are_present_for_css_theming PASSED [ 76%]
+tests/test_scenarios_and_build.py::test_scenarios_are_discovered_in_declared_order PASSED [ 76%]
+tests/test_scenarios_and_build.py::test_every_scenario_links_to_its_own_source PASSED [ 77%]
+tests/test_scenarios_and_build.py::test_scenario_metadata_excludes_the_toml_itself PASSED [ 77%]
+tests/test_scenarios_and_build.py::test_capture_produces_a_usable_trace PASSED [ 78%]
+tests/test_scenarios_and_build.py::test_build_writes_pages_and_assets PASSED [ 78%]
+tests/test_scenarios_and_build.py::test_group_page_carries_provenance PASSED [ 79%]
+tests/test_scenarios_and_build.py::test_group_page_inlines_diagrams_so_links_stay_clickable PASSED [ 79%]
+tests/test_scenarios_and_build.py::test_group_page_shows_how_other_paths_differed PASSED [ 80%]
+tests/test_scenarios_and_build.py::test_site_index_lists_every_scenario PASSED [ 80%]
+tests/test_scenarios_and_build.py::test_conftest_generator_runs_as_a_standalone_script PASSED [ 81%]
+tests/test_scenarios_and_build.py::test_capture_accepts_an_alternate_interpreter PASSED [ 81%]
+tests/test_site_structure.py::test_every_captured_version_has_a_page PASSED [ 82%]
+tests/test_site_structure.py::test_alias_pages_point_at_their_group PASSED [ 82%]
+tests/test_site_structure.py::test_group_pages_are_named_by_their_first_version PASSED [ 83%]
+tests/test_site_structure.py::test_latest_points_at_the_newest_group PASSED [ 83%]
+tests/test_site_structure.py::test_version_picker_covers_every_rendered_version PASSED [ 84%]
+tests/test_site_structure.py::test_nav_lists_groups_but_not_aliases PASSED [ 84%]
+tests/test_site_structure.py::test_design_notes_explain_the_colour_choices PASSED [ 85%]
+tests/test_site_structure.py::test_group_pages_say_what_identical_means PASSED [ 85%]
+tests/test_site_structure.py::test_retention_limits_rendering_not_storage PASSED [ 86%]
+tests/test_site_structure.py::test_stylesheet_and_core_pages_are_written PASSED [ 86%]
+tests/test_site_structure.py::test_scenario_source_is_linked_not_inlined PASSED [ 87%]
+tests/test_site_structure.py::test_heading_anchor_matches_python_markdown PASSED [ 87%]
+tests/test_site_structure.py::test_overview_columns_link_to_their_phase_headings PASSED [ 88%]
+tests/test_site_structure.py::test_hook_table_names_implementers_rather_than_counting_them PASSED [ 88%]
+tests/test_site_structure.py::test_implementers_that_changed_mid_range_are_footnoted PASSED [ 89%]
+tests/test_site_structure.py::test_stable_groups_carry_no_footnotes PASSED [ 89%]
+tests/test_site_structure.py::test_anonymous_plugin_survives_rendering PASSED [ 90%]
+tests/test_site_structure.py::test_implementers_are_listed_one_per_line PASSED [ 90%]
+tests/test_site_structure.py::test_documentation_links_are_never_an_unverified_pin PASSED [ 91%]
+tests/test_site_structure.py::test_implementers_are_tagged_internal_or_external PASSED [ 91%]
+tests/test_site_structure.py::test_a_scenario_without_third_party_plugins_has_nothing_external PASSED [ 92%]
+tests/test_site_structure.py::test_the_filter_script_is_written_and_registered PASSED [ 92%]
+tests/test_tracer.py::test_trace_records_environment_and_scenario PASSED [ 93%]
+tests/test_tracer.py::test_call_tree_is_well_formed PASSED               [ 93%]
+tests/test_tracer.py::test_nesting_reflects_real_pytest_structure PASSED [ 94%]
+tests/test_tracer.py::test_records_which_plugin_supplied_each_implementation PASSED [ 94%]
+tests/test_tracer.py::test_prologue_matches_documented_boundary PASSED   [ 95%]
+tests/test_tracer.py::test_historic_hooks_replay_for_late_registered_plugins PASSED [ 95%]
+tests/test_tracer.py::test_hookspec_metadata_classifies_hook_semantics PASSED [ 96%]
+tests/test_tracer.py::test_recorder_builds_nested_tree_without_pytest PASSED [ 96%]
+tests/test_tracer.py::test_recorder_reports_desync_rather_than_crashing PASSED [ 97%]
+tests/test_tracer.py::test_tracer_is_standalone_and_old_python_compatible PASSED [ 97%]
+tests/test_tracer.py::test_raised_handles_both_pluggy_result_shapes PASSED [ 98%]
+tests/test_tracer.py::test_traces_are_reproducible_as_whole_files PASSED [ 98%]
+tests/test_tracer.py::test_recorded_argv_carries_no_absolute_paths PASSED [ 99%]
+tests/test_tracer.py::test_conftest_plugins_are_named_relatively PASSED  [100%]
+
+==================================== ERRORS ====================================
+______ ERROR at setup of test_html_renders_a_diagram_on_every_group_page _______
+
+site = PosixPath('/tmp/pytest-of-runner/pytest-0/docs0')
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7f31885aad20>, _basetemp=PosixPath('/tmp/pytest-of-runner/pytest-0'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="session")
+    def html(site, tmp_path_factory):
+        """Build the real site. Skipped where mkdocs is not installed."""
+        pytest.importorskip("mkdocs", reason="site rendering needs the docs extra")
+        import subprocess
+    
+        out = tmp_path_factory.mktemp("site")
+        config = REPO_ROOT / "mkdocs.yml"
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "mkdocs",
+                "build",
+                "--strict",
+                "-f",
+                str(config),
+                "--site-dir",
+                str(out),
+            ],
+            capture_output=True,
+            text=True,
+            cwd=REPO_ROOT,
+        )
+>       assert result.returncode == 0, result.stderr[-2000:]
+E       AssertionError: 
+E          │  ⚠  Warning from the Material for MkDocs team
+E          │
+E          │  MkDocs 2.0, the underlying framework of Material for MkDocs,
+E          │  will introduce backward-incompatible changes, including:
+E          │
+E          │  × All plugins will stop working – the plugin system has been removed
+E          │  × All theme overrides will break – the theming system has been rewritten
+E          │  × No migration path exists – existing projects cannot be upgraded
+E          │  × Closed contribution model – community members can't report bugs
+E          │  × Currently unlicensed – unsuitable for production use
+E          │
+E          │  Our full analysis:
+E          │
+E          │  https://squidfunk.github.io/mkdocs-material/blog/2026/02/18/mkdocs-2.0/
+E         
+E         ERROR   -  Config value 'docs_dir': The path '/home/runner/work/pytest-hook-atlas/pytest-hook-atlas/docs' isn't an existing directory.
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/opt/hostedtoolcache/Python/3.12.14/x64/bin/python', '-m', 'mkdocs', 'build', '--strict', '-f', '/home/runner/work/pytest-hook-atlas/pytest-hook-atlas/mkdocs.yml', '--site-dir', '/tmp/pytest-of-runner/pytest-0/site0'], returncode=1, stdout='\nAborted with a configuration error!\n', stderr="\n\x1b[31m │  ⚠  Warning from the Material for MkDocs team\x1b[0m\n\x1b[31m │\x1b[0m\n\x1b[31m │\x1b[0m  MkDocs 2.0, the underlying framework of Material for MkDocs,\n\x1b[31m │\x1b[0m  will introduce backward-incompatible changes, including:\n\x1b[31m │\x1b[0m\n\x1b[31m │  × \x1b[0mAll plugins will stop working – the plugin system has been removed\n\x1b[31m │  × \x1b[0mAll theme overrides will break – the theming system has been rewritten\n\x1b[31m │  × \x1b[0mNo migration path exists – existing projects cannot be upgraded\n\x1b[31m │  × \x1b[0mClosed contribution model – community members can't report bugs\n\x1b[31m │  × \x1b[0mCurrently unlicensed – unsuitable for production use\n\x1b[31m │\x1b[0m\n\x1b[31m │\x1b[0m  Our full analysis:\n\x1b[31m │\x1b[0m\n\x1b[31m │\x1b[0m  \x1b[4mhttps://squidfunk.github.io/mkdocs-material/blog/2026/02/18/mkdocs-2.0/\x1b[0m\n\x1b[0m\nERROR   -  Config value 'docs_dir': The path '/home/runner/work/pytest-hook-atlas/pytest-hook-atlas/docs' isn't an existing directory.\n").returncode
+
+tests/test_generated_site.py:267: AssertionError
+_______ ERROR at setup of test_html_keeps_documentation_links_clickable ________
+
+site = PosixPath('/tmp/pytest-of-runner/pytest-0/docs0')
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7f31885aad20>, _basetemp=PosixPath('/tmp/pytest-of-runner/pytest-0'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="session")
+    def html(site, tmp_path_factory):
+        """Build the real site. Skipped where mkdocs is not installed."""
+        pytest.importorskip("mkdocs", reason="site rendering needs the docs extra")
+        import subprocess
+    
+        out = tmp_path_factory.mktemp("site")
+        config = REPO_ROOT / "mkdocs.yml"
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "mkdocs",
+                "build",
+                "--strict",
+                "-f",
+                str(config),
+                "--site-dir",
+                str(out),
+            ],
+            capture_output=True,
+            text=True,
+            cwd=REPO_ROOT,
+        )
+>       assert result.returncode == 0, result.stderr[-2000:]
+E       AssertionError: 
+E          │  ⚠  Warning from the Material for MkDocs team
+E          │
+E          │  MkDocs 2.0, the underlying framework of Material for MkDocs,
+E          │  will introduce backward-incompatible changes, including:
+E          │
+E          │  × All plugins will stop working – the plugin system has been removed
+E          │  × All theme overrides will break – the theming system has been rewritten
+E          │  × No migration path exists – existing projects cannot be upgraded
+E          │  × Closed contribution model – community members can't report bugs
+E          │  × Currently unlicensed – unsuitable for production use
+E          │
+E          │  Our full analysis:
+E          │
+E          │  https://squidfunk.github.io/mkdocs-material/blog/2026/02/18/mkdocs-2.0/
+E         
+E         ERROR   -  Config value 'docs_dir': The path '/home/runner/work/pytest-hook-atlas/pytest-hook-atlas/docs' isn't an existing directory.
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/opt/hostedtoolcache/Python/3.12.14/x64/bin/python', '-m', 'mkdocs', 'build', '--strict', '-f', '/home/runner/work/pytest-hook-atlas/pytest-hook-atlas/mkdocs.yml', '--site-dir', '/tmp/pytest-of-runner/pytest-0/site0'], returncode=1, stdout='\nAborted with a configuration error!\n', stderr="\n\x1b[31m │  ⚠  Warning from the Material for MkDocs team\x1b[0m\n\x1b[31m │\x1b[0m\n\x1b[31m │\x1b[0m  MkDocs 2.0, the underlying framework of Material for MkDocs,\n\x1b[31m │\x1b[0m  will introduce backward-incompatible changes, including:\n\x1b[31m │\x1b[0m\n\x1b[31m │  × \x1b[0mAll plugins will stop working – the plugin system has been removed\n\x1b[31m │  × \x1b[0mAll theme overrides will break – the theming system has been rewritten\n\x1b[31m │  × \x1b[0mNo migration path exists – existing projects cannot be upgraded\n\x1b[31m │  × \x1b[0mClosed contribution model – community members can't report bugs\n\x1b[31m │  × \x1b[0mCurrently unlicensed – unsuitable for production use\n\x1b[31m │\x1b[0m\n\x1b[31m │\x1b[0m  Our full analysis:\n\x1b[31m │\x1b[0m\n\x1b[31m │\x1b[0m  \x1b[4mhttps://squidfunk.github.io/mkdocs-material/blog/2026/02/18/mkdocs-2.0/\x1b[0m\n\x1b[0m\nERROR   -  Config value 'docs_dir': The path '/home/runner/work/pytest-hook-atlas/pytest-hook-atlas/docs' isn't an existing directory.\n").returncode
+
+tests/test_generated_site.py:267: AssertionError
+___ ERROR at setup of test_html_renders_footnotes_rather_than_leaving_markup ___
+
+site = PosixPath('/tmp/pytest-of-runner/pytest-0/docs0')
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7f31885aad20>, _basetemp=PosixPath('/tmp/pytest-of-runner/pytest-0'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="session")
+    def html(site, tmp_path_factory):
+        """Build the real site. Skipped where mkdocs is not installed."""
+        pytest.importorskip("mkdocs", reason="site rendering needs the docs extra")
+        import subprocess
+    
+        out = tmp_path_factory.mktemp("site")
+        config = REPO_ROOT / "mkdocs.yml"
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "mkdocs",
+                "build",
+                "--strict",
+                "-f",
+                str(config),
+                "--site-dir",
+                str(out),
+            ],
+            capture_output=True,
+            text=True,
+            cwd=REPO_ROOT,
+        )
+>       assert result.returncode == 0, result.stderr[-2000:]
+E       AssertionError: 
+E          │  ⚠  Warning from the Material for MkDocs team
+E          │
+E          │  MkDocs 2.0, the underlying framework of Material for MkDocs,
+E          │  will introduce backward-incompatible changes, including:
+E          │
+E          │  × All plugins will stop working – the plugin system has been removed
+E          │  × All theme overrides will break – the theming system has been rewritten
+E          │  × No migration path exists – existing projects cannot be upgraded
+E          │  × Closed contribution model – community members can't report bugs
+E          │  × Currently unlicensed – unsuitable for production use
+E          │
+E          │  Our full analysis:
+E          │
+E          │  https://squidfunk.github.io/mkdocs-material/blog/2026/02/18/mkdocs-2.0/
+E         
+E         ERROR   -  Config value 'docs_dir': The path '/home/runner/work/pytest-hook-atlas/pytest-hook-atlas/docs' isn't an existing directory.
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/opt/hostedtoolcache/Python/3.12.14/x64/bin/python', '-m', 'mkdocs', 'build', '--strict', '-f', '/home/runner/work/pytest-hook-atlas/pytest-hook-atlas/mkdocs.yml', '--site-dir', '/tmp/pytest-of-runner/pytest-0/site0'], returncode=1, stdout='\nAborted with a configuration error!\n', stderr="\n\x1b[31m │  ⚠  Warning from the Material for MkDocs team\x1b[0m\n\x1b[31m │\x1b[0m\n\x1b[31m │\x1b[0m  MkDocs 2.0, the underlying framework of Material for MkDocs,\n\x1b[31m │\x1b[0m  will introduce backward-incompatible changes, including:\n\x1b[31m │\x1b[0m\n\x1b[31m │  × \x1b[0mAll plugins will stop working – the plugin system has been removed\n\x1b[31m │  × \x1b[0mAll theme overrides will break – the theming system has been rewritten\n\x1b[31m │  × \x1b[0mNo migration path exists – existing projects cannot be upgraded\n\x1b[31m │  × \x1b[0mClosed contribution model – community members can't report bugs\n\x1b[31m │  × \x1b[0mCurrently unlicensed – unsuitable for production use\n\x1b[31m │\x1b[0m\n\x1b[31m │\x1b[0m  Our full analysis:\n\x1b[31m │\x1b[0m\n\x1b[31m │\x1b[0m  \x1b[4mhttps://squidfunk.github.io/mkdocs-material/blog/2026/02/18/mkdocs-2.0/\x1b[0m\n\x1b[0m\nERROR   -  Config value 'docs_dir': The path '/home/runner/work/pytest-hook-atlas/pytest-hook-atlas/docs' isn't an existing directory.\n").returncode
+
+tests/test_generated_site.py:267: AssertionError
+_______ ERROR at setup of test_html_did_not_swallow_the_anonymous_plugin _______
+
+site = PosixPath('/tmp/pytest-of-runner/pytest-0/docs0')
+tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=<pluggy._tracing.TagTracerSub object at 0x7f31885aad20>, _basetemp=PosixPath('/tmp/pytest-of-runner/pytest-0'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="session")
+    def html(site, tmp_path_factory):
+        """Build the real site. Skipped where mkdocs is not installed."""
+        pytest.importorskip("mkdocs", reason="site rendering needs the docs extra")
+        import subprocess
+    
+        out = tmp_path_factory.mktemp("site")
+        config = REPO_ROOT / "mkdocs.yml"
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "mkdocs",
+                "build",
+                "--strict",
+                "-f",
+                str(config),
+                "--site-dir",
+                str(out),
+            ],
+            capture_output=True,
+            text=True,
+            cwd=REPO_ROOT,
+        )
+>       assert result.returncode == 0, result.stderr[-2000:]
+E       AssertionError: 
+E          │  ⚠  Warning from the Material for MkDocs team
+E          │
+E          │  MkDocs 2.0, the underlying framework of Material for MkDocs,
+E          │  will introduce backward-incompatible changes, including:
+E          │
+E          │  × All plugins will stop working – the plugin system has been removed
+E          │  × All theme overrides will break – the theming system has been rewritten
+E          │  × No migration path exists – existing projects cannot be upgraded
+E          │  × Closed contribution model – community members can't report bugs
+E          │  × Currently unlicensed – unsuitable for production use
+E          │
+E          │  Our full analysis:
+E          │
+E          │  https://squidfunk.github.io/mkdocs-material/blog/2026/02/18/mkdocs-2.0/
+E         
+E         ERROR   -  Config value 'docs_dir': The path '/home/runner/work/pytest-hook-atlas/pytest-hook-atlas/docs' isn't an existing directory.
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/opt/hostedtoolcache/Python/3.12.14/x64/bin/python', '-m', 'mkdocs', 'build', '--strict', '-f', '/home/runner/work/pytest-hook-atlas/pytest-hook-atlas/mkdocs.yml', '--site-dir', '/tmp/pytest-of-runner/pytest-0/site0'], returncode=1, stdout='\nAborted with a configuration error!\n', stderr="\n\x1b[31m │  ⚠  Warning from the Material for MkDocs team\x1b[0m\n\x1b[31m │\x1b[0m\n\x1b[31m │\x1b[0m  MkDocs 2.0, the underlying framework of Material for MkDocs,\n\x1b[31m │\x1b[0m  will introduce backward-incompatible changes, including:\n\x1b[31m │\x1b[0m\n\x1b[31m │  × \x1b[0mAll plugins will stop working – the plugin system has been removed\n\x1b[31m │  × \x1b[0mAll theme overrides will break – the theming system has been rewritten\n\x1b[31m │  × \x1b[0mNo migration path exists – existing projects cannot be upgraded\n\x1b[31m │  × \x1b[0mClosed contribution model – community members can't report bugs\n\x1b[31m │  × \x1b[0mCurrently unlicensed – unsuitable for production use\n\x1b[31m │\x1b[0m\n\x1b[31m │\x1b[0m  Our full analysis:\n\x1b[31m │\x1b[0m\n\x1b[31m │\x1b[0m  \x1b[4mhttps://squidfunk.github.io/mkdocs-material/blog/2026/02/18/mkdocs-2.0/\x1b[0m\n\x1b[0m\nERROR   -  Config value 'docs_dir': The path '/home/runner/work/pytest-hook-atlas/pytest-hook-atlas/docs' isn't an existing directory.\n").returncode
+
+tests/test_generated_site.py:267: AssertionError
+=========================== short test summary info ============================
+ERROR tests/test_generated_site.py::test_html_renders_a_diagram_on_every_group_page - AssertionError: 
+   │  ⚠  Warning from the Material for MkDocs team
+   │
+   │  MkDocs 2.0, the underlying framework of Material for MkDocs,
+   │  will introduce backward-incompatible changes, including:
+   │
+   │  × All plugins will stop working – the plugin system has been removed
+   │  × All theme overrides will break – the theming system has been rewritten
+   │  × No migration path exists – existing projects cannot be upgraded
+   │  × Closed contribution model – community members can't report bugs
+   │  × Currently unlicensed – unsuitable for production use
+   │
+   │  Our full analysis:
+   │
+   │  https://squidfunk.github.io/mkdocs-material/blog/2026/02/18/mkdocs-2.0/
+  
+  ERROR   -  Config value 'docs_dir': The path '/home/runner/work/pytest-hook-atlas/pytest-hook-atlas/docs' isn't an existing directory.
+  
+assert 1 == 0
+ +  where 1 = CompletedProcess(args=['/opt/hostedtoolcache/Python/3.12.14/x64/bin/python', '-m', 'mkdocs', 'build', '--strict', '-f', '/home/runner/work/pytest-hook-atlas/pytest-hook-atlas/mkdocs.yml', '--site-dir', '/tmp/pytest-of-runner/pytest-0/site0'], returncode=1, stdout='\nAborted with a configuration error!\n', stderr="\n\x1b[31m │  ⚠  Warning from the Material for MkDocs team\x1b[0m\n\x1b[31m │\x1b[0m\n\x1b[31m │\x1b[0m  MkDocs 2.0, the underlying framework of Material for MkDocs,\n\x1b[31m │\x1b[0m  will introduce backward-incompatible changes, including:\n\x1b[31m │\x1b[0m\n\x1b[31m │  × \x1b[0mAll plugins will stop working – the plugin system has been removed\n\x1b[31m │  × \x1b[0mAll theme overrides will break – the theming system has been rewritten\n\x1b[31m │  × \x1b[0mNo migration path exists – existing projects cannot be upgraded\n\x1b[31m │  × \x1b[0mClosed contribution model – community members can't report bugs\n\x1b[31m │  × \x1b[0mCurrently unlicensed – unsuitable for production use\n\x1b[31m │\x1b[0m\n\x1b[31m │\x1b[0m  Our full analysis:\n\x1b[31m │\x1b[0m\n\x1b[31m │\x1b[0m  \x1b[4mhttps://squidfunk.github.io/mkdocs-material/blog/2026/02/18/mkdocs-2.0/\x1b[0m\n\x1b[0m\nERROR   -  Config value 'docs_dir': The path '/home/runner/work/pytest-hook-atlas/pytest-hook-atlas/docs' isn't an existing directory.\n").returncode
+ERROR tests/test_generated_site.py::test_html_keeps_documentation_links_clickable - AssertionError: 
+   │  ⚠  Warning from the Material for MkDocs team
+   │
+   │  MkDocs 2.0, the underlying framework of Material for MkDocs,
+   │  will introduce backward-incompatible changes, including:
+   │
+   │  × All plugins will stop working – the plugin system has been removed
+   │  × All theme overrides will break – the theming system has been rewritten
+   │  × No migration path exists – existing projects cannot be upgraded
+   │  × Closed contribution model – community members can't report bugs
+   │  × Currently unlicensed – unsuitable for production use
+   │
+   │  Our full analysis:
+   │
+   │  https://squidfunk.github.io/mkdocs-material/blog/2026/02/18/mkdocs-2.0/
+  
+  ERROR   -  Config value 'docs_dir': The path '/home/runner/work/pytest-hook-atlas/pytest-hook-atlas/docs' isn't an existing directory.
+  
+assert 1 == 0
+ +  where 1 = CompletedProcess(args=['/opt/hostedtoolcache/Python/3.12.14/x64/bin/python', '-m', 'mkdocs', 'build', '--strict', '-f', '/home/runner/work/pytest-hook-atlas/pytest-hook-atlas/mkdocs.yml', '--site-dir', '/tmp/pytest-of-runner/pytest-0/site0'], returncode=1, stdout='\nAborted with a configuration error!\n', stderr="\n\x1b[31m │  ⚠  Warning from the Material for MkDocs team\x1b[0m\n\x1b[31m │\x1b[0m\n\x1b[31m │\x1b[0m  MkDocs 2.0, the underlying framework of Material for MkDocs,\n\x1b[31m │\x1b[0m  will introduce backward-incompatible changes, including:\n\x1b[31m │\x1b[0m\n\x1b[31m │  × \x1b[0mAll plugins will stop working – the plugin system has been removed\n\x1b[31m │  × \x1b[0mAll theme overrides will break – the theming system has been rewritten\n\x1b[31m │  × \x1b[0mNo migration path exists – existing projects cannot be upgraded\n\x1b[31m │  × \x1b[0mClosed contribution model – community members can't report bugs\n\x1b[31m │  × \x1b[0mCurrently unlicensed – unsuitable for production use\n\x1b[31m │\x1b[0m\n\x1b[31m │\x1b[0m  Our full analysis:\n\x1b[31m │\x1b[0m\n\x1b[31m │\x1b[0m  \x1b[4mhttps://squidfunk.github.io/mkdocs-material/blog/2026/02/18/mkdocs-2.0/\x1b[0m\n\x1b[0m\nERROR   -  Config value 'docs_dir': The path '/home/runner/work/pytest-hook-atlas/pytest-hook-atlas/docs' isn't an existing directory.\n").returncode
+ERROR tests/test_generated_site.py::test_html_renders_footnotes_rather_than_leaving_markup - AssertionError: 
+   │  ⚠  Warning from the Material for MkDocs team
+   │
+   │  MkDocs 2.0, the underlying framework of Material for MkDocs,
+   │  will introduce backward-incompatible changes, including:
+   │
+   │  × All plugins will stop working – the plugin system has been removed
+   │  × All theme overrides will break – the theming system has been rewritten
+   │  × No migration path exists – existing projects cannot be upgraded
+   │  × Closed contribution model – community members can't report bugs
+   │  × Currently unlicensed – unsuitable for production use
+   │
+   │  Our full analysis:
+   │
+   │  https://squidfunk.github.io/mkdocs-material/blog/2026/02/18/mkdocs-2.0/
+  
+  ERROR   -  Config value 'docs_dir': The path '/home/runner/work/pytest-hook-atlas/pytest-hook-atlas/docs' isn't an existing directory.
+  
+assert 1 == 0
+ +  where 1 = CompletedProcess(args=['/opt/hostedtoolcache/Python/3.12.14/x64/bin/python', '-m', 'mkdocs', 'build', '--strict', '-f', '/home/runner/work/pytest-hook-atlas/pytest-hook-atlas/mkdocs.yml', '--site-dir', '/tmp/pytest-of-runner/pytest-0/site0'], returncode=1, stdout='\nAborted with a configuration error!\n', stderr="\n\x1b[31m │  ⚠  Warning from the Material for MkDocs team\x1b[0m\n\x1b[31m │\x1b[0m\n\x1b[31m │\x1b[0m  MkDocs 2.0, the underlying framework of Material for MkDocs,\n\x1b[31m │\x1b[0m  will introduce backward-incompatible changes, including:\n\x1b[31m │\x1b[0m\n\x1b[31m │  × \x1b[0mAll plugins will stop working – the plugin system has been removed\n\x1b[31m │  × \x1b[0mAll theme overrides will break – the theming system has been rewritten\n\x1b[31m │  × \x1b[0mNo migration path exists – existing projects cannot be upgraded\n\x1b[31m │  × \x1b[0mClosed contribution model – community members can't report bugs\n\x1b[31m │  × \x1b[0mCurrently unlicensed – unsuitable for production use\n\x1b[31m │\x1b[0m\n\x1b[31m │\x1b[0m  Our full analysis:\n\x1b[31m │\x1b[0m\n\x1b[31m │\x1b[0m  \x1b[4mhttps://squidfunk.github.io/mkdocs-material/blog/2026/02/18/mkdocs-2.0/\x1b[0m\n\x1b[0m\nERROR   -  Config value 'docs_dir': The path '/home/runner/work/pytest-hook-atlas/pytest-hook-atlas/docs' isn't an existing directory.\n").returncode
+ERROR tests/test_generated_site.py::test_html_did_not_swallow_the_anonymous_plugin - AssertionError: 
+   │  ⚠  Warning from the Material for MkDocs team
+   │
+   │  MkDocs 2.0, the underlying framework of Material for MkDocs,
+   │  will introduce backward-incompatible changes, including:
+   │
+   │  × All plugins will stop working – the plugin system has been removed
+   │  × All theme overrides will break – the theming system has been rewritten
+   │  × No migration path exists – existing projects cannot be upgraded
+   │  × Closed contribution model – community members can't report bugs
+   │  × Currently unlicensed – unsuitable for production use
+   │
+   │  Our full analysis:
+   │
+   │  https://squidfunk.github.io/mkdocs-material/blog/2026/02/18/mkdocs-2.0/
+  
+  ERROR   -  Config value 'docs_dir': The path '/home/runner/work/pytest-hook-atlas/pytest-hook-atlas/docs' isn't an existing directory.
+  
+assert 1 == 0
+ +  where 1 = CompletedProcess(args=['/opt/hostedtoolcache/Python/3.12.14/x64/bin/python', '-m', 'mkdocs', 'build', '--strict', '-f', '/home/runner/work/pytest-hook-atlas/pytest-hook-atlas/mkdocs.yml', '--site-dir', '/tmp/pytest-of-runner/pytest-0/site0'], returncode=1, stdout='\nAborted with a configuration error!\n', stderr="\n\x1b[31m │  ⚠  Warning from the Material for MkDocs team\x1b[0m\n\x1b[31m │\x1b[0m\n\x1b[31m │\x1b[0m  MkDocs 2.0, the underlying framework of Material for MkDocs,\n\x1b[31m │\x1b[0m  will introduce backward-incompatible changes, including:\n\x1b[31m │\x1b[0m\n\x1b[31m │  × \x1b[0mAll plugins will stop working – the plugin system has been removed\n\x1b[31m │  × \x1b[0mAll theme overrides will break – the theming system has been rewritten\n\x1b[31m │  × \x1b[0mNo migration path exists – existing projects cannot be upgraded\n\x1b[31m │  × \x1b[0mClosed contribution model – community members can't report bugs\n\x1b[31m │  × \x1b[0mCurrently unlicensed – unsuitable for production use\n\x1b[31m │\x1b[0m\n\x1b[31m │\x1b[0m  Our full analysis:\n\x1b[31m │\x1b[0m\n\x1b[31m │\x1b[0m  \x1b[4mhttps://squidfunk.github.io/mkdocs-material/blog/2026/02/18/mkdocs-2.0/\x1b[0m\n\x1b[0m\nERROR   -  Config value 'docs_dir': The path '/home/runner/work/pytest-hook-atlas/pytest-hook-atlas/docs' isn't an existing directory.\n").returncode
+======================== 193 passed, 4 errors in 6.89s =========================
+Error: Process completed with exit code 1.

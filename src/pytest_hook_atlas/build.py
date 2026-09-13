@@ -624,7 +624,11 @@ document$.subscribe(function () {
 
 
 def build(
-    repo_root: Path, docs_dir: Path, traces_dir: Path, verify_links: bool = True
+    repo_root: Path,
+    docs_dir: Path,
+    traces_dir: Path,
+    verify_links: bool = True,
+    config_path: Path | None = None,
 ) -> list[Path]:
     """Render every scenario's groups into ``docs_dir``. Returns pages written."""
     if docs_dir.exists():
@@ -676,6 +680,14 @@ def build(
         (docs_dir / name).write_text(content)
         written.append(docs_dir / name)
 
+    # docs_dir is written out resolved, and the config path is a parameter, so
+    # a build into a temporary directory does not depend on - or overwrite -
+    # anything in the repository. Tests do exactly that, and relying on a
+    # gitignored docs/ happening to exist is how this broke in CI.
     template = (repo_root / "mkdocs.base.yml").read_text()
-    (repo_root / "mkdocs.yml").write_text(template.rstrip() + "\n\n" + _nav(builds))
+    template = re.sub(
+        r"^docs_dir:.*$", f"docs_dir: {docs_dir.resolve()}", template, count=1, flags=re.M
+    )
+    destination = config_path or (repo_root / "mkdocs.yml")
+    destination.write_text(template.rstrip() + "\n\n" + _nav(builds))
     return written

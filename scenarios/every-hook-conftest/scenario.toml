@@ -1,11 +1,19 @@
 id = "every-hook-conftest"
 title = "A conftest implementing every hook"
 order = 2
-args = ["-q"]
+# Implementing a deprecated hook, or naming a deprecated argument, raises a
+# removal warning that pytest treats as an error, so the conftest would fail
+# to import. Every PytestRemovedInNWarning subclasses PytestDeprecationWarning,
+# so one filter covers every version.
+args = ["-q", "-W", "ignore::pytest.PytestDeprecationWarning"]
 generated_conftest = true
 summary = "What actually happens when a conftest.py implements all 52 declared hooks."
 description = """
 The `conftest.py` here is generated: it implements every hook pytest declares.
+
+Deprecated hooks are implemented too, which pytest would normally refuse -
+the run suppresses its own removal warnings so that the conftest really does
+cover everything the version declares.
 
 This is the scenario that shows which hooks a `conftest.py` can and cannot
 serve. Some hooks have already fired by the time a conftest is imported, so

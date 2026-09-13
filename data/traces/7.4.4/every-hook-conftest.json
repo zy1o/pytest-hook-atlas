@@ -13,12 +13,14 @@
       "hook_atlas_tracer",
       ".",
       "-q",
+      "-W",
+      "ignore::pytest.PytestDeprecationWarning",
       "-p",
       "no:cacheprovider"
     ]
   },
   "stats": {
-    "total_calls": 328,
+    "total_calls": 326,
     "unique_hooks": 40
   },
   "desyncs": [],
@@ -1175,44 +1177,18 @@
               "trylast": false
             }
           ]
-        },
-        {
-          "name": "pytest_warning_recorded",
-          "seq": 41,
-          "depth": 1,
-          "impls": [
-            {
-              "plugin": "conftest.py",
-              "module": "conftest",
-              "function": "pytest_warning_recorded",
-              "wrapper": false,
-              "hookwrapper": false,
-              "tryfirst": false,
-              "trylast": false
-            }
-          ]
         }
       ]
     },
     {
       "name": "pytest_cmdline_preparse",
-      "seq": 42,
+      "seq": 41,
       "depth": 0,
-      "impls": [
-        {
-          "plugin": "conftest.py",
-          "module": "conftest",
-          "function": "pytest_cmdline_preparse",
-          "wrapper": false,
-          "hookwrapper": false,
-          "tryfirst": false,
-          "trylast": false
-        }
-      ]
+      "impls": []
     },
     {
       "name": "pytest_cmdline_main",
-      "seq": 43,
+      "seq": 42,
       "depth": 0,
       "impls": [
         {
@@ -1282,7 +1258,7 @@
       "children": [
         {
           "name": "pytest_plugin_registered",
-          "seq": 44,
+          "seq": 43,
           "depth": 1,
           "impls": [
             {
@@ -1307,7 +1283,7 @@
         },
         {
           "name": "pytest_configure",
-          "seq": 45,
+          "seq": 44,
           "depth": 1,
           "impls": [
             {
@@ -1440,7 +1416,7 @@
           "children": [
             {
               "name": "pytest_plugin_registered",
-              "seq": 46,
+              "seq": 45,
               "depth": 2,
               "impls": [
                 {
@@ -1456,6 +1432,22 @@
                   "plugin": "conftest.py",
                   "module": "conftest",
                   "function": "pytest_plugin_registered",
+                  "wrapper": false,
+                  "hookwrapper": false,
+                  "tryfirst": false,
+                  "trylast": false
+                }
+              ]
+            },
+            {
+              "name": "pytest_plugin_registered",
+              "seq": 46,
+              "depth": 2,
+              "impls": [
+                {
+                  "plugin": "terminalreporter",
+                  "module": "_pytest.terminal",
+                  "function": "TerminalReporter.pytest_plugin_registered",
                   "wrapper": false,
                   "hookwrapper": false,
                   "tryfirst": false,
@@ -2045,38 +2037,6 @@
               "depth": 2,
               "impls": [
                 {
-                  "plugin": "terminalreporter",
-                  "module": "_pytest.terminal",
-                  "function": "TerminalReporter.pytest_plugin_registered",
-                  "wrapper": false,
-                  "hookwrapper": false,
-                  "tryfirst": false,
-                  "trylast": false
-                }
-              ]
-            },
-            {
-              "name": "pytest_warning_recorded",
-              "seq": 84,
-              "depth": 2,
-              "impls": [
-                {
-                  "plugin": "terminalreporter",
-                  "module": "_pytest.terminal",
-                  "function": "TerminalReporter.pytest_warning_recorded",
-                  "wrapper": false,
-                  "hookwrapper": false,
-                  "tryfirst": false,
-                  "trylast": false
-                }
-              ]
-            },
-            {
-              "name": "pytest_plugin_registered",
-              "seq": 85,
-              "depth": 2,
-              "impls": [
-                {
                   "plugin": "legacypath",
                   "module": "_pytest.legacypath",
                   "function": "pytest_plugin_registered",
@@ -2107,7 +2067,7 @@
             },
             {
               "name": "pytest_plugin_registered",
-              "seq": 86,
+              "seq": 84,
               "depth": 2,
               "impls": [
                 {
@@ -2143,7 +2103,7 @@
         },
         {
           "name": "pytest_sessionstart",
-          "seq": 87,
+          "seq": 85,
           "depth": 1,
           "impls": [
             {
@@ -2193,6 +2153,38 @@
             }
           ],
           "children": [
+            {
+              "name": "pytest_plugin_registered",
+              "seq": 86,
+              "depth": 2,
+              "impls": [
+                {
+                  "plugin": "funcmanage",
+                  "module": "_pytest.fixtures",
+                  "function": "FixtureManager.pytest_plugin_registered",
+                  "wrapper": false,
+                  "hookwrapper": false,
+                  "tryfirst": false,
+                  "trylast": false
+                }
+              ]
+            },
+            {
+              "name": "pytest_plugin_registered",
+              "seq": 87,
+              "depth": 2,
+              "impls": [
+                {
+                  "plugin": "funcmanage",
+                  "module": "_pytest.fixtures",
+                  "function": "FixtureManager.pytest_plugin_registered",
+                  "wrapper": false,
+                  "hookwrapper": false,
+                  "tryfirst": false,
+                  "trylast": false
+                }
+              ]
+            },
             {
               "name": "pytest_plugin_registered",
               "seq": 88,
@@ -2791,38 +2783,6 @@
               "depth": 2,
               "impls": [
                 {
-                  "plugin": "funcmanage",
-                  "module": "_pytest.fixtures",
-                  "function": "FixtureManager.pytest_plugin_registered",
-                  "wrapper": false,
-                  "hookwrapper": false,
-                  "tryfirst": false,
-                  "trylast": false
-                }
-              ]
-            },
-            {
-              "name": "pytest_plugin_registered",
-              "seq": 126,
-              "depth": 2,
-              "impls": [
-                {
-                  "plugin": "funcmanage",
-                  "module": "_pytest.fixtures",
-                  "function": "FixtureManager.pytest_plugin_registered",
-                  "wrapper": false,
-                  "hookwrapper": false,
-                  "tryfirst": false,
-                  "trylast": false
-                }
-              ]
-            },
-            {
-              "name": "pytest_plugin_registered",
-              "seq": 127,
-              "depth": 2,
-              "impls": [
-                {
                   "plugin": "legacypath",
                   "module": "_pytest.legacypath",
                   "function": "pytest_plugin_registered",
@@ -2864,7 +2824,7 @@
         },
         {
           "name": "pytest_collection",
-          "seq": 128,
+          "seq": 126,
           "depth": 1,
           "impls": [
             {
@@ -2934,7 +2894,7 @@
           "children": [
             {
               "name": "pytest_collectstart",
-              "seq": 129,
+              "seq": 127,
               "depth": 2,
               "impls": [
                 {
@@ -2959,7 +2919,7 @@
             },
             {
               "name": "pytest_make_collect_report",
-              "seq": 130,
+              "seq": 128,
               "depth": 2,
               "impls": [
                 {
@@ -2991,6 +2951,65 @@
                 }
               ],
               "children": [
+                {
+                  "name": "pytest_ignore_collect",
+                  "seq": 129,
+                  "depth": 3,
+                  "impls": [
+                    {
+                      "plugin": "main",
+                      "module": "_pytest.main",
+                      "function": "pytest_ignore_collect",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "conftest.py",
+                      "module": "conftest",
+                      "function": "pytest_ignore_collect",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    }
+                  ]
+                },
+                {
+                  "name": "pytest_collect_file",
+                  "seq": 130,
+                  "depth": 3,
+                  "impls": [
+                    {
+                      "plugin": "python",
+                      "module": "_pytest.python",
+                      "function": "pytest_collect_file",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "doctest",
+                      "module": "_pytest.doctest",
+                      "function": "pytest_collect_file",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "conftest.py",
+                      "module": "conftest",
+                      "function": "pytest_collect_file",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    }
+                  ]
+                },
                 {
                   "name": "pytest_ignore_collect",
                   "seq": 131,
@@ -3225,70 +3244,11 @@
                       "tryfirst": false,
                       "trylast": false
                     }
-                  ]
-                },
-                {
-                  "name": "pytest_ignore_collect",
-                  "seq": 139,
-                  "depth": 3,
-                  "impls": [
-                    {
-                      "plugin": "main",
-                      "module": "_pytest.main",
-                      "function": "pytest_ignore_collect",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "conftest.py",
-                      "module": "conftest",
-                      "function": "pytest_ignore_collect",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    }
-                  ]
-                },
-                {
-                  "name": "pytest_collect_file",
-                  "seq": 140,
-                  "depth": 3,
-                  "impls": [
-                    {
-                      "plugin": "python",
-                      "module": "_pytest.python",
-                      "function": "pytest_collect_file",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "doctest",
-                      "module": "_pytest.doctest",
-                      "function": "pytest_collect_file",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "conftest.py",
-                      "module": "conftest",
-                      "function": "pytest_collect_file",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    }
                   ],
                   "children": [
                     {
                       "name": "pytest_pycollect_makemodule",
-                      "seq": 141,
+                      "seq": 139,
                       "depth": 4,
                       "impls": [
                         {
@@ -3317,7 +3277,7 @@
             },
             {
               "name": "pytest_collectreport",
-              "seq": 142,
+              "seq": 140,
               "depth": 2,
               "impls": [
                 {
@@ -3351,7 +3311,7 @@
             },
             {
               "name": "pytest_collectstart",
-              "seq": 143,
+              "seq": 141,
               "depth": 2,
               "impls": [
                 {
@@ -3376,7 +3336,7 @@
             },
             {
               "name": "pytest_make_collect_report",
-              "seq": 144,
+              "seq": 142,
               "depth": 2,
               "impls": [
                 {
@@ -3408,6 +3368,74 @@
                 }
               ],
               "children": [
+                {
+                  "name": "pytest_pycollect_makeitem",
+                  "seq": 143,
+                  "depth": 3,
+                  "impls": [
+                    {
+                      "plugin": "python",
+                      "module": "_pytest.python",
+                      "function": "pytest_pycollect_makeitem",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": true
+                    },
+                    {
+                      "plugin": "unittest",
+                      "module": "_pytest.unittest",
+                      "function": "pytest_pycollect_makeitem",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "conftest.py",
+                      "module": "conftest",
+                      "function": "pytest_pycollect_makeitem",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    }
+                  ]
+                },
+                {
+                  "name": "pytest_pycollect_makeitem",
+                  "seq": 144,
+                  "depth": 3,
+                  "impls": [
+                    {
+                      "plugin": "python",
+                      "module": "_pytest.python",
+                      "function": "pytest_pycollect_makeitem",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": true
+                    },
+                    {
+                      "plugin": "unittest",
+                      "module": "_pytest.unittest",
+                      "function": "pytest_pycollect_makeitem",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "conftest.py",
+                      "module": "conftest",
+                      "function": "pytest_pycollect_makeitem",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    }
+                  ]
+                },
                 {
                   "name": "pytest_pycollect_makeitem",
                   "seq": 145,
@@ -3576,79 +3604,11 @@
                       "tryfirst": false,
                       "trylast": false
                     }
-                  ]
-                },
-                {
-                  "name": "pytest_pycollect_makeitem",
-                  "seq": 150,
-                  "depth": 3,
-                  "impls": [
-                    {
-                      "plugin": "python",
-                      "module": "_pytest.python",
-                      "function": "pytest_pycollect_makeitem",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": true
-                    },
-                    {
-                      "plugin": "unittest",
-                      "module": "_pytest.unittest",
-                      "function": "pytest_pycollect_makeitem",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "conftest.py",
-                      "module": "conftest",
-                      "function": "pytest_pycollect_makeitem",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    }
-                  ]
-                },
-                {
-                  "name": "pytest_pycollect_makeitem",
-                  "seq": 151,
-                  "depth": 3,
-                  "impls": [
-                    {
-                      "plugin": "python",
-                      "module": "_pytest.python",
-                      "function": "pytest_pycollect_makeitem",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": true
-                    },
-                    {
-                      "plugin": "unittest",
-                      "module": "_pytest.unittest",
-                      "function": "pytest_pycollect_makeitem",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "conftest.py",
-                      "module": "conftest",
-                      "function": "pytest_pycollect_makeitem",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    }
                   ],
                   "children": [
                     {
                       "name": "pytest_generate_tests",
-                      "seq": 152,
+                      "seq": 150,
                       "depth": 4,
                       "impls": [
                         {
@@ -3680,6 +3640,38 @@
                         }
                       ],
                       "children": [
+                        {
+                          "name": "pytest_make_parametrize_id",
+                          "seq": 151,
+                          "depth": 5,
+                          "impls": [
+                            {
+                              "plugin": "conftest.py",
+                              "module": "conftest",
+                              "function": "pytest_make_parametrize_id",
+                              "wrapper": false,
+                              "hookwrapper": false,
+                              "tryfirst": false,
+                              "trylast": false
+                            }
+                          ]
+                        },
+                        {
+                          "name": "pytest_make_parametrize_id",
+                          "seq": 152,
+                          "depth": 5,
+                          "impls": [
+                            {
+                              "plugin": "conftest.py",
+                              "module": "conftest",
+                              "function": "pytest_make_parametrize_id",
+                              "wrapper": false,
+                              "hookwrapper": false,
+                              "tryfirst": false,
+                              "trylast": false
+                            }
+                          ]
+                        },
                         {
                           "name": "pytest_make_parametrize_id",
                           "seq": 153,
@@ -3727,38 +3719,76 @@
                               "trylast": false
                             }
                           ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "pytest_pycollect_makeitem",
+                  "seq": 156,
+                  "depth": 3,
+                  "impls": [
+                    {
+                      "plugin": "python",
+                      "module": "_pytest.python",
+                      "function": "pytest_pycollect_makeitem",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": true
+                    },
+                    {
+                      "plugin": "unittest",
+                      "module": "_pytest.unittest",
+                      "function": "pytest_pycollect_makeitem",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "conftest.py",
+                      "module": "conftest",
+                      "function": "pytest_pycollect_makeitem",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    }
+                  ],
+                  "children": [
+                    {
+                      "name": "pytest_generate_tests",
+                      "seq": 157,
+                      "depth": 4,
+                      "impls": [
+                        {
+                          "plugin": "python",
+                          "module": "_pytest.python",
+                          "function": "pytest_generate_tests",
+                          "wrapper": false,
+                          "hookwrapper": false,
+                          "tryfirst": false,
+                          "trylast": false
                         },
                         {
-                          "name": "pytest_make_parametrize_id",
-                          "seq": 156,
-                          "depth": 5,
-                          "impls": [
-                            {
-                              "plugin": "conftest.py",
-                              "module": "conftest",
-                              "function": "pytest_make_parametrize_id",
-                              "wrapper": false,
-                              "hookwrapper": false,
-                              "tryfirst": false,
-                              "trylast": false
-                            }
-                          ]
+                          "plugin": "conftest.py",
+                          "module": "conftest",
+                          "function": "pytest_generate_tests",
+                          "wrapper": false,
+                          "hookwrapper": false,
+                          "tryfirst": false,
+                          "trylast": false
                         },
                         {
-                          "name": "pytest_make_parametrize_id",
-                          "seq": 157,
-                          "depth": 5,
-                          "impls": [
-                            {
-                              "plugin": "conftest.py",
-                              "module": "conftest",
-                              "function": "pytest_make_parametrize_id",
-                              "wrapper": false,
-                              "hookwrapper": false,
-                              "tryfirst": false,
-                              "trylast": false
-                            }
-                          ]
+                          "plugin": "funcmanage",
+                          "module": "_pytest.fixtures",
+                          "function": "FixtureManager.pytest_generate_tests",
+                          "wrapper": false,
+                          "hookwrapper": false,
+                          "tryfirst": false,
+                          "trylast": false
                         }
                       ]
                     }
@@ -3903,76 +3933,38 @@
                       ]
                     }
                   ]
-                },
+                }
+              ]
+            },
+            {
+              "name": "pytest_itemcollected",
+              "seq": 162,
+              "depth": 2,
+              "impls": [
                 {
-                  "name": "pytest_pycollect_makeitem",
-                  "seq": 162,
-                  "depth": 3,
-                  "impls": [
-                    {
-                      "plugin": "python",
-                      "module": "_pytest.python",
-                      "function": "pytest_pycollect_makeitem",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": true
-                    },
-                    {
-                      "plugin": "unittest",
-                      "module": "_pytest.unittest",
-                      "function": "pytest_pycollect_makeitem",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "conftest.py",
-                      "module": "conftest",
-                      "function": "pytest_pycollect_makeitem",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    }
-                  ],
-                  "children": [
-                    {
-                      "name": "pytest_generate_tests",
-                      "seq": 163,
-                      "depth": 4,
-                      "impls": [
-                        {
-                          "plugin": "python",
-                          "module": "_pytest.python",
-                          "function": "pytest_generate_tests",
-                          "wrapper": false,
-                          "hookwrapper": false,
-                          "tryfirst": false,
-                          "trylast": false
-                        },
-                        {
-                          "plugin": "conftest.py",
-                          "module": "conftest",
-                          "function": "pytest_generate_tests",
-                          "wrapper": false,
-                          "hookwrapper": false,
-                          "tryfirst": false,
-                          "trylast": false
-                        },
-                        {
-                          "plugin": "funcmanage",
-                          "module": "_pytest.fixtures",
-                          "function": "FixtureManager.pytest_generate_tests",
-                          "wrapper": false,
-                          "hookwrapper": false,
-                          "tryfirst": false,
-                          "trylast": false
-                        }
-                      ]
-                    }
-                  ]
+                  "plugin": "conftest.py",
+                  "module": "conftest",
+                  "function": "pytest_itemcollected",
+                  "wrapper": false,
+                  "hookwrapper": false,
+                  "tryfirst": false,
+                  "trylast": false
+                }
+              ]
+            },
+            {
+              "name": "pytest_itemcollected",
+              "seq": 163,
+              "depth": 2,
+              "impls": [
+                {
+                  "plugin": "conftest.py",
+                  "module": "conftest",
+                  "function": "pytest_itemcollected",
+                  "wrapper": false,
+                  "hookwrapper": false,
+                  "tryfirst": false,
+                  "trylast": false
                 }
               ]
             },
@@ -4073,40 +4065,8 @@
               ]
             },
             {
-              "name": "pytest_itemcollected",
-              "seq": 170,
-              "depth": 2,
-              "impls": [
-                {
-                  "plugin": "conftest.py",
-                  "module": "conftest",
-                  "function": "pytest_itemcollected",
-                  "wrapper": false,
-                  "hookwrapper": false,
-                  "tryfirst": false,
-                  "trylast": false
-                }
-              ]
-            },
-            {
-              "name": "pytest_itemcollected",
-              "seq": 171,
-              "depth": 2,
-              "impls": [
-                {
-                  "plugin": "conftest.py",
-                  "module": "conftest",
-                  "function": "pytest_itemcollected",
-                  "wrapper": false,
-                  "hookwrapper": false,
-                  "tryfirst": false,
-                  "trylast": false
-                }
-              ]
-            },
-            {
               "name": "pytest_collectreport",
-              "seq": 172,
+              "seq": 170,
               "depth": 2,
               "impls": [
                 {
@@ -4140,7 +4100,7 @@
             },
             {
               "name": "pytest_collection_modifyitems",
-              "seq": 173,
+              "seq": 171,
               "depth": 2,
               "impls": [
                 {
@@ -4183,7 +4143,7 @@
             },
             {
               "name": "pytest_collection_finish",
-              "seq": 174,
+              "seq": 172,
               "depth": 2,
               "impls": [
                 {
@@ -4208,7 +4168,7 @@
               "children": [
                 {
                   "name": "pytest_report_collectionfinish",
-                  "seq": 175,
+                  "seq": 173,
                   "depth": 3,
                   "impls": [
                     {
@@ -4226,7 +4186,7 @@
             },
             {
               "name": "pytest_warning_recorded",
-              "seq": 176,
+              "seq": 174,
               "depth": 2,
               "impls": [
                 {
@@ -4253,7 +4213,7 @@
         },
         {
           "name": "pytest_runtestloop",
-          "seq": 177,
+          "seq": 175,
           "depth": 1,
           "impls": [
             {
@@ -4287,7 +4247,7 @@
           "children": [
             {
               "name": "pytest_runtest_protocol",
-              "seq": 178,
+              "seq": 176,
               "depth": 2,
               "impls": [
                 {
@@ -4348,7 +4308,7 @@
               "children": [
                 {
                   "name": "pytest_runtest_logstart",
-                  "seq": 179,
+                  "seq": 177,
                   "depth": 3,
                   "impls": [
                     {
@@ -4382,7 +4342,7 @@
                 },
                 {
                   "name": "pytest_runtest_setup",
-                  "seq": 180,
+                  "seq": 178,
                   "depth": 3,
                   "impls": [
                     {
@@ -4461,7 +4421,7 @@
                   "children": [
                     {
                       "name": "pytest_fixture_setup",
-                      "seq": 181,
+                      "seq": 179,
                       "depth": 4,
                       "impls": [
                         {
@@ -4504,7 +4464,7 @@
                     },
                     {
                       "name": "pytest_fixture_setup",
-                      "seq": 182,
+                      "seq": 180,
                       "depth": 4,
                       "impls": [
                         {
@@ -4549,7 +4509,7 @@
                 },
                 {
                   "name": "pytest_runtest_makereport",
-                  "seq": 183,
+                  "seq": 181,
                   "depth": 3,
                   "impls": [
                     {
@@ -4601,7 +4561,7 @@
                 },
                 {
                   "name": "pytest_runtest_logreport",
-                  "seq": 184,
+                  "seq": 182,
                   "depth": 3,
                   "impls": [
                     {
@@ -4644,7 +4604,7 @@
                   "children": [
                     {
                       "name": "pytest_report_teststatus",
-                      "seq": 185,
+                      "seq": 183,
                       "depth": 4,
                       "impls": [
                         {
@@ -4689,109 +4649,109 @@
                 },
                 {
                   "name": "pytest_runtest_call",
+                  "seq": 184,
+                  "depth": 3,
+                  "impls": [
+                    {
+                      "plugin": "runner",
+                      "module": "_pytest.runner",
+                      "function": "pytest_runtest_call",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "conftest.py",
+                      "module": "conftest",
+                      "function": "pytest_runtest_call",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "skipping",
+                      "module": "_pytest.skipping",
+                      "function": "pytest_runtest_call",
+                      "wrapper": false,
+                      "hookwrapper": true,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "capturemanager",
+                      "module": "_pytest.capture",
+                      "function": "CaptureManager.pytest_runtest_call",
+                      "wrapper": false,
+                      "hookwrapper": true,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "logging-plugin",
+                      "module": "_pytest.logging",
+                      "function": "LoggingPlugin.pytest_runtest_call",
+                      "wrapper": false,
+                      "hookwrapper": true,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "unraisableexception",
+                      "module": "_pytest.unraisableexception",
+                      "function": "pytest_runtest_call",
+                      "wrapper": false,
+                      "hookwrapper": true,
+                      "tryfirst": true,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "threadexception",
+                      "module": "_pytest.threadexception",
+                      "function": "pytest_runtest_call",
+                      "wrapper": false,
+                      "hookwrapper": true,
+                      "tryfirst": true,
+                      "trylast": false
+                    }
+                  ],
+                  "children": [
+                    {
+                      "name": "pytest_pyfunc_call",
+                      "seq": 185,
+                      "depth": 4,
+                      "impls": [
+                        {
+                          "plugin": "python",
+                          "module": "_pytest.python",
+                          "function": "pytest_pyfunc_call",
+                          "wrapper": false,
+                          "hookwrapper": false,
+                          "tryfirst": false,
+                          "trylast": true
+                        },
+                        {
+                          "plugin": "conftest.py",
+                          "module": "conftest",
+                          "function": "pytest_pyfunc_call",
+                          "wrapper": false,
+                          "hookwrapper": false,
+                          "tryfirst": false,
+                          "trylast": false
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "pytest_runtest_makereport",
                   "seq": 186,
                   "depth": 3,
                   "impls": [
                     {
                       "plugin": "runner",
                       "module": "_pytest.runner",
-                      "function": "pytest_runtest_call",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "conftest.py",
-                      "module": "conftest",
-                      "function": "pytest_runtest_call",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "skipping",
-                      "module": "_pytest.skipping",
-                      "function": "pytest_runtest_call",
-                      "wrapper": false,
-                      "hookwrapper": true,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "capturemanager",
-                      "module": "_pytest.capture",
-                      "function": "CaptureManager.pytest_runtest_call",
-                      "wrapper": false,
-                      "hookwrapper": true,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "logging-plugin",
-                      "module": "_pytest.logging",
-                      "function": "LoggingPlugin.pytest_runtest_call",
-                      "wrapper": false,
-                      "hookwrapper": true,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "unraisableexception",
-                      "module": "_pytest.unraisableexception",
-                      "function": "pytest_runtest_call",
-                      "wrapper": false,
-                      "hookwrapper": true,
-                      "tryfirst": true,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "threadexception",
-                      "module": "_pytest.threadexception",
-                      "function": "pytest_runtest_call",
-                      "wrapper": false,
-                      "hookwrapper": true,
-                      "tryfirst": true,
-                      "trylast": false
-                    }
-                  ],
-                  "children": [
-                    {
-                      "name": "pytest_pyfunc_call",
-                      "seq": 187,
-                      "depth": 4,
-                      "impls": [
-                        {
-                          "plugin": "python",
-                          "module": "_pytest.python",
-                          "function": "pytest_pyfunc_call",
-                          "wrapper": false,
-                          "hookwrapper": false,
-                          "tryfirst": false,
-                          "trylast": true
-                        },
-                        {
-                          "plugin": "conftest.py",
-                          "module": "conftest",
-                          "function": "pytest_pyfunc_call",
-                          "wrapper": false,
-                          "hookwrapper": false,
-                          "tryfirst": false,
-                          "trylast": false
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "name": "pytest_runtest_makereport",
-                  "seq": 188,
-                  "depth": 3,
-                  "impls": [
-                    {
-                      "plugin": "runner",
-                      "module": "_pytest.runner",
                       "function": "pytest_runtest_makereport",
                       "wrapper": false,
                       "hookwrapper": false,
@@ -4838,7 +4798,7 @@
                 },
                 {
                   "name": "pytest_runtest_logreport",
-                  "seq": 189,
+                  "seq": 187,
                   "depth": 3,
                   "impls": [
                     {
@@ -4881,7 +4841,7 @@
                   "children": [
                     {
                       "name": "pytest_report_teststatus",
-                      "seq": 190,
+                      "seq": 188,
                       "depth": 4,
                       "impls": [
                         {
@@ -4926,7 +4886,7 @@
                 },
                 {
                   "name": "pytest_runtest_teardown",
-                  "seq": 191,
+                  "seq": 189,
                   "depth": 3,
                   "impls": [
                     {
@@ -4987,7 +4947,7 @@
                   "children": [
                     {
                       "name": "pytest_fixture_post_finalizer",
-                      "seq": 192,
+                      "seq": 190,
                       "depth": 4,
                       "impls": [
                         {
@@ -5012,7 +4972,7 @@
                     },
                     {
                       "name": "pytest_fixture_post_finalizer",
-                      "seq": 193,
+                      "seq": 191,
                       "depth": 4,
                       "impls": [
                         {
@@ -5039,7 +4999,7 @@
                 },
                 {
                   "name": "pytest_runtest_makereport",
-                  "seq": 194,
+                  "seq": 192,
                   "depth": 3,
                   "impls": [
                     {
@@ -5091,13 +5051,101 @@
                 },
                 {
                   "name": "pytest_runtest_logreport",
+                  "seq": 193,
+                  "depth": 3,
+                  "impls": [
+                    {
+                      "plugin": "conftest.py",
+                      "module": "conftest",
+                      "function": "pytest_runtest_logreport",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "terminalreporter",
+                      "module": "_pytest.terminal",
+                      "function": "TerminalReporter.pytest_runtest_logreport",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "logging-plugin",
+                      "module": "_pytest.logging",
+                      "function": "LoggingPlugin.pytest_runtest_logreport",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "session",
+                      "module": "_pytest.main",
+                      "function": "Session.pytest_runtest_logreport",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": true,
+                      "trylast": false
+                    }
+                  ],
+                  "children": [
+                    {
+                      "name": "pytest_report_teststatus",
+                      "seq": 194,
+                      "depth": 4,
+                      "impls": [
+                        {
+                          "plugin": "terminal",
+                          "module": "_pytest.terminal",
+                          "function": "pytest_report_teststatus",
+                          "wrapper": false,
+                          "hookwrapper": false,
+                          "tryfirst": false,
+                          "trylast": true
+                        },
+                        {
+                          "plugin": "runner",
+                          "module": "_pytest.runner",
+                          "function": "pytest_report_teststatus",
+                          "wrapper": false,
+                          "hookwrapper": false,
+                          "tryfirst": false,
+                          "trylast": false
+                        },
+                        {
+                          "plugin": "skipping",
+                          "module": "_pytest.skipping",
+                          "function": "pytest_report_teststatus",
+                          "wrapper": false,
+                          "hookwrapper": false,
+                          "tryfirst": false,
+                          "trylast": false
+                        },
+                        {
+                          "plugin": "conftest.py",
+                          "module": "conftest",
+                          "function": "pytest_report_teststatus",
+                          "wrapper": false,
+                          "hookwrapper": false,
+                          "tryfirst": false,
+                          "trylast": false
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "pytest_runtest_logfinish",
                   "seq": 195,
                   "depth": 3,
                   "impls": [
                     {
                       "plugin": "conftest.py",
                       "module": "conftest",
-                      "function": "pytest_runtest_logreport",
+                      "function": "pytest_runtest_logfinish",
                       "wrapper": false,
                       "hookwrapper": false,
                       "tryfirst": false,
@@ -5106,7 +5154,7 @@
                     {
                       "plugin": "terminalreporter",
                       "module": "_pytest.terminal",
-                      "function": "TerminalReporter.pytest_runtest_logreport",
+                      "function": "TerminalReporter.pytest_runtest_logfinish",
                       "wrapper": false,
                       "hookwrapper": false,
                       "tryfirst": false,
@@ -5115,173 +5163,85 @@
                     {
                       "plugin": "logging-plugin",
                       "module": "_pytest.logging",
-                      "function": "LoggingPlugin.pytest_runtest_logreport",
+                      "function": "LoggingPlugin.pytest_runtest_logfinish",
                       "wrapper": false,
                       "hookwrapper": false,
                       "tryfirst": false,
                       "trylast": false
-                    },
-                    {
-                      "plugin": "session",
-                      "module": "_pytest.main",
-                      "function": "Session.pytest_runtest_logreport",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": true,
-                      "trylast": false
-                    }
-                  ],
-                  "children": [
-                    {
-                      "name": "pytest_report_teststatus",
-                      "seq": 196,
-                      "depth": 4,
-                      "impls": [
-                        {
-                          "plugin": "terminal",
-                          "module": "_pytest.terminal",
-                          "function": "pytest_report_teststatus",
-                          "wrapper": false,
-                          "hookwrapper": false,
-                          "tryfirst": false,
-                          "trylast": true
-                        },
-                        {
-                          "plugin": "runner",
-                          "module": "_pytest.runner",
-                          "function": "pytest_report_teststatus",
-                          "wrapper": false,
-                          "hookwrapper": false,
-                          "tryfirst": false,
-                          "trylast": false
-                        },
-                        {
-                          "plugin": "skipping",
-                          "module": "_pytest.skipping",
-                          "function": "pytest_report_teststatus",
-                          "wrapper": false,
-                          "hookwrapper": false,
-                          "tryfirst": false,
-                          "trylast": false
-                        },
-                        {
-                          "plugin": "conftest.py",
-                          "module": "conftest",
-                          "function": "pytest_report_teststatus",
-                          "wrapper": false,
-                          "hookwrapper": false,
-                          "tryfirst": false,
-                          "trylast": false
-                        }
-                      ]
                     }
                   ]
+                }
+              ]
+            },
+            {
+              "name": "pytest_runtest_protocol",
+              "seq": 196,
+              "depth": 2,
+              "impls": [
+                {
+                  "plugin": "runner",
+                  "module": "_pytest.runner",
+                  "function": "pytest_runtest_protocol",
+                  "wrapper": false,
+                  "hookwrapper": false,
+                  "tryfirst": false,
+                  "trylast": false
                 },
                 {
-                  "name": "pytest_runtest_logfinish",
+                  "plugin": "conftest.py",
+                  "module": "conftest",
+                  "function": "pytest_runtest_protocol",
+                  "wrapper": false,
+                  "hookwrapper": false,
+                  "tryfirst": false,
+                  "trylast": false
+                },
+                {
+                  "plugin": "faulthandler",
+                  "module": "_pytest.faulthandler",
+                  "function": "pytest_runtest_protocol",
+                  "wrapper": false,
+                  "hookwrapper": true,
+                  "tryfirst": false,
+                  "trylast": true
+                },
+                {
+                  "plugin": "unittest",
+                  "module": "_pytest.unittest",
+                  "function": "pytest_runtest_protocol",
+                  "wrapper": false,
+                  "hookwrapper": true,
+                  "tryfirst": false,
+                  "trylast": false
+                },
+                {
+                  "plugin": "assertion",
+                  "module": "_pytest.assertion",
+                  "function": "pytest_runtest_protocol",
+                  "wrapper": false,
+                  "hookwrapper": true,
+                  "tryfirst": true,
+                  "trylast": false
+                },
+                {
+                  "plugin": "warnings",
+                  "module": "_pytest.warnings",
+                  "function": "pytest_runtest_protocol",
+                  "wrapper": false,
+                  "hookwrapper": true,
+                  "tryfirst": true,
+                  "trylast": false
+                }
+              ],
+              "children": [
+                {
+                  "name": "pytest_runtest_logstart",
                   "seq": 197,
                   "depth": 3,
                   "impls": [
                     {
                       "plugin": "conftest.py",
                       "module": "conftest",
-                      "function": "pytest_runtest_logfinish",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "terminalreporter",
-                      "module": "_pytest.terminal",
-                      "function": "TerminalReporter.pytest_runtest_logfinish",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "logging-plugin",
-                      "module": "_pytest.logging",
-                      "function": "LoggingPlugin.pytest_runtest_logfinish",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "name": "pytest_runtest_protocol",
-              "seq": 198,
-              "depth": 2,
-              "impls": [
-                {
-                  "plugin": "runner",
-                  "module": "_pytest.runner",
-                  "function": "pytest_runtest_protocol",
-                  "wrapper": false,
-                  "hookwrapper": false,
-                  "tryfirst": false,
-                  "trylast": false
-                },
-                {
-                  "plugin": "conftest.py",
-                  "module": "conftest",
-                  "function": "pytest_runtest_protocol",
-                  "wrapper": false,
-                  "hookwrapper": false,
-                  "tryfirst": false,
-                  "trylast": false
-                },
-                {
-                  "plugin": "faulthandler",
-                  "module": "_pytest.faulthandler",
-                  "function": "pytest_runtest_protocol",
-                  "wrapper": false,
-                  "hookwrapper": true,
-                  "tryfirst": false,
-                  "trylast": true
-                },
-                {
-                  "plugin": "unittest",
-                  "module": "_pytest.unittest",
-                  "function": "pytest_runtest_protocol",
-                  "wrapper": false,
-                  "hookwrapper": true,
-                  "tryfirst": false,
-                  "trylast": false
-                },
-                {
-                  "plugin": "assertion",
-                  "module": "_pytest.assertion",
-                  "function": "pytest_runtest_protocol",
-                  "wrapper": false,
-                  "hookwrapper": true,
-                  "tryfirst": true,
-                  "trylast": false
-                },
-                {
-                  "plugin": "warnings",
-                  "module": "_pytest.warnings",
-                  "function": "pytest_runtest_protocol",
-                  "wrapper": false,
-                  "hookwrapper": true,
-                  "tryfirst": true,
-                  "trylast": false
-                }
-              ],
-              "children": [
-                {
-                  "name": "pytest_runtest_logstart",
-                  "seq": 199,
-                  "depth": 3,
-                  "impls": [
-                    {
-                      "plugin": "conftest.py",
-                      "module": "conftest",
                       "function": "pytest_runtest_logstart",
                       "wrapper": false,
                       "hookwrapper": false,
@@ -5310,7 +5270,7 @@
                 },
                 {
                   "name": "pytest_runtest_setup",
-                  "seq": 200,
+                  "seq": 198,
                   "depth": 3,
                   "impls": [
                     {
@@ -5389,7 +5349,7 @@
                   "children": [
                     {
                       "name": "pytest_fixture_setup",
-                      "seq": 201,
+                      "seq": 199,
                       "depth": 4,
                       "impls": [
                         {
@@ -5432,7 +5392,7 @@
                     },
                     {
                       "name": "pytest_fixture_setup",
-                      "seq": 202,
+                      "seq": 200,
                       "depth": 4,
                       "impls": [
                         {
@@ -5477,7 +5437,7 @@
                 },
                 {
                   "name": "pytest_runtest_makereport",
-                  "seq": 203,
+                  "seq": 201,
                   "depth": 3,
                   "impls": [
                     {
@@ -5529,7 +5489,7 @@
                 },
                 {
                   "name": "pytest_runtest_logreport",
-                  "seq": 204,
+                  "seq": 202,
                   "depth": 3,
                   "impls": [
                     {
@@ -5572,7 +5532,7 @@
                   "children": [
                     {
                       "name": "pytest_report_teststatus",
-                      "seq": 205,
+                      "seq": 203,
                       "depth": 4,
                       "impls": [
                         {
@@ -5617,109 +5577,109 @@
                 },
                 {
                   "name": "pytest_runtest_call",
+                  "seq": 204,
+                  "depth": 3,
+                  "impls": [
+                    {
+                      "plugin": "runner",
+                      "module": "_pytest.runner",
+                      "function": "pytest_runtest_call",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "conftest.py",
+                      "module": "conftest",
+                      "function": "pytest_runtest_call",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "skipping",
+                      "module": "_pytest.skipping",
+                      "function": "pytest_runtest_call",
+                      "wrapper": false,
+                      "hookwrapper": true,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "capturemanager",
+                      "module": "_pytest.capture",
+                      "function": "CaptureManager.pytest_runtest_call",
+                      "wrapper": false,
+                      "hookwrapper": true,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "logging-plugin",
+                      "module": "_pytest.logging",
+                      "function": "LoggingPlugin.pytest_runtest_call",
+                      "wrapper": false,
+                      "hookwrapper": true,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "unraisableexception",
+                      "module": "_pytest.unraisableexception",
+                      "function": "pytest_runtest_call",
+                      "wrapper": false,
+                      "hookwrapper": true,
+                      "tryfirst": true,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "threadexception",
+                      "module": "_pytest.threadexception",
+                      "function": "pytest_runtest_call",
+                      "wrapper": false,
+                      "hookwrapper": true,
+                      "tryfirst": true,
+                      "trylast": false
+                    }
+                  ],
+                  "children": [
+                    {
+                      "name": "pytest_pyfunc_call",
+                      "seq": 205,
+                      "depth": 4,
+                      "impls": [
+                        {
+                          "plugin": "python",
+                          "module": "_pytest.python",
+                          "function": "pytest_pyfunc_call",
+                          "wrapper": false,
+                          "hookwrapper": false,
+                          "tryfirst": false,
+                          "trylast": true
+                        },
+                        {
+                          "plugin": "conftest.py",
+                          "module": "conftest",
+                          "function": "pytest_pyfunc_call",
+                          "wrapper": false,
+                          "hookwrapper": false,
+                          "tryfirst": false,
+                          "trylast": false
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "pytest_runtest_makereport",
                   "seq": 206,
                   "depth": 3,
                   "impls": [
                     {
                       "plugin": "runner",
                       "module": "_pytest.runner",
-                      "function": "pytest_runtest_call",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "conftest.py",
-                      "module": "conftest",
-                      "function": "pytest_runtest_call",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "skipping",
-                      "module": "_pytest.skipping",
-                      "function": "pytest_runtest_call",
-                      "wrapper": false,
-                      "hookwrapper": true,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "capturemanager",
-                      "module": "_pytest.capture",
-                      "function": "CaptureManager.pytest_runtest_call",
-                      "wrapper": false,
-                      "hookwrapper": true,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "logging-plugin",
-                      "module": "_pytest.logging",
-                      "function": "LoggingPlugin.pytest_runtest_call",
-                      "wrapper": false,
-                      "hookwrapper": true,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "unraisableexception",
-                      "module": "_pytest.unraisableexception",
-                      "function": "pytest_runtest_call",
-                      "wrapper": false,
-                      "hookwrapper": true,
-                      "tryfirst": true,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "threadexception",
-                      "module": "_pytest.threadexception",
-                      "function": "pytest_runtest_call",
-                      "wrapper": false,
-                      "hookwrapper": true,
-                      "tryfirst": true,
-                      "trylast": false
-                    }
-                  ],
-                  "children": [
-                    {
-                      "name": "pytest_pyfunc_call",
-                      "seq": 207,
-                      "depth": 4,
-                      "impls": [
-                        {
-                          "plugin": "python",
-                          "module": "_pytest.python",
-                          "function": "pytest_pyfunc_call",
-                          "wrapper": false,
-                          "hookwrapper": false,
-                          "tryfirst": false,
-                          "trylast": true
-                        },
-                        {
-                          "plugin": "conftest.py",
-                          "module": "conftest",
-                          "function": "pytest_pyfunc_call",
-                          "wrapper": false,
-                          "hookwrapper": false,
-                          "tryfirst": false,
-                          "trylast": false
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "name": "pytest_runtest_makereport",
-                  "seq": 208,
-                  "depth": 3,
-                  "impls": [
-                    {
-                      "plugin": "runner",
-                      "module": "_pytest.runner",
                       "function": "pytest_runtest_makereport",
                       "wrapper": false,
                       "hookwrapper": false,
@@ -5766,7 +5726,7 @@
                 },
                 {
                   "name": "pytest_runtest_logreport",
-                  "seq": 209,
+                  "seq": 207,
                   "depth": 3,
                   "impls": [
                     {
@@ -5809,7 +5769,7 @@
                   "children": [
                     {
                       "name": "pytest_report_teststatus",
-                      "seq": 210,
+                      "seq": 208,
                       "depth": 4,
                       "impls": [
                         {
@@ -5854,7 +5814,7 @@
                 },
                 {
                   "name": "pytest_runtest_teardown",
-                  "seq": 211,
+                  "seq": 209,
                   "depth": 3,
                   "impls": [
                     {
@@ -5915,7 +5875,7 @@
                   "children": [
                     {
                       "name": "pytest_fixture_post_finalizer",
-                      "seq": 212,
+                      "seq": 210,
                       "depth": 4,
                       "impls": [
                         {
@@ -5940,7 +5900,7 @@
                     },
                     {
                       "name": "pytest_fixture_post_finalizer",
-                      "seq": 213,
+                      "seq": 211,
                       "depth": 4,
                       "impls": [
                         {
@@ -5967,7 +5927,7 @@
                 },
                 {
                   "name": "pytest_runtest_makereport",
-                  "seq": 214,
+                  "seq": 212,
                   "depth": 3,
                   "impls": [
                     {
@@ -6019,13 +5979,101 @@
                 },
                 {
                   "name": "pytest_runtest_logreport",
+                  "seq": 213,
+                  "depth": 3,
+                  "impls": [
+                    {
+                      "plugin": "conftest.py",
+                      "module": "conftest",
+                      "function": "pytest_runtest_logreport",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "terminalreporter",
+                      "module": "_pytest.terminal",
+                      "function": "TerminalReporter.pytest_runtest_logreport",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "logging-plugin",
+                      "module": "_pytest.logging",
+                      "function": "LoggingPlugin.pytest_runtest_logreport",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "session",
+                      "module": "_pytest.main",
+                      "function": "Session.pytest_runtest_logreport",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": true,
+                      "trylast": false
+                    }
+                  ],
+                  "children": [
+                    {
+                      "name": "pytest_report_teststatus",
+                      "seq": 214,
+                      "depth": 4,
+                      "impls": [
+                        {
+                          "plugin": "terminal",
+                          "module": "_pytest.terminal",
+                          "function": "pytest_report_teststatus",
+                          "wrapper": false,
+                          "hookwrapper": false,
+                          "tryfirst": false,
+                          "trylast": true
+                        },
+                        {
+                          "plugin": "runner",
+                          "module": "_pytest.runner",
+                          "function": "pytest_report_teststatus",
+                          "wrapper": false,
+                          "hookwrapper": false,
+                          "tryfirst": false,
+                          "trylast": false
+                        },
+                        {
+                          "plugin": "skipping",
+                          "module": "_pytest.skipping",
+                          "function": "pytest_report_teststatus",
+                          "wrapper": false,
+                          "hookwrapper": false,
+                          "tryfirst": false,
+                          "trylast": false
+                        },
+                        {
+                          "plugin": "conftest.py",
+                          "module": "conftest",
+                          "function": "pytest_report_teststatus",
+                          "wrapper": false,
+                          "hookwrapper": false,
+                          "tryfirst": false,
+                          "trylast": false
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "pytest_runtest_logfinish",
                   "seq": 215,
                   "depth": 3,
                   "impls": [
                     {
                       "plugin": "conftest.py",
                       "module": "conftest",
-                      "function": "pytest_runtest_logreport",
+                      "function": "pytest_runtest_logfinish",
                       "wrapper": false,
                       "hookwrapper": false,
                       "tryfirst": false,
@@ -6034,7 +6082,7 @@
                     {
                       "plugin": "terminalreporter",
                       "module": "_pytest.terminal",
-                      "function": "TerminalReporter.pytest_runtest_logreport",
+                      "function": "TerminalReporter.pytest_runtest_logfinish",
                       "wrapper": false,
                       "hookwrapper": false,
                       "tryfirst": false,
@@ -6043,173 +6091,85 @@
                     {
                       "plugin": "logging-plugin",
                       "module": "_pytest.logging",
-                      "function": "LoggingPlugin.pytest_runtest_logreport",
+                      "function": "LoggingPlugin.pytest_runtest_logfinish",
                       "wrapper": false,
                       "hookwrapper": false,
                       "tryfirst": false,
                       "trylast": false
-                    },
-                    {
-                      "plugin": "session",
-                      "module": "_pytest.main",
-                      "function": "Session.pytest_runtest_logreport",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": true,
-                      "trylast": false
-                    }
-                  ],
-                  "children": [
-                    {
-                      "name": "pytest_report_teststatus",
-                      "seq": 216,
-                      "depth": 4,
-                      "impls": [
-                        {
-                          "plugin": "terminal",
-                          "module": "_pytest.terminal",
-                          "function": "pytest_report_teststatus",
-                          "wrapper": false,
-                          "hookwrapper": false,
-                          "tryfirst": false,
-                          "trylast": true
-                        },
-                        {
-                          "plugin": "runner",
-                          "module": "_pytest.runner",
-                          "function": "pytest_report_teststatus",
-                          "wrapper": false,
-                          "hookwrapper": false,
-                          "tryfirst": false,
-                          "trylast": false
-                        },
-                        {
-                          "plugin": "skipping",
-                          "module": "_pytest.skipping",
-                          "function": "pytest_report_teststatus",
-                          "wrapper": false,
-                          "hookwrapper": false,
-                          "tryfirst": false,
-                          "trylast": false
-                        },
-                        {
-                          "plugin": "conftest.py",
-                          "module": "conftest",
-                          "function": "pytest_report_teststatus",
-                          "wrapper": false,
-                          "hookwrapper": false,
-                          "tryfirst": false,
-                          "trylast": false
-                        }
-                      ]
                     }
                   ]
+                }
+              ]
+            },
+            {
+              "name": "pytest_runtest_protocol",
+              "seq": 216,
+              "depth": 2,
+              "impls": [
+                {
+                  "plugin": "runner",
+                  "module": "_pytest.runner",
+                  "function": "pytest_runtest_protocol",
+                  "wrapper": false,
+                  "hookwrapper": false,
+                  "tryfirst": false,
+                  "trylast": false
                 },
                 {
-                  "name": "pytest_runtest_logfinish",
+                  "plugin": "conftest.py",
+                  "module": "conftest",
+                  "function": "pytest_runtest_protocol",
+                  "wrapper": false,
+                  "hookwrapper": false,
+                  "tryfirst": false,
+                  "trylast": false
+                },
+                {
+                  "plugin": "faulthandler",
+                  "module": "_pytest.faulthandler",
+                  "function": "pytest_runtest_protocol",
+                  "wrapper": false,
+                  "hookwrapper": true,
+                  "tryfirst": false,
+                  "trylast": true
+                },
+                {
+                  "plugin": "unittest",
+                  "module": "_pytest.unittest",
+                  "function": "pytest_runtest_protocol",
+                  "wrapper": false,
+                  "hookwrapper": true,
+                  "tryfirst": false,
+                  "trylast": false
+                },
+                {
+                  "plugin": "assertion",
+                  "module": "_pytest.assertion",
+                  "function": "pytest_runtest_protocol",
+                  "wrapper": false,
+                  "hookwrapper": true,
+                  "tryfirst": true,
+                  "trylast": false
+                },
+                {
+                  "plugin": "warnings",
+                  "module": "_pytest.warnings",
+                  "function": "pytest_runtest_protocol",
+                  "wrapper": false,
+                  "hookwrapper": true,
+                  "tryfirst": true,
+                  "trylast": false
+                }
+              ],
+              "children": [
+                {
+                  "name": "pytest_runtest_logstart",
                   "seq": 217,
                   "depth": 3,
                   "impls": [
                     {
                       "plugin": "conftest.py",
                       "module": "conftest",
-                      "function": "pytest_runtest_logfinish",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "terminalreporter",
-                      "module": "_pytest.terminal",
-                      "function": "TerminalReporter.pytest_runtest_logfinish",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "logging-plugin",
-                      "module": "_pytest.logging",
-                      "function": "LoggingPlugin.pytest_runtest_logfinish",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "name": "pytest_runtest_protocol",
-              "seq": 218,
-              "depth": 2,
-              "impls": [
-                {
-                  "plugin": "runner",
-                  "module": "_pytest.runner",
-                  "function": "pytest_runtest_protocol",
-                  "wrapper": false,
-                  "hookwrapper": false,
-                  "tryfirst": false,
-                  "trylast": false
-                },
-                {
-                  "plugin": "conftest.py",
-                  "module": "conftest",
-                  "function": "pytest_runtest_protocol",
-                  "wrapper": false,
-                  "hookwrapper": false,
-                  "tryfirst": false,
-                  "trylast": false
-                },
-                {
-                  "plugin": "faulthandler",
-                  "module": "_pytest.faulthandler",
-                  "function": "pytest_runtest_protocol",
-                  "wrapper": false,
-                  "hookwrapper": true,
-                  "tryfirst": false,
-                  "trylast": true
-                },
-                {
-                  "plugin": "unittest",
-                  "module": "_pytest.unittest",
-                  "function": "pytest_runtest_protocol",
-                  "wrapper": false,
-                  "hookwrapper": true,
-                  "tryfirst": false,
-                  "trylast": false
-                },
-                {
-                  "plugin": "assertion",
-                  "module": "_pytest.assertion",
-                  "function": "pytest_runtest_protocol",
-                  "wrapper": false,
-                  "hookwrapper": true,
-                  "tryfirst": true,
-                  "trylast": false
-                },
-                {
-                  "plugin": "warnings",
-                  "module": "_pytest.warnings",
-                  "function": "pytest_runtest_protocol",
-                  "wrapper": false,
-                  "hookwrapper": true,
-                  "tryfirst": true,
-                  "trylast": false
-                }
-              ],
-              "children": [
-                {
-                  "name": "pytest_runtest_logstart",
-                  "seq": 219,
-                  "depth": 3,
-                  "impls": [
-                    {
-                      "plugin": "conftest.py",
-                      "module": "conftest",
                       "function": "pytest_runtest_logstart",
                       "wrapper": false,
                       "hookwrapper": false,
@@ -6238,7 +6198,7 @@
                 },
                 {
                   "name": "pytest_runtest_setup",
-                  "seq": 220,
+                  "seq": 218,
                   "depth": 3,
                   "impls": [
                     {
@@ -6317,7 +6277,7 @@
                   "children": [
                     {
                       "name": "pytest_fixture_setup",
-                      "seq": 221,
+                      "seq": 219,
                       "depth": 4,
                       "impls": [
                         {
@@ -6360,7 +6320,7 @@
                     },
                     {
                       "name": "pytest_fixture_setup",
-                      "seq": 222,
+                      "seq": 220,
                       "depth": 4,
                       "impls": [
                         {
@@ -6405,7 +6365,7 @@
                 },
                 {
                   "name": "pytest_runtest_makereport",
-                  "seq": 223,
+                  "seq": 221,
                   "depth": 3,
                   "impls": [
                     {
@@ -6457,7 +6417,7 @@
                 },
                 {
                   "name": "pytest_runtest_logreport",
-                  "seq": 224,
+                  "seq": 222,
                   "depth": 3,
                   "impls": [
                     {
@@ -6500,7 +6460,7 @@
                   "children": [
                     {
                       "name": "pytest_report_teststatus",
-                      "seq": 225,
+                      "seq": 223,
                       "depth": 4,
                       "impls": [
                         {
@@ -6545,109 +6505,109 @@
                 },
                 {
                   "name": "pytest_runtest_call",
+                  "seq": 224,
+                  "depth": 3,
+                  "impls": [
+                    {
+                      "plugin": "runner",
+                      "module": "_pytest.runner",
+                      "function": "pytest_runtest_call",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "conftest.py",
+                      "module": "conftest",
+                      "function": "pytest_runtest_call",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "skipping",
+                      "module": "_pytest.skipping",
+                      "function": "pytest_runtest_call",
+                      "wrapper": false,
+                      "hookwrapper": true,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "capturemanager",
+                      "module": "_pytest.capture",
+                      "function": "CaptureManager.pytest_runtest_call",
+                      "wrapper": false,
+                      "hookwrapper": true,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "logging-plugin",
+                      "module": "_pytest.logging",
+                      "function": "LoggingPlugin.pytest_runtest_call",
+                      "wrapper": false,
+                      "hookwrapper": true,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "unraisableexception",
+                      "module": "_pytest.unraisableexception",
+                      "function": "pytest_runtest_call",
+                      "wrapper": false,
+                      "hookwrapper": true,
+                      "tryfirst": true,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "threadexception",
+                      "module": "_pytest.threadexception",
+                      "function": "pytest_runtest_call",
+                      "wrapper": false,
+                      "hookwrapper": true,
+                      "tryfirst": true,
+                      "trylast": false
+                    }
+                  ],
+                  "children": [
+                    {
+                      "name": "pytest_pyfunc_call",
+                      "seq": 225,
+                      "depth": 4,
+                      "impls": [
+                        {
+                          "plugin": "python",
+                          "module": "_pytest.python",
+                          "function": "pytest_pyfunc_call",
+                          "wrapper": false,
+                          "hookwrapper": false,
+                          "tryfirst": false,
+                          "trylast": true
+                        },
+                        {
+                          "plugin": "conftest.py",
+                          "module": "conftest",
+                          "function": "pytest_pyfunc_call",
+                          "wrapper": false,
+                          "hookwrapper": false,
+                          "tryfirst": false,
+                          "trylast": false
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "pytest_runtest_makereport",
                   "seq": 226,
                   "depth": 3,
                   "impls": [
                     {
                       "plugin": "runner",
                       "module": "_pytest.runner",
-                      "function": "pytest_runtest_call",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "conftest.py",
-                      "module": "conftest",
-                      "function": "pytest_runtest_call",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "skipping",
-                      "module": "_pytest.skipping",
-                      "function": "pytest_runtest_call",
-                      "wrapper": false,
-                      "hookwrapper": true,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "capturemanager",
-                      "module": "_pytest.capture",
-                      "function": "CaptureManager.pytest_runtest_call",
-                      "wrapper": false,
-                      "hookwrapper": true,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "logging-plugin",
-                      "module": "_pytest.logging",
-                      "function": "LoggingPlugin.pytest_runtest_call",
-                      "wrapper": false,
-                      "hookwrapper": true,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "unraisableexception",
-                      "module": "_pytest.unraisableexception",
-                      "function": "pytest_runtest_call",
-                      "wrapper": false,
-                      "hookwrapper": true,
-                      "tryfirst": true,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "threadexception",
-                      "module": "_pytest.threadexception",
-                      "function": "pytest_runtest_call",
-                      "wrapper": false,
-                      "hookwrapper": true,
-                      "tryfirst": true,
-                      "trylast": false
-                    }
-                  ],
-                  "children": [
-                    {
-                      "name": "pytest_pyfunc_call",
-                      "seq": 227,
-                      "depth": 4,
-                      "impls": [
-                        {
-                          "plugin": "python",
-                          "module": "_pytest.python",
-                          "function": "pytest_pyfunc_call",
-                          "wrapper": false,
-                          "hookwrapper": false,
-                          "tryfirst": false,
-                          "trylast": true
-                        },
-                        {
-                          "plugin": "conftest.py",
-                          "module": "conftest",
-                          "function": "pytest_pyfunc_call",
-                          "wrapper": false,
-                          "hookwrapper": false,
-                          "tryfirst": false,
-                          "trylast": false
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "name": "pytest_runtest_makereport",
-                  "seq": 228,
-                  "depth": 3,
-                  "impls": [
-                    {
-                      "plugin": "runner",
-                      "module": "_pytest.runner",
                       "function": "pytest_runtest_makereport",
                       "wrapper": false,
                       "hookwrapper": false,
@@ -6694,7 +6654,7 @@
                 },
                 {
                   "name": "pytest_runtest_logreport",
-                  "seq": 229,
+                  "seq": 227,
                   "depth": 3,
                   "impls": [
                     {
@@ -6737,7 +6697,7 @@
                   "children": [
                     {
                       "name": "pytest_report_teststatus",
-                      "seq": 230,
+                      "seq": 228,
                       "depth": 4,
                       "impls": [
                         {
@@ -6782,7 +6742,7 @@
                 },
                 {
                   "name": "pytest_runtest_teardown",
-                  "seq": 231,
+                  "seq": 229,
                   "depth": 3,
                   "impls": [
                     {
@@ -6843,7 +6803,7 @@
                   "children": [
                     {
                       "name": "pytest_fixture_post_finalizer",
-                      "seq": 232,
+                      "seq": 230,
                       "depth": 4,
                       "impls": [
                         {
@@ -6868,7 +6828,7 @@
                     },
                     {
                       "name": "pytest_fixture_post_finalizer",
-                      "seq": 233,
+                      "seq": 231,
                       "depth": 4,
                       "impls": [
                         {
@@ -6895,7 +6855,7 @@
                 },
                 {
                   "name": "pytest_runtest_makereport",
-                  "seq": 234,
+                  "seq": 232,
                   "depth": 3,
                   "impls": [
                     {
@@ -6947,13 +6907,101 @@
                 },
                 {
                   "name": "pytest_runtest_logreport",
+                  "seq": 233,
+                  "depth": 3,
+                  "impls": [
+                    {
+                      "plugin": "conftest.py",
+                      "module": "conftest",
+                      "function": "pytest_runtest_logreport",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "terminalreporter",
+                      "module": "_pytest.terminal",
+                      "function": "TerminalReporter.pytest_runtest_logreport",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "logging-plugin",
+                      "module": "_pytest.logging",
+                      "function": "LoggingPlugin.pytest_runtest_logreport",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "session",
+                      "module": "_pytest.main",
+                      "function": "Session.pytest_runtest_logreport",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": true,
+                      "trylast": false
+                    }
+                  ],
+                  "children": [
+                    {
+                      "name": "pytest_report_teststatus",
+                      "seq": 234,
+                      "depth": 4,
+                      "impls": [
+                        {
+                          "plugin": "terminal",
+                          "module": "_pytest.terminal",
+                          "function": "pytest_report_teststatus",
+                          "wrapper": false,
+                          "hookwrapper": false,
+                          "tryfirst": false,
+                          "trylast": true
+                        },
+                        {
+                          "plugin": "runner",
+                          "module": "_pytest.runner",
+                          "function": "pytest_report_teststatus",
+                          "wrapper": false,
+                          "hookwrapper": false,
+                          "tryfirst": false,
+                          "trylast": false
+                        },
+                        {
+                          "plugin": "skipping",
+                          "module": "_pytest.skipping",
+                          "function": "pytest_report_teststatus",
+                          "wrapper": false,
+                          "hookwrapper": false,
+                          "tryfirst": false,
+                          "trylast": false
+                        },
+                        {
+                          "plugin": "conftest.py",
+                          "module": "conftest",
+                          "function": "pytest_report_teststatus",
+                          "wrapper": false,
+                          "hookwrapper": false,
+                          "tryfirst": false,
+                          "trylast": false
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "pytest_runtest_logfinish",
                   "seq": 235,
                   "depth": 3,
                   "impls": [
                     {
                       "plugin": "conftest.py",
                       "module": "conftest",
-                      "function": "pytest_runtest_logreport",
+                      "function": "pytest_runtest_logfinish",
                       "wrapper": false,
                       "hookwrapper": false,
                       "tryfirst": false,
@@ -6962,7 +7010,7 @@
                     {
                       "plugin": "terminalreporter",
                       "module": "_pytest.terminal",
-                      "function": "TerminalReporter.pytest_runtest_logreport",
+                      "function": "TerminalReporter.pytest_runtest_logfinish",
                       "wrapper": false,
                       "hookwrapper": false,
                       "tryfirst": false,
@@ -6971,173 +7019,85 @@
                     {
                       "plugin": "logging-plugin",
                       "module": "_pytest.logging",
-                      "function": "LoggingPlugin.pytest_runtest_logreport",
+                      "function": "LoggingPlugin.pytest_runtest_logfinish",
                       "wrapper": false,
                       "hookwrapper": false,
                       "tryfirst": false,
                       "trylast": false
-                    },
-                    {
-                      "plugin": "session",
-                      "module": "_pytest.main",
-                      "function": "Session.pytest_runtest_logreport",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": true,
-                      "trylast": false
-                    }
-                  ],
-                  "children": [
-                    {
-                      "name": "pytest_report_teststatus",
-                      "seq": 236,
-                      "depth": 4,
-                      "impls": [
-                        {
-                          "plugin": "terminal",
-                          "module": "_pytest.terminal",
-                          "function": "pytest_report_teststatus",
-                          "wrapper": false,
-                          "hookwrapper": false,
-                          "tryfirst": false,
-                          "trylast": true
-                        },
-                        {
-                          "plugin": "runner",
-                          "module": "_pytest.runner",
-                          "function": "pytest_report_teststatus",
-                          "wrapper": false,
-                          "hookwrapper": false,
-                          "tryfirst": false,
-                          "trylast": false
-                        },
-                        {
-                          "plugin": "skipping",
-                          "module": "_pytest.skipping",
-                          "function": "pytest_report_teststatus",
-                          "wrapper": false,
-                          "hookwrapper": false,
-                          "tryfirst": false,
-                          "trylast": false
-                        },
-                        {
-                          "plugin": "conftest.py",
-                          "module": "conftest",
-                          "function": "pytest_report_teststatus",
-                          "wrapper": false,
-                          "hookwrapper": false,
-                          "tryfirst": false,
-                          "trylast": false
-                        }
-                      ]
                     }
                   ]
+                }
+              ]
+            },
+            {
+              "name": "pytest_runtest_protocol",
+              "seq": 236,
+              "depth": 2,
+              "impls": [
+                {
+                  "plugin": "runner",
+                  "module": "_pytest.runner",
+                  "function": "pytest_runtest_protocol",
+                  "wrapper": false,
+                  "hookwrapper": false,
+                  "tryfirst": false,
+                  "trylast": false
                 },
                 {
-                  "name": "pytest_runtest_logfinish",
+                  "plugin": "conftest.py",
+                  "module": "conftest",
+                  "function": "pytest_runtest_protocol",
+                  "wrapper": false,
+                  "hookwrapper": false,
+                  "tryfirst": false,
+                  "trylast": false
+                },
+                {
+                  "plugin": "faulthandler",
+                  "module": "_pytest.faulthandler",
+                  "function": "pytest_runtest_protocol",
+                  "wrapper": false,
+                  "hookwrapper": true,
+                  "tryfirst": false,
+                  "trylast": true
+                },
+                {
+                  "plugin": "unittest",
+                  "module": "_pytest.unittest",
+                  "function": "pytest_runtest_protocol",
+                  "wrapper": false,
+                  "hookwrapper": true,
+                  "tryfirst": false,
+                  "trylast": false
+                },
+                {
+                  "plugin": "assertion",
+                  "module": "_pytest.assertion",
+                  "function": "pytest_runtest_protocol",
+                  "wrapper": false,
+                  "hookwrapper": true,
+                  "tryfirst": true,
+                  "trylast": false
+                },
+                {
+                  "plugin": "warnings",
+                  "module": "_pytest.warnings",
+                  "function": "pytest_runtest_protocol",
+                  "wrapper": false,
+                  "hookwrapper": true,
+                  "tryfirst": true,
+                  "trylast": false
+                }
+              ],
+              "children": [
+                {
+                  "name": "pytest_runtest_logstart",
                   "seq": 237,
                   "depth": 3,
                   "impls": [
                     {
                       "plugin": "conftest.py",
                       "module": "conftest",
-                      "function": "pytest_runtest_logfinish",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "terminalreporter",
-                      "module": "_pytest.terminal",
-                      "function": "TerminalReporter.pytest_runtest_logfinish",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "logging-plugin",
-                      "module": "_pytest.logging",
-                      "function": "LoggingPlugin.pytest_runtest_logfinish",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "name": "pytest_runtest_protocol",
-              "seq": 238,
-              "depth": 2,
-              "impls": [
-                {
-                  "plugin": "runner",
-                  "module": "_pytest.runner",
-                  "function": "pytest_runtest_protocol",
-                  "wrapper": false,
-                  "hookwrapper": false,
-                  "tryfirst": false,
-                  "trylast": false
-                },
-                {
-                  "plugin": "conftest.py",
-                  "module": "conftest",
-                  "function": "pytest_runtest_protocol",
-                  "wrapper": false,
-                  "hookwrapper": false,
-                  "tryfirst": false,
-                  "trylast": false
-                },
-                {
-                  "plugin": "faulthandler",
-                  "module": "_pytest.faulthandler",
-                  "function": "pytest_runtest_protocol",
-                  "wrapper": false,
-                  "hookwrapper": true,
-                  "tryfirst": false,
-                  "trylast": true
-                },
-                {
-                  "plugin": "unittest",
-                  "module": "_pytest.unittest",
-                  "function": "pytest_runtest_protocol",
-                  "wrapper": false,
-                  "hookwrapper": true,
-                  "tryfirst": false,
-                  "trylast": false
-                },
-                {
-                  "plugin": "assertion",
-                  "module": "_pytest.assertion",
-                  "function": "pytest_runtest_protocol",
-                  "wrapper": false,
-                  "hookwrapper": true,
-                  "tryfirst": true,
-                  "trylast": false
-                },
-                {
-                  "plugin": "warnings",
-                  "module": "_pytest.warnings",
-                  "function": "pytest_runtest_protocol",
-                  "wrapper": false,
-                  "hookwrapper": true,
-                  "tryfirst": true,
-                  "trylast": false
-                }
-              ],
-              "children": [
-                {
-                  "name": "pytest_runtest_logstart",
-                  "seq": 239,
-                  "depth": 3,
-                  "impls": [
-                    {
-                      "plugin": "conftest.py",
-                      "module": "conftest",
                       "function": "pytest_runtest_logstart",
                       "wrapper": false,
                       "hookwrapper": false,
@@ -7166,7 +7126,7 @@
                 },
                 {
                   "name": "pytest_runtest_setup",
-                  "seq": 240,
+                  "seq": 238,
                   "depth": 3,
                   "impls": [
                     {
@@ -7245,7 +7205,7 @@
                   "children": [
                     {
                       "name": "pytest_fixture_setup",
-                      "seq": 241,
+                      "seq": 239,
                       "depth": 4,
                       "impls": [
                         {
@@ -7288,7 +7248,7 @@
                     },
                     {
                       "name": "pytest_fixture_setup",
-                      "seq": 242,
+                      "seq": 240,
                       "depth": 4,
                       "impls": [
                         {
@@ -7333,7 +7293,7 @@
                 },
                 {
                   "name": "pytest_runtest_makereport",
-                  "seq": 243,
+                  "seq": 241,
                   "depth": 3,
                   "impls": [
                     {
@@ -7385,7 +7345,7 @@
                 },
                 {
                   "name": "pytest_runtest_logreport",
-                  "seq": 244,
+                  "seq": 242,
                   "depth": 3,
                   "impls": [
                     {
@@ -7428,7 +7388,7 @@
                   "children": [
                     {
                       "name": "pytest_report_teststatus",
-                      "seq": 245,
+                      "seq": 243,
                       "depth": 4,
                       "impls": [
                         {
@@ -7473,109 +7433,109 @@
                 },
                 {
                   "name": "pytest_runtest_call",
+                  "seq": 244,
+                  "depth": 3,
+                  "impls": [
+                    {
+                      "plugin": "runner",
+                      "module": "_pytest.runner",
+                      "function": "pytest_runtest_call",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "conftest.py",
+                      "module": "conftest",
+                      "function": "pytest_runtest_call",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "skipping",
+                      "module": "_pytest.skipping",
+                      "function": "pytest_runtest_call",
+                      "wrapper": false,
+                      "hookwrapper": true,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "capturemanager",
+                      "module": "_pytest.capture",
+                      "function": "CaptureManager.pytest_runtest_call",
+                      "wrapper": false,
+                      "hookwrapper": true,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "logging-plugin",
+                      "module": "_pytest.logging",
+                      "function": "LoggingPlugin.pytest_runtest_call",
+                      "wrapper": false,
+                      "hookwrapper": true,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "unraisableexception",
+                      "module": "_pytest.unraisableexception",
+                      "function": "pytest_runtest_call",
+                      "wrapper": false,
+                      "hookwrapper": true,
+                      "tryfirst": true,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "threadexception",
+                      "module": "_pytest.threadexception",
+                      "function": "pytest_runtest_call",
+                      "wrapper": false,
+                      "hookwrapper": true,
+                      "tryfirst": true,
+                      "trylast": false
+                    }
+                  ],
+                  "children": [
+                    {
+                      "name": "pytest_pyfunc_call",
+                      "seq": 245,
+                      "depth": 4,
+                      "impls": [
+                        {
+                          "plugin": "python",
+                          "module": "_pytest.python",
+                          "function": "pytest_pyfunc_call",
+                          "wrapper": false,
+                          "hookwrapper": false,
+                          "tryfirst": false,
+                          "trylast": true
+                        },
+                        {
+                          "plugin": "conftest.py",
+                          "module": "conftest",
+                          "function": "pytest_pyfunc_call",
+                          "wrapper": false,
+                          "hookwrapper": false,
+                          "tryfirst": false,
+                          "trylast": false
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "pytest_runtest_makereport",
                   "seq": 246,
                   "depth": 3,
                   "impls": [
                     {
                       "plugin": "runner",
                       "module": "_pytest.runner",
-                      "function": "pytest_runtest_call",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "conftest.py",
-                      "module": "conftest",
-                      "function": "pytest_runtest_call",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "skipping",
-                      "module": "_pytest.skipping",
-                      "function": "pytest_runtest_call",
-                      "wrapper": false,
-                      "hookwrapper": true,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "capturemanager",
-                      "module": "_pytest.capture",
-                      "function": "CaptureManager.pytest_runtest_call",
-                      "wrapper": false,
-                      "hookwrapper": true,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "logging-plugin",
-                      "module": "_pytest.logging",
-                      "function": "LoggingPlugin.pytest_runtest_call",
-                      "wrapper": false,
-                      "hookwrapper": true,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "unraisableexception",
-                      "module": "_pytest.unraisableexception",
-                      "function": "pytest_runtest_call",
-                      "wrapper": false,
-                      "hookwrapper": true,
-                      "tryfirst": true,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "threadexception",
-                      "module": "_pytest.threadexception",
-                      "function": "pytest_runtest_call",
-                      "wrapper": false,
-                      "hookwrapper": true,
-                      "tryfirst": true,
-                      "trylast": false
-                    }
-                  ],
-                  "children": [
-                    {
-                      "name": "pytest_pyfunc_call",
-                      "seq": 247,
-                      "depth": 4,
-                      "impls": [
-                        {
-                          "plugin": "python",
-                          "module": "_pytest.python",
-                          "function": "pytest_pyfunc_call",
-                          "wrapper": false,
-                          "hookwrapper": false,
-                          "tryfirst": false,
-                          "trylast": true
-                        },
-                        {
-                          "plugin": "conftest.py",
-                          "module": "conftest",
-                          "function": "pytest_pyfunc_call",
-                          "wrapper": false,
-                          "hookwrapper": false,
-                          "tryfirst": false,
-                          "trylast": false
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "name": "pytest_runtest_makereport",
-                  "seq": 248,
-                  "depth": 3,
-                  "impls": [
-                    {
-                      "plugin": "runner",
-                      "module": "_pytest.runner",
                       "function": "pytest_runtest_makereport",
                       "wrapper": false,
                       "hookwrapper": false,
@@ -7622,7 +7582,7 @@
                 },
                 {
                   "name": "pytest_runtest_logreport",
-                  "seq": 249,
+                  "seq": 247,
                   "depth": 3,
                   "impls": [
                     {
@@ -7665,7 +7625,7 @@
                   "children": [
                     {
                       "name": "pytest_report_teststatus",
-                      "seq": 250,
+                      "seq": 248,
                       "depth": 4,
                       "impls": [
                         {
@@ -7710,7 +7670,7 @@
                 },
                 {
                   "name": "pytest_runtest_teardown",
-                  "seq": 251,
+                  "seq": 249,
                   "depth": 3,
                   "impls": [
                     {
@@ -7771,7 +7731,7 @@
                   "children": [
                     {
                       "name": "pytest_fixture_post_finalizer",
-                      "seq": 252,
+                      "seq": 250,
                       "depth": 4,
                       "impls": [
                         {
@@ -7796,7 +7756,7 @@
                     },
                     {
                       "name": "pytest_fixture_post_finalizer",
-                      "seq": 253,
+                      "seq": 251,
                       "depth": 4,
                       "impls": [
                         {
@@ -7823,7 +7783,7 @@
                 },
                 {
                   "name": "pytest_runtest_makereport",
-                  "seq": 254,
+                  "seq": 252,
                   "depth": 3,
                   "impls": [
                     {
@@ -7875,100 +7835,100 @@
                 },
                 {
                   "name": "pytest_runtest_logreport",
+                  "seq": 253,
+                  "depth": 3,
+                  "impls": [
+                    {
+                      "plugin": "conftest.py",
+                      "module": "conftest",
+                      "function": "pytest_runtest_logreport",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "terminalreporter",
+                      "module": "_pytest.terminal",
+                      "function": "TerminalReporter.pytest_runtest_logreport",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "logging-plugin",
+                      "module": "_pytest.logging",
+                      "function": "LoggingPlugin.pytest_runtest_logreport",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": false,
+                      "trylast": false
+                    },
+                    {
+                      "plugin": "session",
+                      "module": "_pytest.main",
+                      "function": "Session.pytest_runtest_logreport",
+                      "wrapper": false,
+                      "hookwrapper": false,
+                      "tryfirst": true,
+                      "trylast": false
+                    }
+                  ],
+                  "children": [
+                    {
+                      "name": "pytest_report_teststatus",
+                      "seq": 254,
+                      "depth": 4,
+                      "impls": [
+                        {
+                          "plugin": "terminal",
+                          "module": "_pytest.terminal",
+                          "function": "pytest_report_teststatus",
+                          "wrapper": false,
+                          "hookwrapper": false,
+                          "tryfirst": false,
+                          "trylast": true
+                        },
+                        {
+                          "plugin": "runner",
+                          "module": "_pytest.runner",
+                          "function": "pytest_report_teststatus",
+                          "wrapper": false,
+                          "hookwrapper": false,
+                          "tryfirst": false,
+                          "trylast": false
+                        },
+                        {
+                          "plugin": "skipping",
+                          "module": "_pytest.skipping",
+                          "function": "pytest_report_teststatus",
+                          "wrapper": false,
+                          "hookwrapper": false,
+                          "tryfirst": false,
+                          "trylast": false
+                        },
+                        {
+                          "plugin": "conftest.py",
+                          "module": "conftest",
+                          "function": "pytest_report_teststatus",
+                          "wrapper": false,
+                          "hookwrapper": false,
+                          "tryfirst": false,
+                          "trylast": false
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "pytest_runtest_logfinish",
                   "seq": 255,
                   "depth": 3,
                   "impls": [
                     {
                       "plugin": "conftest.py",
                       "module": "conftest",
-                      "function": "pytest_runtest_logreport",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "terminalreporter",
-                      "module": "_pytest.terminal",
-                      "function": "TerminalReporter.pytest_runtest_logreport",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "logging-plugin",
-                      "module": "_pytest.logging",
-                      "function": "LoggingPlugin.pytest_runtest_logreport",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": false,
-                      "trylast": false
-                    },
-                    {
-                      "plugin": "session",
-                      "module": "_pytest.main",
-                      "function": "Session.pytest_runtest_logreport",
-                      "wrapper": false,
-                      "hookwrapper": false,
-                      "tryfirst": true,
-                      "trylast": false
-                    }
-                  ],
-                  "children": [
-                    {
-                      "name": "pytest_report_teststatus",
-                      "seq": 256,
-                      "depth": 4,
-                      "impls": [
-                        {
-                          "plugin": "terminal",
-                          "module": "_pytest.terminal",
-                          "function": "pytest_report_teststatus",
-                          "wrapper": false,
-                          "hookwrapper": false,
-                          "tryfirst": false,
-                          "trylast": true
-                        },
-                        {
-                          "plugin": "runner",
-                          "module": "_pytest.runner",
-                          "function": "pytest_report_teststatus",
-                          "wrapper": false,
-                          "hookwrapper": false,
-                          "tryfirst": false,
-                          "trylast": false
-                        },
-                        {
-                          "plugin": "skipping",
-                          "module": "_pytest.skipping",
-                          "function": "pytest_report_teststatus",
-                          "wrapper": false,
-                          "hookwrapper": false,
-                          "tryfirst": false,
-                          "trylast": false
-                        },
-                        {
-                          "plugin": "conftest.py",
-                          "module": "conftest",
-                          "function": "pytest_report_teststatus",
-                          "wrapper": false,
-                          "hookwrapper": false,
-                          "tryfirst": false,
-                          "trylast": false
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "name": "pytest_runtest_logfinish",
-                  "seq": 257,
-                  "depth": 3,
-                  "impls": [
-                    {
-                      "plugin": "conftest.py",
-                      "module": "conftest",
                       "function": "pytest_runtest_logfinish",
                       "wrapper": false,
                       "hookwrapper": false,
@@ -7999,7 +7959,7 @@
             },
             {
               "name": "pytest_runtest_protocol",
-              "seq": 258,
+              "seq": 256,
               "depth": 2,
               "impls": [
                 {
@@ -8060,7 +8020,7 @@
               "children": [
                 {
                   "name": "pytest_runtest_logstart",
-                  "seq": 259,
+                  "seq": 257,
                   "depth": 3,
                   "impls": [
                     {
@@ -8094,7 +8054,7 @@
                 },
                 {
                   "name": "pytest_runtest_setup",
-                  "seq": 260,
+                  "seq": 258,
                   "depth": 3,
                   "impls": [
                     {
@@ -8173,7 +8133,7 @@
                   "children": [
                     {
                       "name": "pytest_fixture_setup",
-                      "seq": 261,
+                      "seq": 259,
                       "depth": 4,
                       "impls": [
                         {
@@ -8216,7 +8176,7 @@
                     },
                     {
                       "name": "pytest_fixture_setup",
-                      "seq": 262,
+                      "seq": 260,
                       "depth": 4,
                       "impls": [
                         {
@@ -8261,7 +8221,7 @@
                 },
                 {
                   "name": "pytest_runtest_makereport",
-                  "seq": 263,
+                  "seq": 261,
                   "depth": 3,
                   "impls": [
                     {
@@ -8313,7 +8273,7 @@
                 },
                 {
                   "name": "pytest_runtest_logreport",
-                  "seq": 264,
+                  "seq": 262,
                   "depth": 3,
                   "impls": [
                     {
@@ -8356,7 +8316,7 @@
                   "children": [
                     {
                       "name": "pytest_report_teststatus",
-                      "seq": 265,
+                      "seq": 263,
                       "depth": 4,
                       "impls": [
                         {
@@ -8401,7 +8361,7 @@
                 },
                 {
                   "name": "pytest_runtest_call",
-                  "seq": 266,
+                  "seq": 264,
                   "depth": 3,
                   "impls": [
                     {
@@ -8471,7 +8431,7 @@
                   "children": [
                     {
                       "name": "pytest_pyfunc_call",
-                      "seq": 267,
+                      "seq": 265,
                       "depth": 4,
                       "impls": [
                         {
@@ -8498,7 +8458,7 @@
                 },
                 {
                   "name": "pytest_runtest_makereport",
-                  "seq": 268,
+                  "seq": 266,
                   "depth": 3,
                   "impls": [
                     {
@@ -8550,7 +8510,7 @@
                 },
                 {
                   "name": "pytest_runtest_logreport",
-                  "seq": 269,
+                  "seq": 267,
                   "depth": 3,
                   "impls": [
                     {
@@ -8593,7 +8553,7 @@
                   "children": [
                     {
                       "name": "pytest_report_teststatus",
-                      "seq": 270,
+                      "seq": 268,
                       "depth": 4,
                       "impls": [
                         {
@@ -8638,7 +8598,7 @@
                 },
                 {
                   "name": "pytest_runtest_teardown",
-                  "seq": 271,
+                  "seq": 269,
                   "depth": 3,
                   "impls": [
                     {
@@ -8699,7 +8659,7 @@
                   "children": [
                     {
                       "name": "pytest_fixture_post_finalizer",
-                      "seq": 272,
+                      "seq": 270,
                       "depth": 4,
                       "impls": [
                         {
@@ -8724,7 +8684,7 @@
                     },
                     {
                       "name": "pytest_fixture_post_finalizer",
-                      "seq": 273,
+                      "seq": 271,
                       "depth": 4,
                       "impls": [
                         {
@@ -8751,7 +8711,7 @@
                 },
                 {
                   "name": "pytest_runtest_makereport",
-                  "seq": 274,
+                  "seq": 272,
                   "depth": 3,
                   "impls": [
                     {
@@ -8803,7 +8763,7 @@
                 },
                 {
                   "name": "pytest_runtest_logreport",
-                  "seq": 275,
+                  "seq": 273,
                   "depth": 3,
                   "impls": [
                     {
@@ -8846,7 +8806,7 @@
                   "children": [
                     {
                       "name": "pytest_report_teststatus",
-                      "seq": 276,
+                      "seq": 274,
                       "depth": 4,
                       "impls": [
                         {
@@ -8891,7 +8851,7 @@
                 },
                 {
                   "name": "pytest_runtest_logfinish",
-                  "seq": 277,
+                  "seq": 275,
                   "depth": 3,
                   "impls": [
                     {
@@ -8927,7 +8887,7 @@
             },
             {
               "name": "pytest_runtest_protocol",
-              "seq": 278,
+              "seq": 276,
               "depth": 2,
               "impls": [
                 {
@@ -8988,7 +8948,7 @@
               "children": [
                 {
                   "name": "pytest_runtest_logstart",
-                  "seq": 279,
+                  "seq": 277,
                   "depth": 3,
                   "impls": [
                     {
@@ -9022,7 +8982,7 @@
                 },
                 {
                   "name": "pytest_runtest_setup",
-                  "seq": 280,
+                  "seq": 278,
                   "depth": 3,
                   "impls": [
                     {
@@ -9101,7 +9061,7 @@
                   "children": [
                     {
                       "name": "pytest_fixture_setup",
-                      "seq": 281,
+                      "seq": 279,
                       "depth": 4,
                       "impls": [
                         {
@@ -9146,7 +9106,7 @@
                 },
                 {
                   "name": "pytest_runtest_makereport",
-                  "seq": 282,
+                  "seq": 280,
                   "depth": 3,
                   "impls": [
                     {
@@ -9198,7 +9158,7 @@
                 },
                 {
                   "name": "pytest_runtest_logreport",
-                  "seq": 283,
+                  "seq": 281,
                   "depth": 3,
                   "impls": [
                     {
@@ -9241,7 +9201,7 @@
                   "children": [
                     {
                       "name": "pytest_report_teststatus",
-                      "seq": 284,
+                      "seq": 282,
                       "depth": 4,
                       "impls": [
                         {
@@ -9286,7 +9246,7 @@
                 },
                 {
                   "name": "pytest_runtest_call",
-                  "seq": 285,
+                  "seq": 283,
                   "depth": 3,
                   "impls": [
                     {
@@ -9357,7 +9317,7 @@
                   "children": [
                     {
                       "name": "pytest_pyfunc_call",
-                      "seq": 286,
+                      "seq": 284,
                       "depth": 4,
                       "impls": [
                         {
@@ -9385,7 +9345,7 @@
                 },
                 {
                   "name": "pytest_runtest_makereport",
-                  "seq": 287,
+                  "seq": 285,
                   "depth": 3,
                   "impls": [
                     {
@@ -9437,7 +9397,7 @@
                 },
                 {
                   "name": "pytest_runtest_logreport",
-                  "seq": 288,
+                  "seq": 286,
                   "depth": 3,
                   "impls": [
                     {
@@ -9480,7 +9440,7 @@
                   "children": [
                     {
                       "name": "pytest_report_teststatus",
-                      "seq": 289,
+                      "seq": 287,
                       "depth": 4,
                       "impls": [
                         {
@@ -9525,7 +9485,7 @@
                 },
                 {
                   "name": "pytest_exception_interact",
-                  "seq": 290,
+                  "seq": 288,
                   "depth": 3,
                   "impls": [
                     {
@@ -9550,7 +9510,7 @@
                 },
                 {
                   "name": "pytest_runtest_teardown",
-                  "seq": 291,
+                  "seq": 289,
                   "depth": 3,
                   "impls": [
                     {
@@ -9611,7 +9571,7 @@
                   "children": [
                     {
                       "name": "pytest_fixture_post_finalizer",
-                      "seq": 292,
+                      "seq": 290,
                       "depth": 4,
                       "impls": [
                         {
@@ -9638,7 +9598,7 @@
                 },
                 {
                   "name": "pytest_runtest_makereport",
-                  "seq": 293,
+                  "seq": 291,
                   "depth": 3,
                   "impls": [
                     {
@@ -9690,7 +9650,7 @@
                 },
                 {
                   "name": "pytest_runtest_logreport",
-                  "seq": 294,
+                  "seq": 292,
                   "depth": 3,
                   "impls": [
                     {
@@ -9733,7 +9693,7 @@
                   "children": [
                     {
                       "name": "pytest_report_teststatus",
-                      "seq": 295,
+                      "seq": 293,
                       "depth": 4,
                       "impls": [
                         {
@@ -9778,7 +9738,7 @@
                 },
                 {
                   "name": "pytest_runtest_logfinish",
-                  "seq": 296,
+                  "seq": 294,
                   "depth": 3,
                   "impls": [
                     {
@@ -9814,7 +9774,7 @@
             },
             {
               "name": "pytest_runtest_protocol",
-              "seq": 297,
+              "seq": 295,
               "depth": 2,
               "impls": [
                 {
@@ -9875,7 +9835,7 @@
               "children": [
                 {
                   "name": "pytest_runtest_logstart",
-                  "seq": 298,
+                  "seq": 296,
                   "depth": 3,
                   "impls": [
                     {
@@ -9909,7 +9869,7 @@
                 },
                 {
                   "name": "pytest_runtest_setup",
-                  "seq": 299,
+                  "seq": 297,
                   "depth": 3,
                   "impls": [
                     {
@@ -9989,7 +9949,7 @@
                 },
                 {
                   "name": "pytest_runtest_makereport",
-                  "seq": 300,
+                  "seq": 298,
                   "depth": 3,
                   "impls": [
                     {
@@ -10041,7 +10001,7 @@
                 },
                 {
                   "name": "pytest_runtest_logreport",
-                  "seq": 301,
+                  "seq": 299,
                   "depth": 3,
                   "impls": [
                     {
@@ -10084,7 +10044,7 @@
                   "children": [
                     {
                       "name": "pytest_report_teststatus",
-                      "seq": 302,
+                      "seq": 300,
                       "depth": 4,
                       "impls": [
                         {
@@ -10129,7 +10089,7 @@
                 },
                 {
                   "name": "pytest_runtest_teardown",
-                  "seq": 303,
+                  "seq": 301,
                   "depth": 3,
                   "impls": [
                     {
@@ -10190,7 +10150,7 @@
                 },
                 {
                   "name": "pytest_runtest_makereport",
-                  "seq": 304,
+                  "seq": 302,
                   "depth": 3,
                   "impls": [
                     {
@@ -10242,7 +10202,7 @@
                 },
                 {
                   "name": "pytest_runtest_logreport",
-                  "seq": 305,
+                  "seq": 303,
                   "depth": 3,
                   "impls": [
                     {
@@ -10285,7 +10245,7 @@
                   "children": [
                     {
                       "name": "pytest_report_teststatus",
-                      "seq": 306,
+                      "seq": 304,
                       "depth": 4,
                       "impls": [
                         {
@@ -10330,7 +10290,7 @@
                 },
                 {
                   "name": "pytest_runtest_logfinish",
-                  "seq": 307,
+                  "seq": 305,
                   "depth": 3,
                   "impls": [
                     {
@@ -10366,7 +10326,7 @@
             },
             {
               "name": "pytest_runtest_protocol",
-              "seq": 308,
+              "seq": 306,
               "depth": 2,
               "impls": [
                 {
@@ -10427,7 +10387,7 @@
               "children": [
                 {
                   "name": "pytest_runtest_logstart",
-                  "seq": 309,
+                  "seq": 307,
                   "depth": 3,
                   "impls": [
                     {
@@ -10461,7 +10421,7 @@
                 },
                 {
                   "name": "pytest_runtest_setup",
-                  "seq": 310,
+                  "seq": 308,
                   "depth": 3,
                   "impls": [
                     {
@@ -10540,7 +10500,7 @@
                 },
                 {
                   "name": "pytest_runtest_makereport",
-                  "seq": 311,
+                  "seq": 309,
                   "depth": 3,
                   "impls": [
                     {
@@ -10592,7 +10552,7 @@
                 },
                 {
                   "name": "pytest_runtest_logreport",
-                  "seq": 312,
+                  "seq": 310,
                   "depth": 3,
                   "impls": [
                     {
@@ -10635,7 +10595,7 @@
                   "children": [
                     {
                       "name": "pytest_report_teststatus",
-                      "seq": 313,
+                      "seq": 311,
                       "depth": 4,
                       "impls": [
                         {
@@ -10680,7 +10640,7 @@
                 },
                 {
                   "name": "pytest_runtest_call",
-                  "seq": 314,
+                  "seq": 312,
                   "depth": 3,
                   "impls": [
                     {
@@ -10750,7 +10710,7 @@
                   "children": [
                     {
                       "name": "pytest_pyfunc_call",
-                      "seq": 315,
+                      "seq": 313,
                       "depth": 4,
                       "impls": [
                         {
@@ -10777,7 +10737,7 @@
                 },
                 {
                   "name": "pytest_runtest_makereport",
-                  "seq": 316,
+                  "seq": 314,
                   "depth": 3,
                   "impls": [
                     {
@@ -10829,7 +10789,7 @@
                 },
                 {
                   "name": "pytest_runtest_logreport",
-                  "seq": 317,
+                  "seq": 315,
                   "depth": 3,
                   "impls": [
                     {
@@ -10872,7 +10832,7 @@
                   "children": [
                     {
                       "name": "pytest_report_teststatus",
-                      "seq": 318,
+                      "seq": 316,
                       "depth": 4,
                       "impls": [
                         {
@@ -10917,7 +10877,7 @@
                 },
                 {
                   "name": "pytest_runtest_teardown",
-                  "seq": 319,
+                  "seq": 317,
                   "depth": 3,
                   "impls": [
                     {
@@ -10978,7 +10938,7 @@
                 },
                 {
                   "name": "pytest_runtest_makereport",
-                  "seq": 320,
+                  "seq": 318,
                   "depth": 3,
                   "impls": [
                     {
@@ -11030,7 +10990,7 @@
                 },
                 {
                   "name": "pytest_runtest_logreport",
-                  "seq": 321,
+                  "seq": 319,
                   "depth": 3,
                   "impls": [
                     {
@@ -11073,7 +11033,7 @@
                   "children": [
                     {
                       "name": "pytest_report_teststatus",
-                      "seq": 322,
+                      "seq": 320,
                       "depth": 4,
                       "impls": [
                         {
@@ -11118,7 +11078,7 @@
                 },
                 {
                   "name": "pytest_runtest_logfinish",
-                  "seq": 323,
+                  "seq": 321,
                   "depth": 3,
                   "impls": [
                     {
@@ -11152,7 +11112,7 @@
                 },
                 {
                   "name": "pytest_warning_recorded",
-                  "seq": 324,
+                  "seq": 322,
                   "depth": 3,
                   "impls": [
                     {
@@ -11181,7 +11141,7 @@
         },
         {
           "name": "pytest_sessionfinish",
-          "seq": 325,
+          "seq": 323,
           "depth": 1,
           "impls": [
             {
@@ -11251,7 +11211,7 @@
           "children": [
             {
               "name": "pytest_terminal_summary",
-              "seq": 326,
+              "seq": 324,
               "depth": 2,
               "impls": [
                 {
@@ -11303,7 +11263,7 @@
               "children": [
                 {
                   "name": "pytest_report_teststatus",
-                  "seq": 327,
+                  "seq": 325,
                   "depth": 3,
                   "impls": [
                     {
@@ -11350,7 +11310,7 @@
         },
         {
           "name": "pytest_unconfigure",
-          "seq": 328,
+          "seq": 326,
           "depth": 1,
           "impls": [
             {

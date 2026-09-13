@@ -61,7 +61,10 @@ def test_changelog_is_published_on_the_site(tmp_path):
     from pytest_hook_atlas import build
 
     docs = tmp_path / "docs"
-    build.build(REPO_ROOT, docs, REPO_ROOT / "data" / "traces", verify_links=False)
+    config = tmp_path / "mkdocs.yml"
+    build.build(
+        REPO_ROOT, docs, REPO_ROOT / "data" / "traces", verify_links=False, config_path=config
+    )
 
     assert (docs / "changelog.md").exists()
-    assert "Changelog: changelog.md" in (REPO_ROOT / "mkdocs.yml").read_text()
+    assert "Changelog: changelog.md" in config.read_text()
