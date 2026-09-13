@@ -23,6 +23,7 @@ class Implementation:
 
     plugin: str
     owner: str
+    flags: tuple[str, ...] = ()
 
     @property
     def label(self) -> str:
@@ -47,7 +48,23 @@ class Implementation:
 
     @property
     def key(self) -> tuple[str, str]:
+        """Identity for comparing releases.
+
+        Deliberately excludes the ordering flags: the table shows the newest
+        release's answer, and letting a flag change split a run would fragment
+        pages over something the diagrams do not show.
+        """
         return (self.plugin, self.owner)
+
+    @property
+    def annotation(self) -> str:
+        """Why this implementation sits where it does in the call order.
+
+        pluggy runs wrappers outermost, then tryfirst, then plain
+        implementations, then trylast. Without these the order looks arbitrary,
+        which rather undercuts a column headed "in call order".
+        """
+        return f"[{', '.join(self.flags)}]" if self.flags else ""
 
     @property
     def internal(self) -> bool:
@@ -139,6 +156,14 @@ def _owner(impl: dict[str, Any], hook: str) -> str:
     return ".".join(part for part in (module, qualifier) if part)
 
 
+#: pluggy's ordering opts, in the order they take effect.
+ORDERING_FLAGS = ("wrapper", "hookwrapper", "tryfirst", "trylast")
+
+
+def _flags(impl: dict[str, Any]) -> tuple[str, ...]:
+    return tuple(flag for flag in ORDERING_FLAGS if impl.get(flag))
+
+
 def _implementations_by_hook(trace: dict[str, Any]) -> dict[str, tuple[Implementation, ...]]:
     """Implementations per hook, in the order pluggy called them.
 
@@ -161,7 +186,9 @@ def _implementations_by_hook(trace: dict[str, Any]) -> dict[str, tuple[Implement
             known = seen.setdefault(hook, set())
             for impl in reversed(node.get("impls", [])):
                 item = Implementation(
-                    plugin=str(impl.get("plugin") or ""), owner=_owner(impl, hook)
+                    plugin=str(impl.get("plugin") or ""),
+                    owner=_owner(impl, hook),
+                    flags=_flags(impl),
                 )
                 if item.key not in known:
                     known.add(item.key)

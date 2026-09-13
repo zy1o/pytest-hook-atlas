@@ -16,6 +16,9 @@ built or presented, never what was observed.
 - Implementers are reconciled across each page's release range, with footnotes
   giving the deltas where releases disagree - pytest moves implementations
   between its own plugins without changing the flow.
+- Implementations are annotated with pluggy's ordering markers -
+  `[wrapper]`, `[tryfirst]`, `[trylast]` - so the call order explains itself
+  rather than looking arbitrary.
 - A toggle to hide pytest's own plugins, leaving what the project under test
   contributes. Only appears where there is something to reveal.
 - A sweep over every generated page: all four stages present, each diagram

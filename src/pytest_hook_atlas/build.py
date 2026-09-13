@@ -216,7 +216,9 @@ def _hook_table(
         if info and info.current:
             listed = "<br>".join(
                 f'<span class="ha-impl ha-{"internal" if item.internal else "external"}">'
-                f"`{item.label}`</span>"
+                f"`{item.label}`"
+                + (f' <span class="ha-flags">{item.annotation}</span>' if item.annotation else "")
+                + "</span>"
                 for item in info.current
             )
         else:
@@ -482,6 +484,24 @@ setup, call and teardown are each followed by their own `makereport` and
 
 Arrows now mean **what happened next**, in the order the trace recorded.
 Nesting is drawn as a box inside a box.
+
+## Why the implementers are in that order
+
+pluggy does not call a hook's implementations in registration order. Wrappers
+run outermost, then anything marked `tryfirst`, then ordinary implementations,
+then `trylast`. The hook table lists them in the order they actually run and
+annotates the ones carrying a marker, so the sequence explains itself:
+
+    _pytest.logging.LoggingPlugin   [wrapper]
+    _pytest.capture.CaptureManager  [wrapper]
+    _pytest.skipping                [tryfirst]
+    conftest.py
+    _pytest.runner
+    _pytest.unraisableexception     [trylast]
+    _pytest.threadexception         [trylast]
+
+For a `firstresult` hook this decides which implementation wins: the first one
+to return something other than `None` ends the call.
 
 ## Colour means phase; darkness means frequency
 
