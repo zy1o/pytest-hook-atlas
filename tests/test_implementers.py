@@ -116,7 +116,7 @@ def test_real_traces_show_pytest_moving_a_hookimpl(real_build):
     8.2.0 without changing the flow, so one page covers releases that disagree.
     """
     group = next(g for g in real_build.groups if "8.2.0" in g.versions)
-    info = implementers.reconcile(real_build.traces, group.versions)["pytest_cmdline_main"]
+    info = implementers.reconcile(real_build.per_version(), group.versions)["pytest_cmdline_main"]
 
     assert not info.stable
     assert info.changed_at == "8.2.0"
@@ -127,8 +127,8 @@ def test_real_traces_show_pytest_moving_a_hookimpl(real_build):
 
 def test_every_hook_in_a_group_is_reconciled(real_build):
     for group in real_build.groups:
-        reconciled = implementers.reconcile(real_build.traces, group.versions)
-        observed = set(analysis.full_graph(real_build.traces[group.newest]).hooks)
+        reconciled = implementers.reconcile(real_build.per_version(), group.versions)
+        observed = set(analysis.full_graph(real_build.trace(group.newest)).hooks)
 
         assert observed <= set(reconciled)
         for info in reconciled.values():
@@ -167,7 +167,7 @@ def test_real_traces_run_wrappers_before_trylast():
     """A sanity check against pluggy's documented ordering rules."""
     build = build_module.collect(REPO_ROOT, REPO_ROOT / "data" / "traces")[0]
     group = build.groups[-1]
-    info = implementers.reconcile(build.traces, group.versions)["pytest_runtest_setup"]
+    info = implementers.reconcile(build.per_version(), group.versions)["pytest_runtest_setup"]
     order = [item.plugin for item in info.current]
 
     assert order.index("logging-plugin") < order.index("runner")
@@ -206,7 +206,7 @@ def test_deltas_name_the_module_not_just_the_plugin():
     unraisableexception" only says what it is called."""
     build = build_module.collect(REPO_ROOT, REPO_ROOT / "data" / "traces")[0]
     group = next(g for g in build.groups if len(g) > 10)
-    info = implementers.reconcile(build.traces, group.versions)["pytest_configure"]
+    info = implementers.reconcile(build.per_version(), group.versions)["pytest_configure"]
 
     gained = [name for _, gains, _ in info.deltas() for name in gains]
 

@@ -7,6 +7,7 @@ so the parsing rules stay tested even offline.
 from __future__ import annotations
 
 from datetime import datetime
+from pathlib import Path
 
 from packaging.version import Version
 
@@ -106,3 +107,21 @@ def test_releases_unreachable_on_this_python_are_skipped(tmp_path):
     outstanding = matrix.outstanding(releases, tmp_path, python="3.12")
 
     assert [r.version for r in outstanding] == ["9.1.1"]
+
+
+def test_scenario_id_is_recovered_from_a_per_process_trace_name():
+    """A distributed scenario writes <scenario>.<process>.json."""
+    assert matrix.scenario_id_of(Path("baseline.json")) == "baseline"
+    assert matrix.scenario_id_of(Path("xdist.controller.json")) == "xdist"
+    assert matrix.scenario_id_of(Path("xdist.gw11.json")) == "xdist"
+
+
+def test_per_process_traces_count_as_one_scenario(tmp_path):
+    """Otherwise every worker would look like a scenario of its own, and
+    capture-missing would think the run was incomplete forever."""
+    version = tmp_path / "9.1.1"
+    version.mkdir()
+    for name in ("baseline.json", "xdist.controller.json", "xdist.gw0.json", "xdist.gw1.json"):
+        (version / name).write_text("{}")
+
+    assert matrix.captured_pairs(tmp_path) == {("9.1.1", "baseline"), ("9.1.1", "xdist")}

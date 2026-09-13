@@ -32,25 +32,29 @@ Worth checking early: a large suite traces a lot of calls. Consecutive-repeat
 collapsing should handle it well - a thousand tests should collapse to a
 handful of variants - but nobody has measured it.
 
-## The last five hooks
+## The last hook
 
-49 of pytest 9.1's 52 hooks are observed. The remainder, and why:
+Every hook pytest declares is observed somewhere on the site except one, and
+that one is structural rather than a gap worth closing:
 
 - `pytest_cmdline_parse` - structurally unobservable. Monitoring can only be
   installed once a plugin manager exists, and plugins are loaded *inside* this
   call. Confirmed for both `-p` and `pytest11` entry-point plugins.
-- `pytest_report_to_serializable` and `pytest_report_from_serializable` -
-  pytest itself never calls these. They belong to plugins that move reports
-  between processes, so they arrive with xdist.
 
-## xdist
+The two report-serialization hooks pytest never calls itself arrived with the
+xdist scenario, which is where reports actually cross a process boundary.
 
-A scenario running under `pytest-xdist`. The controller and each worker run
-different flows, so this needs per-process traces and a merged view. The tracer
-already takes its output path from an environment variable for exactly this.
+## A second distributed scenario
 
-Also the first scenario to bring genuine third-party plugins, which is when the
-"hide pytest's own plugins" filter starts earning itself.
+The `xdist` scenario runs `--dist each`, which gives every worker the whole
+suite: workers come out identical, and the race over which worker draws which
+half does not arise. The cost is that `each` is the one mode whose *controller*
+flow differs from the other four - `loadfile`, `loadscope`, `load` and
+`worksteal` all agree with each other.
+
+A scenario under a splitting scheduler would document that common controller,
+and would be the only place the site shows more than one worker flow. Today
+that path exists and is covered by tests, but no page exercises it.
 
 ## Conftest scoping is flattened
 
@@ -74,8 +78,8 @@ unless the directories have `__init__.py`. Give them distinct names.)
 
 ## Record where each hook was called from
 
-Alongside who implements it. Measured at about 4 microseconds per call, and the
-caller is usually a single stable site per hook.
+Alongside who implements it. Measured as cheap enough not to matter next to the
+hook call itself, and the caller is usually a single stable site per hook.
 
 Two constraints established while evaluating it:
 
@@ -84,21 +88,17 @@ Two constraints established while evaluating it:
   precision nobody needs. Module and function only.
 - **it must not reach the fingerprint**, or grouping fragments.
 
-Needs `schema_version` 2 and a re-capture of every release, so it is best
-folded into the same re-capture xdist will force. The builder must tolerate
-schema 1 traces so a half-migrated state still builds.
+Needs `schema_version` 3 and a re-capture of every release. The builder must
+tolerate older traces so a half-migrated state still builds.
 
 ## Backfill pytest 6.0 - 7.3
 
-Twenty-four releases that need older interpreters than the watcher runs, so
-they need a workflow with a Python matrix. The matrix can be derived from
+These releases need older interpreters than the watcher runs, so they need a
+workflow with a Python matrix. The matrix can be derived from
 `hook-atlas targets --detailed`, which already knows which Python each release
 supports - no hand-maintained table.
 
 ## Smaller things
 
-- Hoist the duplicated `hookspecs` block out of each scenario's trace and store
-  it once per pytest version. Roughly a third off the trace size, which is
-  around 19 MB today.
 - The changes page compares hook *sets*, so a pure reordering reports "same
   hooks, different order" without saying what moved.

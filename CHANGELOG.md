@@ -11,6 +11,26 @@ built or presented, never what was observed.
 
 ### Added
 
+- Traces record which plugin declared each set of hookspecs, and at what
+  version, so a capture can say which xdist - or which project - produced it.
+  Read from `__version__` or stdlib metadata, never by adding a dependency to
+  the environment being measured.
+- An `xdist` scenario, drawn once per process - the controller never collects
+  or runs a test, and only it sees the report-serialization hooks. Workers are
+  grouped by the flow they produced, not by name: under a splitting scheduler
+  `gw0` and `gw1` swap flows between captures, so a name is a race, not an
+  identity. Every distinct worker flow is drawn in full, however many there are.
+- Each diagram says which command produced it, per process. A worker's is
+  empty, because xdist starts it over execnet rather than from a command line.
+- Long repetitive stretches fold when drawn: one cycle, then a dashed box
+  naming the hooks it stands for. The xdist controller's run loop is a hundred
+  steps of reports arriving in whatever order workers finish, so it collapses
+  to nothing and rendered seven thousand pixels tall. Never fingerprinted.
+- Scenarios can run across several processes. Each writes its own trace,
+  named `<scenario>.<process>.json` after xdist's logical worker names, and a
+  scenario can declare the packages its capture virtualenv needs. Groundwork
+  for the xdist scenario, where the controller and workers see genuinely
+  different things - the controller never collects or runs a test.
 - Hookspecs are read from the live plugin manager rather than by importing
   `_pytest.hookspec`, so hooks a *project* declares are described too - pytest
   contributes 52, pytest-xdist adds 12, and any conftest or plugin calling
@@ -42,6 +62,12 @@ built or presented, never what was observed.
 
 ### Fixed
 
+- Long stretches sometimes folded to nothing, drawing the xdist controller at
+  14530pt. A hook that ends a stretch rather than belonging to it -
+  `pytest_testnodedown`, once per worker - kept the whole stretch drawn.
+- Worker sections sorted `gw10` before `gw2`.
+- The page sweep only looked at single-process pages, so nothing checked the
+  xdist pages it was written to cover.
 - `every-hook-conftest` was silently broken on pytest 8.0.x and 9.0.x. pytest
   treats its own removal warnings as errors, so the conftest failed to import
   and the run collapsed to five hook calls while the page still claimed every

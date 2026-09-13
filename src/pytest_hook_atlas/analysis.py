@@ -62,6 +62,12 @@ class Phase:
     anchors: tuple[str, ...]
     description: str
 
+    #: Used only when ``anchors`` match nothing. Under xdist the controller
+    #: never calls pytest_runtest_protocol - the workers do - so anchoring the
+    #: run-test phase only there left the controller's entire scheduling loop,
+    #: and every xdist hook in it, out of the diagrams altogether.
+    fallback_anchors: tuple[str, ...] = ()
+
 
 #: Derived from the observed tree shape, not from prose in the pytest docs.
 PHASES: tuple[Phase, ...] = (
@@ -92,6 +98,7 @@ PHASES: tuple[Phase, ...] = (
             "rhythm: setup, call and teardown are each followed by their own "
             "`makereport` and `logreport` pair - three reports per test, not one."
         ),
+        fallback_anchors=("pytest_runtestloop",),
     ),
     Phase(
         key="finish",
@@ -175,6 +182,14 @@ def build_graph(
         edges=edges,
         roots=list(dict.fromkeys(roots)),
     )
+
+
+def phase_subtrees(trace: dict[str, Any], phase: Phase) -> list[dict[str, Any]]:
+    """Subtrees for a phase, falling back where its usual anchor is absent."""
+    found = find_subtrees(trace["calls"], phase.anchors)
+    if not found and phase.fallback_anchors:
+        found = find_subtrees(trace["calls"], phase.fallback_anchors)
+    return found
 
 
 def phase_graphs(trace: dict[str, Any]) -> list[HookGraph]:

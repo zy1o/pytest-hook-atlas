@@ -4,10 +4,14 @@
     "pytest": "8.4.2",
     "pluggy": "1.6.0",
     "python": "3.12.3",
-    "platform": "linux"
+    "platform": "linux",
+    "hookspec_sources": {
+      "_pytest.hookspec": "8.4.2"
+    }
   },
   "scenario": {
     "id": "internal-error",
+    "process": "main",
     "argv": [
       "-p",
       "hook_atlas_tracer",

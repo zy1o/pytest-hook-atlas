@@ -42,6 +42,22 @@ installed" — that produced traces that silently differed from the rest.
 
 ## Adding a scenario
 
+A scenario may declare `requires` (packages installed into its capture
+virtualenv, which is how it brings a plugin) and `distributed = true` (it runs
+across several processes). A distributed scenario writes one trace per process,
+named `<scenario>.<process>.json` - `controller`, `gw0`, `gw1` under xdist.
+Those are xdist's logical worker names, not pids, so they stay stable in a
+committed trace. Scenario ids therefore may not contain a dot.
+
+**A worker's name is not its identity.** Under a splitting scheduler
+(`loadfile`, `loadscope`, `load`, `worksteal`) the split is reproducible but
+which worker draws which half is a race - captured twice in a row, `gw0` and
+`gw1` swap flows. So pages group workers by the flow they produced and never
+by name, and the fingerprint compares workers as an unordered set. Every
+distinct worker flow is drawn in full, however many there are: a real suite
+across a dozen workers may genuinely produce a dozen, and that is the thing
+worth seeing rather than something to summarise away.
+
 1. Create `scenarios/<id>/` containing a small pytest project.
 2. Add `scenarios/<id>/scenario.toml`:
 
@@ -92,6 +108,41 @@ Expectations belong to scenarios, not to the tooling. `scenario.toml` carries
 session finishes) and `min_hooks` (a floor, zero meaning none). The test suite
 checks the scenarios *we host* against their own declarations; it does not
 impose a rule on anyone pointing the tracer at their own suite.
+
+## Never add anything to the environment being measured
+
+The capture virtualenv holds exactly pytest and whatever a scenario declares in
+`requires`. Nothing else. The tracer is copied in as a single file rather than
+installed, so it must never acquire a dependency of its own.
+
+This is why trace provenance reads a package's `__version__`, falling back to
+stdlib `importlib.metadata`, instead of depending on the `importlib-metadata`
+backport with an environment marker. The backport would be more convenient and
+is almost certainly harmless - but installing anything into the environment
+under observation is a habit worth not having, because the one time it matters
+will not announce itself. It matters more once this is pointed at someone
+else's project: observing it should not mean installing into it.
+
+## Pinning a scenario's plugins
+
+A scenario's `requires` are pinned, not floated. Traces are immutable and the
+watcher only captures pytest releases it does not have, so a floating plugin
+would never trigger a re-capture - it would simply freeze at whatever pip
+resolved on the day, and the page would show an ageing version without saying
+so. Pinning makes the version a deliberate, reviewable fact.
+
+`pytest-xdist` is pinned after checking its history: across 19 releases from
+2.0 there are three distinct hookspecs, and none since 2.3.0 in 2021 - fifteen
+consecutive releases identical, with no removals or signature changes. A bump
+should be rare.
+
+**If a pinned version needs changing**, open a pull request bumping it - or an
+issue, if you would rather it were discussed first. The re-capture and the
+resulting diff are the point: they show whether the flow moved.
+
+Unpinned is right for the *standalone tool*, where someone pointing it at their
+own project should get whatever they already have installed. Pinning applies to
+the scenarios hosted here.
 
 ## The tracer is standalone on purpose
 
@@ -152,6 +203,20 @@ repoint a published URL at different content.
   python -m venv .venv && ./.venv/bin/pip install -e ".[dev,docs]"
   ./.venv/bin/pytest && git status --short   # must be empty
   ```
+- **Do not write down numbers that expire.** Line numbers, file sizes, byte
+  counts, ratios, percentages, timings, "N of M releases" - all true when
+  written and wrong a few commits later. A stale number is worse than none,
+  because it gets believed and acted on: a `TODO.md` entry here promised that
+  hoisting one block would take "roughly a third off the trace size", and when
+  it was finally measured it was a few percent - an entry that would have sent
+  whoever picked it up at the wrong thing. Say what to do and why it matters,
+  describe the relationship rather than the figure, and let whoever picks it up
+  measure it then. If the measurement *is* the point, write down how to reproduce it
+  instead of what it said.
+
+  This applies to living documents - `TODO.md`, `AGENTS.md`, `README.md`, code
+  comments. `CHANGELOG.md` entries and commit messages are different: they
+  describe a moment that has already passed, so a number in them stays true.
 - **Verify against reality, not against your own output.** Two bugs here
   survived a green build: a stylesheet whose selectors matched nothing, and a
   preview script that rendered a picture proving nothing. "Tests pass and the

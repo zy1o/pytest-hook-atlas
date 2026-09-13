@@ -44,6 +44,15 @@ class Scenario:
     #: legitimately short and missing whole phases.
     complete_run: bool = True
 
+    #: Packages to install alongside pytest in the capture virtualenv. A
+    #: scenario exercising a plugin needs the plugin present.
+    requires: tuple[str, ...] = ()
+
+    #: Does this scenario run across more than one process? Under xdist the
+    #: controller and each worker see different things, so each writes its own
+    #: trace and the pages show them separately.
+    distributed: bool = False
+
     #: Fewest hooks a healthy capture of this scenario should see. Zero means no
     #: expectation: nothing in the tooling requires a minimum, because a run
     #: that dies in its first hookimpl should still be drawn as it happened.
@@ -73,6 +82,8 @@ def load_scenario(directory: Path) -> Scenario:
         order=data.get("order", 99),
         generated_conftest=data.get("generated_conftest", False),
         expects=tuple(data.get("expects", [])),
+        requires=tuple(data.get("requires", [])),
+        distributed=data.get("distributed", False),
         complete_run=data.get("complete_run", True),
         min_hooks=data.get("min_hooks", 0),
         path=directory,
@@ -85,6 +96,11 @@ def discover(root: Path) -> list[Scenario]:
         for directory in sorted(root.iterdir())
         if (directory / SCENARIO_FILE).exists()
     ]
+    for scenario in scenarios:
+        # trace files are named <scenario>.json, or <scenario>.<process>.json
+        # for a distributed one, so a dot in an id would make the two ambiguous
+        if "." in scenario.id:
+            raise ValueError(f"scenario id {scenario.id!r} must not contain a dot")
     return sorted(scenarios, key=lambda scenario: (scenario.order, scenario.id))
 
 
@@ -115,8 +131,11 @@ def capture(
     destination: Path,
     workdir: Path,
     python: str | None = None,
-) -> Path:
-    """Run one scenario under the tracer, writing its trace to ``destination``.
+) -> list[Path]:
+    """Run one scenario under the tracer. Returns every trace file written.
+
+    A distributed scenario writes several - one per process - named after
+    ``destination`` with the process appended.
 
     The project is copied to a scratch directory first so that generated files
     and ``__pycache__`` never land in the committed scenario source.
@@ -141,6 +160,16 @@ def capture(
         _write_generated_conftest(project, interpreter)
 
     destination.parent.mkdir(parents=True, exist_ok=True)
+    environment = {
+        **os.environ,
+        "HOOK_ATLAS_TRACE": str(destination),
+        "HOOK_ATLAS_SCENARIO": scenario.id,
+    }
+    if scenario.distributed:
+        # workers name themselves from PYTEST_XDIST_WORKER; this names the
+        # process we launched, so its trace does not collide with theirs
+        environment[tracer.ENV_PROCESS] = "controller"
+
     subprocess.run(
         [
             interpreter,
@@ -154,15 +183,12 @@ def capture(
             "no:cacheprovider",
         ],
         cwd=project,
-        env={
-            **os.environ,
-            "HOOK_ATLAS_TRACE": str(destination),
-            "HOOK_ATLAS_SCENARIO": scenario.id,
-        },
+        env=environment,
         capture_output=True,
         text=True,
         check=False,  # scenarios deliberately contain failing tests
     )
-    if not destination.exists():
+    written = sorted(destination.parent.glob(f"{destination.stem}*{destination.suffix}"))
+    if not written:
         raise RuntimeError(f"scenario {scenario.id!r} produced no trace")
-    return destination
+    return written

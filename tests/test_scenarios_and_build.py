@@ -41,8 +41,9 @@ def captured(tmp_path_factory, discovered):
     workdir = tmp_path_factory.mktemp("work")
     destination = tmp_path_factory.mktemp("traces")
     scenario = discovered[0]
-    path = scenarios.capture(scenario, destination / f"{scenario.id}.json", workdir)
-    return scenario, analysis.load_trace(path)
+    written = scenarios.capture(scenario, destination / f"{scenario.id}.json", workdir)
+    assert len(written) == 1, "a single-process scenario writes one trace"
+    return scenario, analysis.load_trace(written[0])
 
 
 def test_capture_produces_a_usable_trace(captured):
@@ -146,6 +147,140 @@ def test_conftest_generator_runs_as_a_standalone_script():
 def test_capture_accepts_an_alternate_interpreter(discovered, tmp_path):
     """The version matrix captures through venvs holding older pytest."""
     scenario = discovered[0]
-    path = scenarios.capture(scenario, tmp_path / "t.json", tmp_path, python=sys.executable)
+    written = scenarios.capture(scenario, tmp_path / "t.json", tmp_path, python=sys.executable)
 
-    assert analysis.load_trace(path)["stats"]["total_calls"] > 50
+    assert analysis.load_trace(written[0])["stats"]["total_calls"] > 50
+
+
+def test_a_scenario_can_declare_requirements_and_distribution(tmp_path):
+    directory = tmp_path / "dist-scenario"
+    directory.mkdir()
+    (directory / "scenario.toml").write_text(
+        'id = "dist-scenario"\n'
+        'title = "T"\n'
+        'summary = "s"\n'
+        'args = ["-n", "2"]\n'
+        'requires = ["pytest-xdist"]\n'
+        "distributed = true\n"
+    )
+    (directory / "test_x.py").write_text("def test_x():\n    assert True\n")
+
+    scenario = scenarios.discover(tmp_path)[0]
+
+    assert scenario.requires == ("pytest-xdist",)
+    assert scenario.distributed is True
+
+
+def test_a_scenario_id_may_not_contain_a_dot(tmp_path):
+    """The dot separates scenario from process in a trace filename."""
+    directory = tmp_path / "bad"
+    directory.mkdir()
+    (directory / "scenario.toml").write_text('id = "has.dot"\ntitle = "T"\nsummary = "s"\n')
+
+    with pytest.raises(ValueError, match="must not contain a dot"):
+        scenarios.discover(tmp_path)
+
+
+# --------------------------------------------------------------------------
+# grouping workers by the flow they produced
+
+
+def worker_build(flows: dict[str, list[dict]]) -> build.ScenarioBuild:
+    """A one-version distributed build whose workers ran the given calls."""
+
+    def trace(calls):
+        return {
+            "calls": calls,
+            "hookspecs": {},
+            "stats": {"total_calls": len(calls), "unique_hooks": len(calls)},
+            "environment": {"pytest": "9.1.1", "pluggy": "1.5.0", "python": "3.13"},
+            "scenario": {"id": "x", "argv": []},
+            "desyncs": [],
+        }
+
+    captured = {name: trace(calls) for name, calls in flows.items()}
+    captured["controller"] = trace([{"name": "pytest_runtestloop", "children": []}])
+    scenario = next(s for s in scenarios.discover(Path("scenarios")) if s.id == "xdist")
+    return build.ScenarioBuild(scenario=scenario, traces={"9.1.1": captured})
+
+
+def call(name):
+    """A runtest protocol whose shape differs by ``name``.
+
+    The fingerprint hashes only what sits under a phase anchor, so a flow has to
+    be anchored to be distinguishable at all.
+    """
+    return {
+        "name": "pytest_runtest_protocol",
+        "children": [{"name": name, "children": []}],
+    }
+
+
+def test_identical_workers_collapse_to_one_flow():
+    item = worker_build({"gw0": [call("a")], "gw1": [call("a")]})
+
+    flows = build.worker_flows(item, "9.1.1")
+
+    assert len(flows) == 1
+    assert flows[0].workers == ["gw0", "gw1"]
+    assert build.worker_heading(flows[0], total=2) == "Every worker"
+
+
+def test_every_distinct_worker_flow_is_kept():
+    """A dozen workers may genuinely produce a dozen flows. That is the thing
+    worth seeing, so nothing is summarised away."""
+    item = worker_build({f"gw{index}": [call(f"hook{index}")] for index in range(12)})
+
+    flows = build.worker_flows(item, "9.1.1")
+
+    assert len(flows) == 12
+    assert [f.drawn for f in flows] == [f"gw{index}" for index in range(12)]
+
+
+def test_workers_are_grouped_by_flow_not_by_name():
+    """Worker names are a race: the same two flows come back as gw0/gw1 in one
+    capture and gw1/gw0 in the next."""
+    item = worker_build({"gw0": [call("a")], "gw1": [call("b")], "gw2": [call("a")]})
+
+    flows = build.worker_flows(item, "9.1.1")
+
+    assert [f.workers for f in flows] == [["gw0", "gw2"], ["gw1"]]
+    assert build.worker_heading(flows[0], total=3) == "Workers gw0 and gw2"
+    assert build.worker_heading(flows[1], total=3) == "Worker gw1"
+
+
+def test_a_worker_heading_lists_three_or_more_workers():
+    item = worker_build({f"gw{i}": [call("a")] for i in range(3)})
+
+    heading = build.worker_heading(build.worker_flows(item, "9.1.1")[0], total=4)
+
+    assert heading == "Workers gw0, gw1 and gw2"
+
+
+# --------------------------------------------------------------------------
+# the command each process ran
+
+
+def test_the_command_drops_our_instrumentation_but_keeps_the_project_s():
+    argv = ["-p", "hook_atlas_tracer", ".", "-p", "myplugin", "-q", "-p", "no:cacheprovider"]
+
+    assert build.invocation_of({"scenario": {"argv": argv}}) == [".", "-p", "myplugin", "-q"]
+
+
+def test_a_worker_has_no_command_of_its_own():
+    """xdist starts workers over execnet, so their argv is genuinely empty."""
+    assert build.invocation_of({"scenario": {"argv": []}}) == []
+
+
+def test_a_worker_note_scales_from_two_to_many():
+    both = build.WorkerFlow(workers=["gw0", "gw1"], drawn="gw0")
+    assert "Both workers produced this flow" in build.worker_note(both, total=2)
+
+    every = build.WorkerFlow(workers=[f"gw{i}" for i in range(12)], drawn="gw0")
+    assert "All 12 workers produced this flow" in build.worker_note(every, total=12)
+
+    some = build.WorkerFlow(workers=["gw0", "gw4"], drawn="gw0")
+    assert "2 of the 12 workers" in build.worker_note(some, total=12)
+
+    alone = build.WorkerFlow(workers=["gw7"], drawn="gw7")
+    assert "Only `gw7` produced this flow, of 12 workers" in build.worker_note(alone, total=12)

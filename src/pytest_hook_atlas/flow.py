@@ -14,6 +14,7 @@ step marked "x8" instead of eight copies.
 
 from __future__ import annotations
 
+from collections import Counter
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -26,9 +27,17 @@ class FlowNode:
     count: int = 1
     children: list[FlowNode] = field(default_factory=list)
 
+    #: When set, this node is a summary standing in for a long stretch of
+    #: steps drawn from these few hooks, rather than a hook call itself.
+    folded: tuple[str, ...] = ()
+
     @property
     def is_leaf(self) -> bool:
         return not self.children
+
+    @property
+    def is_summary(self) -> bool:
+        return bool(self.folded)
 
 
 def signature(node: dict[str, Any]) -> tuple:
@@ -140,3 +149,113 @@ def prune(nodes: list[FlowNode], max_depth: int) -> list[FlowNode]:
         )
         for node in nodes
     ]
+
+
+#: A stretch at least this long, drawing on no more than this many distinct
+#: hooks, is a candidate for folding when rendering. The threshold is
+#: deliberately high: a dozen steps are worth reading, ninety are not, and
+#: folding too eagerly would hide the handful of xdist hooks that make the
+#: controller's startup worth looking at in the first place.
+FOLD_MIN_RUN = 20
+FOLD_MAX_DISTINCT = 5
+
+#: Fold only if at least this many steps would actually disappear. Replacing
+#: four steps with a box saying "four steps happened" helps nobody.
+FOLD_MIN_SAVING = 4
+
+#: Never keep more than this many steps of a folded stretch drawn. Without a
+#: bound, one hook appearing late in a long stretch keeps the whole thing.
+FOLD_KEEP_MAX = 24
+
+
+def _cycle(nodes: list[FlowNode], cap: int = FOLD_KEEP_MAX) -> int:
+    """How much of the stretch to keep drawn: enough to show every hook in it.
+
+    Bounded, and that bound is the whole point. Asking only for "every name once"
+    is unbounded: under `--dist each` the controller's report traffic ends with
+    two `pytest_testnodedown` calls, which dragged the prefix to the end of a
+    188-step stretch, left nothing to fold and drew a 14530pt diagram. Cutting
+    instead at the first repeat is bounded but too blunt - it threw away the
+    nested `collect_file` -> `pycollect_makemodule` structure that makes a
+    worker's collection worth looking at.
+
+    So: cover what is there, up to a readable number of steps.
+    """
+    outstanding = {node.name for node in nodes}
+    for position, node in enumerate(nodes[:cap], start=1):
+        outstanding.discard(node.name)
+        if not outstanding:
+            return position
+    return min(cap, len(nodes))
+
+
+def fold_repetitive(
+    nodes: list[FlowNode],
+    min_run: int = FOLD_MIN_RUN,
+    max_distinct: int = FOLD_MAX_DISTINCT,
+) -> list[FlowNode]:
+    """Fold the middle of long stretches that only shuffle a handful of hooks.
+
+    Under xdist the controller's run loop is hundreds of steps of results
+    arriving from workers - logstart, logreport, report_from_serializable,
+    logfinish - in an order that depends on which worker finished first. It
+    collapses to nothing, because consecutive steps are rarely identical, and
+    renders as thousands of pixels of noise that says only "reports came back".
+
+    One turn of the loop is drawn in full, and whatever follows the loop stays
+    drawn too; only the repetition between them is summarised. Applied when
+    rendering, never in the fingerprint: this changes how a flow is *drawn*, and
+    must not change which releases are judged to share a flow.
+    """
+    folded: list[FlowNode] = []
+    index = 0
+    while index < len(nodes):
+        run_end, seen = index, set()
+        while run_end < len(nodes):
+            candidate = seen | {nodes[run_end].name}
+            if len(candidate) > max_distinct:
+                break
+            seen = candidate
+            run_end += 1
+
+        # Whatever follows the loop is not the loop: `pytest_testnodedown`
+        # closing the run, `pytest_collection_modifyitems` closing collection.
+        # Those are worth drawing, so they are trimmed off the stretch and left
+        # alone - twice, because the two ways of recognising them catch
+        # different things. A hook appearing once is one; and after the cycle is
+        # known, so is anything trailing that the cycle never used.
+        run = nodes[index:run_end]
+        occurrences = Counter(node.name for node in run)
+        while run and occurrences[run[-1].name] == 1:
+            occurrences[run.pop().name] -= 1
+
+        keep = _cycle(run)
+        body = {node.name for node in run[:keep]}
+        while run and run[-1].name not in body:
+            run.pop()
+
+        tail = run[keep:]
+        steps = sum(node.count for node in tail)
+        if len(run) >= min_run and len(body) > 1 and steps >= FOLD_MIN_SAVING:
+            folded.extend(fold_repetitive(run[:keep], min_run, max_distinct))
+            names = tuple(sorted({node.name for node in tail}))
+            plural = "" if len(names) == 1 else "s"
+            folded.append(
+                FlowNode(
+                    name=f"{steps} further steps of {len(names)} hook{plural}",
+                    folded=names,
+                )
+            )
+            index += len(run)
+            continue
+
+        node = nodes[index]
+        folded.append(
+            FlowNode(
+                name=node.name,
+                count=node.count,
+                children=fold_repetitive(node.children, min_run, max_distinct),
+            )
+        )
+        index += 1
+    return folded

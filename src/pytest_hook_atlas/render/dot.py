@@ -87,20 +87,34 @@ def shade_step(count: int, peak: int) -> int:
     return min(SHADE_STEPS - 1, int(ratio * SHADE_STEPS))
 
 
+def _muted(*parts: str) -> str:
+    """A subtitle row. Parts are escaped here, so callers pass plain text."""
+    text = SEPARATOR.join(html.escape(part) for part in parts)
+    return f'<TR><TD><FONT POINT-SIZE="9" COLOR="#8a8a8a">{text}</FONT></TD></TR>'
+
+
 def _label(node: FlowNode, hookspecs: dict[str, Any], total: int | None) -> str:
     """Hook name, then a muted subtitle carrying semantics and frequency."""
+    rows = [f"<TR><TD>{html.escape(node.name)}</TD></TR>"]
+
+    if node.is_summary:
+        # the hooks are the point of a summary node, so they belong in the
+        # label - one per row, because five hook names on one line is wider than
+        # every other node on the page and drags the whole column out with it
+        rows.extend(_muted(hook) for hook in node.folded)
+        return _table(rows)
+
     subtitle = semantics_of(node.name, hookspecs)
     if node.count > 1:
         subtitle.append(f"x{node.count}")
     elif total and total > 1:
         subtitle.append(f"{total}x in run")
-
-    rows = [f"<TR><TD>{html.escape(node.name)}</TD></TR>"]
     if subtitle:
-        rows.append(
-            '<TR><TD><FONT POINT-SIZE="9" COLOR="#8a8a8a">'
-            f"{SEPARATOR.join(subtitle)}</FONT></TD></TR>"
-        )
+        rows.append(_muted(*subtitle))
+    return _table(rows)
+
+
+def _table(rows: list[str]) -> str:
     return (
         '<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="1">'
         + "".join(rows)
@@ -139,7 +153,8 @@ class _Builder:
 
     def _classes(self, node: FlowNode, kind: str) -> str:
         total = self.totals.get(node.name, node.count)
-        return f"ha-{kind} ha-{self.phase} ha-shade-{shade_step(total, self.peak)}"
+        classes = f"ha-{kind} ha-{self.phase} ha-shade-{shade_step(total, self.peak)}"
+        return f"{classes} ha-summary" if node.is_summary else classes
 
     def _colours(self, node: FlowNode) -> dict[str, str]:
         if self.theme is None:
@@ -167,9 +182,9 @@ class _Builder:
             )
             common: dict[str, Any] = {
                 "label": _label(node, self.hookspecs, total),
-                "tooltip": node.name,
+                "tooltip": ", ".join(node.folded) if node.is_summary else node.name,
             }
-            if url:
+            if url and not node.is_summary:
                 common["href"] = url
                 common["target"] = "_blank"
             if node.is_leaf:
@@ -177,7 +192,8 @@ class _Builder:
                 graph.node(
                     node_id,
                     shape="box",
-                    style="rounded,filled",
+                    # dashed, so a summary never reads as a hook that ran once
+                    style="rounded,filled,dashed" if node.is_summary else "rounded,filled",
                     **common,
                     **self._colours(node),
                     **{"class": self._classes(node, "node")},

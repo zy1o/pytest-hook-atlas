@@ -356,3 +356,76 @@ def test_conftest_plugins_are_named_relatively(trace):
     }
     for plugin in plugins:
         assert not plugin.startswith("/"), f"absolute plugin path: {plugin}"
+
+
+def test_trace_path_is_plain_for_a_single_process_run(monkeypatch, tmp_path):
+    """Existing scenarios keep their filenames; nothing gets renamed."""
+    monkeypatch.delenv(tracer.ENV_XDIST_WORKER, raising=False)
+    monkeypatch.delenv(tracer.ENV_PROCESS, raising=False)
+    monkeypatch.setenv(tracer.ENV_TRACE_PATH, str(tmp_path / "baseline.json"))
+
+    assert tracer.process_name() == ""
+    assert tracer.trace_path() == tmp_path / "baseline.json"
+
+
+def test_an_xdist_worker_names_its_own_trace(monkeypatch, tmp_path):
+    """The worker id is logical and stable, not a pid, so it stays meaningful
+    in a committed trace long after the process is gone."""
+    monkeypatch.setenv(tracer.ENV_XDIST_WORKER, "gw1")
+    monkeypatch.setenv(tracer.ENV_TRACE_PATH, str(tmp_path / "xdist.json"))
+
+    assert tracer.process_name() == "gw1"
+    assert tracer.trace_path() == tmp_path / "xdist.gw1.json"
+
+
+def test_the_controller_is_named_by_the_capture_run(monkeypatch, tmp_path):
+    """xdist names workers but not the process we launched, so capture does."""
+    monkeypatch.delenv(tracer.ENV_XDIST_WORKER, raising=False)
+    monkeypatch.setenv(tracer.ENV_PROCESS, "controller")
+    monkeypatch.setenv(tracer.ENV_TRACE_PATH, str(tmp_path / "xdist.json"))
+
+    assert tracer.trace_path() == tmp_path / "xdist.controller.json"
+
+
+def test_a_worker_wins_over_the_capture_provided_name(monkeypatch, tmp_path):
+    """Workers inherit the controller's environment, so the worker id must win
+    or every process would write to the same file."""
+    monkeypatch.setenv(tracer.ENV_PROCESS, "controller")
+    monkeypatch.setenv(tracer.ENV_XDIST_WORKER, "gw0")
+    monkeypatch.setenv(tracer.ENV_TRACE_PATH, str(tmp_path / "xdist.json"))
+
+    assert tracer.trace_path() == tmp_path / "xdist.gw0.json"
+
+
+def test_hookspec_sources_record_which_plugin_declared_what(trace):
+    """A trace must be able to say which xdist, or which project, it traced.
+
+    pytest's version is recorded anyway; anything else contributing hooks would
+    otherwise be anonymous.
+    """
+    sources = trace["environment"]["hookspec_sources"]
+
+    assert sources["_pytest.hookspec"] == trace["environment"]["pytest"]
+
+
+def test_hookspec_sources_skip_what_they_cannot_determine():
+    """Not every module exposes __version__; recording nothing beats guessing."""
+    metadata = {
+        "a": {"declared_in": "_pytest.hookspec"},
+        "b": {"declared_in": "module_that_is_not_imported.hooks"},
+        "c": {"declared_in": ""},
+    }
+
+    sources = tracer.hookspec_sources(metadata)
+
+    assert "_pytest.hookspec" in sources
+    assert "module_that_is_not_imported.hooks" not in sources
+    assert "" not in sources
+
+
+def test_version_lookup_falls_back_to_stdlib_metadata():
+    """Some packages expose no __version__; stdlib metadata still finds them,
+    and unlike the importlib-metadata backport it installs nothing into the
+    environment being measured."""
+    assert tracer._distribution_version("graphviz")
+    assert tracer._distribution_version("definitely_not_a_real_package") is None

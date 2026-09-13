@@ -88,3 +88,27 @@ def test_styling_hooks_are_present_for_css_theming(nodes):
     assert 'class="node' in svg
     assert 'class="edge' in svg
     assert 'fill="transparent"' in svg or "transparent" in svg
+
+
+def test_a_subtitle_separator_survives_escaping():
+    """The separator is an HTML entity, and label text is escaped.
+
+    Escaping the joined subtitle turned `&#183;` into a literal `&amp;#183;` on
+    every node carrying one - which is most of them.
+    """
+    svg = dot.render_inline_svg([FlowNode("pytest_configure")], HOOKSPECS, BASE, "startup", {})
+
+    assert "&amp;#183;" not in svg
+
+
+def test_a_folded_summary_names_its_hooks_and_links_to_nothing():
+    """A summary is not a hook: no documentation to open, and it must not read
+    as a step that ran once."""
+    summary = FlowNode("40 further steps of 2 hooks", folded=("pytest_a", "pytest_b"))
+
+    svg = dot.render_inline_svg([summary], HOOKSPECS, BASE, "runtest", {})
+
+    assert "pytest_a" in svg and "pytest_b" in svg
+    assert "ha&#45;summary" in svg
+    assert "stroke-dasharray" in svg
+    assert "xlink:href" not in svg
