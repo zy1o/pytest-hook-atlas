@@ -45,6 +45,12 @@ handful of variants - but nobody has measured it.
 
 ## xdist
 
+pytest-xdist's hookspec needs no version axis. Across its 19 releases from 2.0
+it has three distinct hookspecs, and none since 2.3.0 in 2021 - 15 consecutive
+releases identical, no removals and no signature changes, ever. Pin whatever
+pip resolves; the trace records which version it was.
+
+
 A scenario running under `pytest-xdist`. The controller and each worker run
 different flows, so this needs per-process traces and a merged view. The tracer
 already takes its output path from an environment variable for exactly this.

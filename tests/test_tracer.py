@@ -395,3 +395,29 @@ def test_a_worker_wins_over_the_capture_provided_name(monkeypatch, tmp_path):
     monkeypatch.setenv(tracer.ENV_TRACE_PATH, str(tmp_path / "xdist.json"))
 
     assert tracer.trace_path() == tmp_path / "xdist.gw0.json"
+
+
+def test_hookspec_sources_record_which_plugin_declared_what(trace):
+    """A trace must be able to say which xdist, or which project, it traced.
+
+    pytest's version is recorded anyway; anything else contributing hooks would
+    otherwise be anonymous.
+    """
+    sources = trace["environment"]["hookspec_sources"]
+
+    assert sources["_pytest.hookspec"] == trace["environment"]["pytest"]
+
+
+def test_hookspec_sources_skip_what_they_cannot_determine():
+    """Not every module exposes __version__; recording nothing beats guessing."""
+    metadata = {
+        "a": {"declared_in": "_pytest.hookspec"},
+        "b": {"declared_in": "module_that_is_not_imported.hooks"},
+        "c": {"declared_in": ""},
+    }
+
+    sources = tracer.hookspec_sources(metadata)
+
+    assert "_pytest.hookspec" in sources
+    assert "module_that_is_not_imported.hooks" not in sources
+    assert "" not in sources

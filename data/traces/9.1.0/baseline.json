@@ -4,10 +4,14 @@
     "pytest": "9.1.0",
     "pluggy": "1.6.0",
     "python": "3.12.3",
-    "platform": "linux"
+    "platform": "linux",
+    "hookspec_sources": {
+      "_pytest.hookspec": "9.1.0"
+    }
   },
   "scenario": {
     "id": "baseline",
+    "process": "main",
     "argv": [
       "-p",
       "hook_atlas_tracer",

@@ -202,6 +202,28 @@ def hookspec_metadata(pluginmanager: Any) -> dict[str, dict[str, Any]]:
     return metadata
 
 
+def hookspec_sources(metadata: dict[str, dict[str, Any]]) -> dict[str, str]:
+    """Version of whatever declared each set of hookspecs.
+
+    pytest's own version is already recorded, but a plugin contributing hooks
+    is otherwise anonymous: a trace could say a run used twelve xdist hooks
+    without saying which xdist. Read from the package's ``__version__`` rather
+    than importlib.metadata, whose ``packages_distributions`` needs Python 3.10
+    and this file has to import on 3.8.
+    """
+    sources: dict[str, str] = {}
+    for spec in metadata.values():
+        declared_in = spec.get("declared_in") or ""
+        top = declared_in.split(".", 1)[0]
+        if not top or declared_in in sources:
+            continue
+        module = sys.modules.get(top)
+        version = getattr(module, "__version__", None) if module else None
+        if version:
+            sources[declared_in] = str(version)
+    return sources
+
+
 def _namespace_name(namespace: Any) -> str:
     """A readable name for a hookspec namespace that is a class, not a module."""
     if namespace is None:
@@ -249,6 +271,7 @@ class HookRecorder:
         return self._seq
 
     def to_dict(self) -> dict[str, Any]:
+        hookspecs = hookspec_metadata(self.pluginmanager)
         return {
             "schema_version": SCHEMA_VERSION,
             "environment": {
@@ -256,6 +279,9 @@ class HookRecorder:
                 "pluggy": pluggy.__version__,
                 "python": platform.python_version(),
                 "platform": sys.platform,
+                # which plugin contributed each set of hookspecs, and at what
+                # version - otherwise a trace cannot say which xdist it used
+                "hookspec_sources": hookspec_sources(hookspecs),
             },
             "scenario": {
                 "id": os.environ.get(ENV_SCENARIO),
@@ -267,7 +293,7 @@ class HookRecorder:
                 "unique_hooks": len({n for n in _walk_names(self.roots)}),
             },
             "desyncs": self.desyncs,
-            "hookspecs": hookspec_metadata(self.pluginmanager),
+            "hookspecs": hookspecs,
             "calls": [root.to_dict() for root in self.roots],
         }
 
