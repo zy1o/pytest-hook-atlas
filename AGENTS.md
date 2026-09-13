@@ -80,6 +80,19 @@ different experiment. Re-capture with `--force`.
 Scenarios deliberately contain failing and skipped tests: the run-test protocol
 takes visibly different paths for those, and the diagrams show it.
 
+## The tool imposes no minimums
+
+Nothing in capture or build requires a run to reach a certain number of hooks,
+or to complete. A session that dies in its first hookimpl should be drawn
+exactly as it happened - that is the whole point of pointing this at a real
+project.
+
+Expectations belong to scenarios, not to the tooling. `scenario.toml` carries
+`expects` (hooks this scenario exists to reach), `complete_run` (whether the
+session finishes) and `min_hooks` (a floor, zero meaning none). The test suite
+checks the scenarios *we host* against their own declarations; it does not
+impose a rule on anyone pointing the tracer at their own suite.
+
 ## The tracer is standalone on purpose
 
 `src/pytest_hook_atlas/tracer.py` must not import from its own package and must

@@ -27,6 +27,17 @@ Worth checking early: a large suite traces a lot of calls. Consecutive-repeat
 collapsing should handle it well - a thousand tests should collapse to a
 handful of variants - but nobody has measured it.
 
+## The last five hooks
+
+49 of pytest 9.1's 52 hooks are observed. The remainder, and why:
+
+- `pytest_cmdline_parse` - structurally unobservable. Monitoring can only be
+  installed once a plugin manager exists, and plugins are loaded *inside* this
+  call. Confirmed for both `-p` and `pytest11` entry-point plugins.
+- `pytest_report_to_serializable` and `pytest_report_from_serializable` -
+  pytest itself never calls these. They belong to plugins that move reports
+  between processes, so they arrive with xdist.
+
 ## xdist
 
 A scenario running under `pytest-xdist`. The controller and each worker run

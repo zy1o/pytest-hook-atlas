@@ -24,10 +24,11 @@ from pytest_hook_atlas import build as build_module
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TRACES = REPO_ROOT / "data" / "traces"
 
-#: A scenario that traced correctly sees most of pytest's hooks. A conftest
-#: that failed to import collapses the run to a handful, which is how the
-#: every-hook-conftest scenario was quietly broken on two pytest versions.
-MINIMUM_HOOKS = 30
+#: Nothing in the tooling requires a minimum number of hooks. A run that dies
+#: in its first hookimpl should still be drawn exactly as it happened - that is
+#: the point of pointing this at a real project. So each scenario declares what
+#: *it* expects, in scenario.toml, and these tests check the scenarios we host
+#: rather than imposing a rule on the tool.
 
 
 @pytest.fixture(scope="session")
@@ -50,6 +51,11 @@ def builds():
     return build_module.collect(REPO_ROOT, TRACES)
 
 
+def scenario_of(page: Path, builds) -> object:
+    """The scenario a generated page belongs to, by directory name."""
+    return next(item.scenario for item in builds if item.scenario.id == page.parent.name)
+
+
 def group_pages(docs: Path) -> list[Path]:
     return sorted(
         path
@@ -62,33 +68,54 @@ def group_pages(docs: Path) -> list[Path]:
 # the captures themselves
 
 
-def collapsed(trace) -> bool:
-    """Did this capture see so few hooks that the run must have failed?"""
-    return trace["stats"]["unique_hooks"] < MINIMUM_HOOKS
+def collapsed(trace, floor: int) -> bool:
+    """Did this capture see fewer hooks than its scenario expects?"""
+    return floor > 0 and trace["stats"]["unique_hooks"] < floor
 
 
-def test_every_capture_saw_a_plausible_number_of_hooks(builds):
-    """A collapsed run is the failure mode that looks like success."""
+def test_every_capture_meets_the_expectation_its_scenario_declares(builds):
+    """A collapsed run is the failure mode that looks like success.
+
+    The floor comes from the scenario, not from here: `internal-error` sees 22
+    hooks by design, and a scenario that declares no floor is not checked at
+    all.
+    """
     for item in builds:
+        floor = item.scenario.min_hooks
         for version, trace in item.traces.items():
             observed = trace["stats"]["unique_hooks"]
-            assert not collapsed(trace), (
-                f"{item.scenario.id} on pytest {version} saw only {observed} hooks - "
-                "the run probably collapsed"
+            assert not collapsed(trace, floor), (
+                f"{item.scenario.id} on pytest {version} saw only {observed} hooks, "
+                f"below its declared minimum of {floor}"
             )
 
 
-def test_the_collapse_check_recognises_a_collapsed_run():
+def test_every_scenario_reaches_the_hooks_it_exists_for(builds):
+    """Each scenario names the hooks it was built to capture.
+
+    A count alone is a crude proxy - this says what the scenario is *for*, and
+    fails if it quietly stops doing it.
+    """
+    for item in builds:
+        if not item.scenario.expects:
+            continue
+        for version, trace in item.traces.items():
+            observed = set(analysis.full_graph(trace).hooks)
+            missing = [hook for hook in item.scenario.expects if hook not in observed]
+            assert not missing, f"{item.scenario.id} on pytest {version} never reached {missing}"
+
+
+def test_the_collapse_check_respects_a_declared_floor():
     """Guard the guard.
 
-    The every-hook-conftest scenario shipped broken on pytest 8.0 and 9.0: its
-    generated conftest implemented a deprecated hook, and a deprecated argument,
-    both of which pytest turns into import errors. The run collapsed to five
-    calls and four hooks, and the page went on claiming every hook was
-    implemented.
+    every-hook-conftest shipped broken on pytest 8.0 and 9.0: its conftest
+    failed to import, the run collapsed to four hooks, and the page carried on
+    claiming every hook was implemented.
     """
-    assert collapsed({"stats": {"unique_hooks": 4}})
-    assert not collapsed({"stats": {"unique_hooks": 38}})
+    assert collapsed({"stats": {"unique_hooks": 4}}, floor=30)
+    assert not collapsed({"stats": {"unique_hooks": 38}}, floor=30)
+    # a scenario that ends early on purpose declares no floor, so nothing fires
+    assert not collapsed({"stats": {"unique_hooks": 4}}, floor=0)
 
 
 def test_no_capture_recorded_a_desync(builds):
@@ -98,8 +125,10 @@ def test_no_capture_recorded_a_desync(builds):
 
 
 def test_every_capture_exercises_every_phase(builds):
-    """All four stages must appear, or the diagrams below them are missing."""
+    """All four stages must appear - unless the session ends early by design."""
     for item in builds:
+        if not item.scenario.complete_run:
+            continue
         for version, trace in item.traces.items():
             present = {
                 phase.key
@@ -120,14 +149,16 @@ def test_group_pages_were_generated(site, builds):
     assert len(group_pages(site)) == expected
 
 
-def test_every_group_page_has_every_stage(site):
-    """The headline assertion: all four phases, on every page."""
-    required = ["## The whole run", *[f"## {phase.title}" for phase in analysis.PHASES]]
-
+def test_every_group_page_has_every_stage(site, builds):
+    """All four phases on every page - unless the run ended early by design."""
     for page in group_pages(site):
+        scenario = scenario_of(page, builds)
         text = page.read_text()
-        for heading in required:
-            assert heading in text, f"{page.name} is missing '{heading}'"
+        assert "## The whole run" in text, f"{page} has no overview"
+        if not scenario.complete_run:
+            continue
+        for phase in analysis.PHASES:
+            assert f"## {phase.title}" in text, f"{page} is missing '{phase.title}'"
 
 
 def test_every_stage_is_followed_by_a_rendered_diagram(site):
@@ -135,6 +166,8 @@ def test_every_stage_is_followed_by_a_rendered_diagram(site):
     for page in group_pages(site):
         text = page.read_text()
         for phase in analysis.PHASES:
+            if f"## {phase.title}" not in text:
+                continue
             section = text.split(f"## {phase.title}", 1)[1].split("\n## ", 1)[0]
             assert '<div class="ha-diagram">' in section, f"{page.name}: {phase.key} has no diagram"
             assert "<svg" in section, f"{page.name}: {phase.key} diagram is empty"
@@ -162,10 +195,14 @@ def test_every_diagram_links_its_hooks_to_documentation(site):
         assert "docs.pytest.org" in text
 
 
-def test_the_overview_columns_are_all_present_and_clickable(site):
+def test_the_overview_columns_are_all_present_and_clickable(site, builds):
+    """Every phase the run actually reached gets a clickable column."""
     for page in group_pages(site):
-        overview = page.read_text().split("## The whole run", 1)[1].split("\n## ", 1)[0]
+        text = page.read_text()
+        overview = text.split("## The whole run", 1)[1].split("\n## ", 1)[0]
         for phase in analysis.PHASES:
+            if f"## {phase.title}" not in text:
+                continue
             assert f"ha&#45;{phase.key}" in overview, f"{page.name}: no {phase.key} column"
             anchor = build_module.heading_anchor(phase.title)
             assert f'xlink:href="#{anchor}"' in overview, f"{page.name}: {phase.key} not clickable"
@@ -180,13 +217,14 @@ def test_every_group_page_carries_provenance_and_a_picker(site):
         assert "<option " in text, page.name
 
 
-def test_every_group_page_lists_its_hooks(site):
+def test_every_group_page_lists_its_hooks(site, builds):
     for page in group_pages(site):
+        scenario = scenario_of(page, builds)
         text = page.read_text()
         assert "## Every hook observed" in text, page.name
         assert "Implemented by, in call order" in text, page.name
         rows = [line for line in text.splitlines() if line.startswith("| [`pytest_")]
-        assert len(rows) >= MINIMUM_HOOKS, f"{page.name} lists only {len(rows)} hooks"
+        assert len(rows) >= max(scenario.min_hooks, 1), f"{page.name} lists only {len(rows)} hooks"
 
 
 # --------------------------------------------------------------------------

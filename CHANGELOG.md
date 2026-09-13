@@ -11,6 +11,15 @@ built or presented, never what was observed.
 
 ### Added
 
+- Three scenarios reaching hooks no other scenario touched: `edge-cases`
+  (assertion comparison and assertion-pass, deselection, string `skipif`
+  conditions, the report header, both debugger hooks), `interrupted` (a run
+  stopped by Ctrl-C) and `internal-error` (a hook implementation raising during
+  collection). Coverage rises from 40 of pytest's 52 declared hooks to 49.
+- Scenarios declare what they expect - which hooks they exist to reach, whether
+  the session completes, and any minimum hook count. Nothing in the tooling
+  imposes a minimum: a run that dies in its first hookimpl is drawn as it
+  happened.
 - Hook tables name the plugins implementing each hook, in pluggy's call order,
   with full module paths.
 - Implementers are reconciled across each page's release range, with footnotes

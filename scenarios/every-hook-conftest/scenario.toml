@@ -7,6 +7,8 @@ order = 2
 # so one filter covers every version.
 args = ["-q", "-W", "ignore::pytest.PytestDeprecationWarning"]
 generated_conftest = true
+min_hooks = 30
+expects = ["pytest_addhooks", "pytest_addoption", "pytest_plugin_registered"]
 summary = "What actually happens when a conftest.py implements all 52 declared hooks."
 description = """
 The `conftest.py` here is generated: it implements every hook pytest declares.

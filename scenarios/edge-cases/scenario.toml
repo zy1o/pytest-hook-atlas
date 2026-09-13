@@ -1,0 +1,36 @@
+id = "edge-cases"
+title = "The hooks other scenarios never reach"
+order = 3
+# Each argument is here to reach a specific hook:
+#   no -q            pytest_report_header is only called when it will be shown
+#   -k               pytest_deselected needs something deselected
+#   --pdb --pdbcls   pytest_enter_pdb / pytest_leave_pdb, with a Pdb that
+#                    continues immediately so the session still finishes
+args = ["-k", "not deselect_me", "--pdb", "--pdbcls=autopdb:AutoPdb"]
+min_hooks = 30
+expects = [
+    "pytest_assertion_pass",
+    "pytest_assertrepr_compare",
+    "pytest_deselected",
+    "pytest_enter_pdb",
+    "pytest_leave_pdb",
+    "pytest_markeval_namespace",
+    "pytest_report_header",
+]
+summary = "Assertion comparison, deselection, string conditions and the debugger."
+description = """
+A plain test run reaches about three quarters of pytest's hooks. The rest need
+provoking: an assertion that *compares* rather than merely fails, a deselected
+test, a `skipif` written as a string, the assertion-pass hook switched on, and
+a debugger session.
+
+This scenario provokes all of them in one run, which is why it observes more
+hooks than any other. `pytest.ini` enables `enable_assertion_pass_hook`, and
+`autopdb.py` supplies a `Pdb` that continues the moment it is entered - so the
+debugger hooks fire without the run hanging.
+
+Three hooks remain out of reach even here. `pytest_cmdline_parse` runs before
+any plugin exists to watch it. `pytest_report_to_serializable` and
+`pytest_report_from_serializable` are never called by pytest itself - they
+belong to plugins that ship reports between processes, such as `xdist`.
+"""
