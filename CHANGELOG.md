@@ -11,6 +11,10 @@ built or presented, never what was observed.
 
 ### Added
 
+- An `edge-cases` scenario reaching seven hooks no other scenario touched:
+  assertion comparison and assertion-pass, deselection, string `skipif`
+  conditions, the report header, and both debugger hooks. Coverage rises from
+  40 of pytest's 52 declared hooks to 47.
 - Hook tables name the plugins implementing each hook, in pluggy's call order,
   with full module paths.
 - Implementers are reconciled across each page's release range, with footnotes
