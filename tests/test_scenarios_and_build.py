@@ -41,8 +41,9 @@ def captured(tmp_path_factory, discovered):
     workdir = tmp_path_factory.mktemp("work")
     destination = tmp_path_factory.mktemp("traces")
     scenario = discovered[0]
-    path = scenarios.capture(scenario, destination / f"{scenario.id}.json", workdir)
-    return scenario, analysis.load_trace(path)
+    written = scenarios.capture(scenario, destination / f"{scenario.id}.json", workdir)
+    assert len(written) == 1, "a single-process scenario writes one trace"
+    return scenario, analysis.load_trace(written[0])
 
 
 def test_capture_produces_a_usable_trace(captured):
@@ -146,6 +147,35 @@ def test_conftest_generator_runs_as_a_standalone_script():
 def test_capture_accepts_an_alternate_interpreter(discovered, tmp_path):
     """The version matrix captures through venvs holding older pytest."""
     scenario = discovered[0]
-    path = scenarios.capture(scenario, tmp_path / "t.json", tmp_path, python=sys.executable)
+    written = scenarios.capture(scenario, tmp_path / "t.json", tmp_path, python=sys.executable)
 
-    assert analysis.load_trace(path)["stats"]["total_calls"] > 50
+    assert analysis.load_trace(written[0])["stats"]["total_calls"] > 50
+
+
+def test_a_scenario_can_declare_requirements_and_distribution(tmp_path):
+    directory = tmp_path / "dist-scenario"
+    directory.mkdir()
+    (directory / "scenario.toml").write_text(
+        'id = "dist-scenario"\n'
+        'title = "T"\n'
+        'summary = "s"\n'
+        'args = ["-n", "2"]\n'
+        'requires = ["pytest-xdist"]\n'
+        "distributed = true\n"
+    )
+    (directory / "test_x.py").write_text("def test_x():\n    assert True\n")
+
+    scenario = scenarios.discover(tmp_path)[0]
+
+    assert scenario.requires == ("pytest-xdist",)
+    assert scenario.distributed is True
+
+
+def test_a_scenario_id_may_not_contain_a_dot(tmp_path):
+    """The dot separates scenario from process in a trace filename."""
+    directory = tmp_path / "bad"
+    directory.mkdir()
+    (directory / "scenario.toml").write_text('id = "has.dot"\ntitle = "T"\nsummary = "s"\n')
+
+    with pytest.raises(ValueError, match="must not contain a dot"):
+        scenarios.discover(tmp_path)

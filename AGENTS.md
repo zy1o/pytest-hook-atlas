@@ -42,6 +42,13 @@ installed" — that produced traces that silently differed from the rest.
 
 ## Adding a scenario
 
+A scenario may declare `requires` (packages installed into its capture
+virtualenv, which is how it brings a plugin) and `distributed = true` (it runs
+across several processes). A distributed scenario writes one trace per process,
+named `<scenario>.<process>.json` - `controller`, `gw0`, `gw1` under xdist.
+Those are xdist's logical worker names, not pids, so they stay meaningful in a
+committed trace. Scenario ids therefore may not contain a dot.
+
 1. Create `scenarios/<id>/` containing a small pytest project.
 2. Add `scenarios/<id>/scenario.toml`:
 

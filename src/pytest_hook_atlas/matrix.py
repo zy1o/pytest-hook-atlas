@@ -34,12 +34,23 @@ class CaptureResult:
         return self.error is None
 
 
+def scenario_id_of(trace: Path) -> str:
+    """The scenario a trace file belongs to.
+
+    A distributed scenario writes ``<scenario>.<process>.json``, so the id is
+    everything before the first dot. Scenario ids therefore may not contain one
+    - which ``discover`` checks, rather than leaving it to produce a puzzling
+    result here.
+    """
+    return trace.name.split(".", 1)[0]
+
+
 def captured_pairs(traces_dir: Path) -> set[tuple[str, str]]:
     """``(pytest version, scenario id)`` pairs already recorded on disk."""
     if not traces_dir.exists():
         return set()
     return {
-        (version.name, trace.stem)
+        (version.name, scenario_id_of(trace))
         for version in traces_dir.iterdir()
         if version.is_dir()
         for trace in version.glob("*.json")
@@ -92,9 +103,14 @@ def outstanding(
     ]
 
 
-def provision(pytest_version: str, workdir: Path) -> Path:
-    """Build a virtualenv holding exactly ``pytest_version``. Returns its python."""
-    environment = workdir / f"venv-{pytest_version}"
+def provision(pytest_version: str, workdir: Path, requires: tuple[str, ...] = ()) -> Path:
+    """Build a virtualenv holding ``pytest_version`` and whatever a scenario needs.
+
+    ``requires`` is how a scenario brings its own plugin - pytest-xdist, say.
+    The environment is otherwise bare, so a scenario's traces show its plugin
+    and nothing else that happens to be installed here.
+    """
+    environment = workdir / f"venv-{pytest_version}-{'-'.join(requires) or 'bare'}"
     venv.create(environment, with_pip=True, clear=True)
     python = environment / ("Scripts" if platform.system() == "Windows" else "bin") / "python"
 
@@ -107,6 +123,7 @@ def provision(pytest_version: str, workdir: Path) -> Path:
             "--quiet",
             "--disable-pip-version-check",
             f"pytest=={pytest_version}",
+            *requires,
         ],
         capture_output=True,
         text=True,
@@ -119,8 +136,9 @@ def capture_release(
     release: Release, scenarios: list[Scenario], traces_dir: Path, workdir: Path
 ) -> CaptureResult:
     """Capture every scenario against one pytest release."""
+    requires = tuple(sorted({package for item in scenarios for package in item.requires}))
     try:
-        python = provision(release.version, workdir)
+        python = provision(release.version, workdir, requires)
     except subprocess.CalledProcessError as error:
         return CaptureResult(release.version, [], f"install failed: {error.stderr.strip()[:400]}")
 
@@ -128,7 +146,7 @@ def capture_release(
     written = []
     for scenario in scenarios:
         try:
-            written.append(
+            written.extend(
                 capture(
                     scenario,
                     destination / f"{scenario.id}.json",

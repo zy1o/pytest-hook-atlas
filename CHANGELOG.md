@@ -11,6 +11,11 @@ built or presented, never what was observed.
 
 ### Added
 
+- Scenarios can run across several processes. Each writes its own trace,
+  named `<scenario>.<process>.json` after xdist's logical worker names, and a
+  scenario can declare the packages its capture virtualenv needs. Groundwork
+  for the xdist scenario, where the controller and workers see genuinely
+  different things - the controller never collects or runs a test.
 - Hookspecs are read from the live plugin manager rather than by importing
   `_pytest.hookspec`, so hooks a *project* declares are described too - pytest
   contributes 52, pytest-xdist adds 12, and any conftest or plugin calling

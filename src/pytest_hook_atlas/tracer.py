@@ -52,6 +52,12 @@ PROLOGUE_HOOKS = frozenset({"pytest_cmdline_parse", "pytest_addhooks", "pytest_a
 
 ENV_TRACE_PATH = "HOOK_ATLAS_TRACE"
 ENV_SCENARIO = "HOOK_ATLAS_SCENARIO"
+ENV_PROCESS = "HOOK_ATLAS_PROCESS"
+
+#: xdist names its workers gw0, gw1, ... and sets this in each of them. The
+#: name is logical rather than a pid, so it stays meaningful in a committed
+#: trace long after the process is gone.
+ENV_XDIST_WORKER = "PYTEST_XDIST_WORKER"
 DEFAULT_TRACE_PATH = "hook-atlas-trace.json"
 
 
@@ -253,6 +259,7 @@ class HookRecorder:
             },
             "scenario": {
                 "id": os.environ.get(ENV_SCENARIO),
+                "process": process_name() or "main",
                 "argv": _portable_argv(),
             },
             "stats": {
@@ -274,8 +281,24 @@ def _walk_names(nodes: list[CallNode]):
 _recorder: HookRecorder | None = None
 
 
+def process_name() -> str:
+    """Which process this is, for scenarios that run more than one.
+
+    Under xdist every worker writes its own trace, and so does the controller -
+    they see genuinely different things, the controller never collecting or
+    running a test at all. Empty for an ordinary single-process run, which
+    keeps those traces named exactly as before.
+    """
+    worker = os.environ.get(ENV_XDIST_WORKER)
+    if worker:
+        return worker
+    return os.environ.get(ENV_PROCESS, "")
+
+
 def trace_path() -> Path:
-    return Path(os.environ.get(ENV_TRACE_PATH, DEFAULT_TRACE_PATH))
+    base = Path(os.environ.get(ENV_TRACE_PATH, DEFAULT_TRACE_PATH))
+    name = process_name()
+    return base.with_name(f"{base.stem}.{name}{base.suffix}") if name else base
 
 
 def write_trace() -> Path | None:
