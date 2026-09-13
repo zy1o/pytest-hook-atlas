@@ -58,12 +58,6 @@ hook-atlas linkcheck   # verify every hook -> docs anchor still resolves
 pytest                 # the project's own tests
 ```
 
-## Status
-
-Under active reconstruction. Scenarios for nested conftests, an installed
-plugin, and `xdist` are still to come, as is capture across multiple pytest
-versions.
-
 ## Licence
 
 MIT
