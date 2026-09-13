@@ -32,8 +32,16 @@ MINIMUM_HOOKS = 30
 
 @pytest.fixture(scope="session")
 def site(tmp_path_factory):
-    docs = tmp_path_factory.mktemp("docs")
-    build_module.build(REPO_ROOT, docs, TRACES, verify_links=False)
+    """Build the docs tree and its config entirely inside a temporary directory.
+
+    Nothing is written into the repository, and nothing gitignored has to exist
+    first - relying on a stale docs/ from a previous local build is how these
+    tests passed here and failed in CI.
+    """
+    root = tmp_path_factory.mktemp("build")
+    docs = root / "docs"
+    config = root / "mkdocs.yml"
+    build_module.build(REPO_ROOT, docs, TRACES, verify_links=False, config_path=config)
     return docs
 
 
@@ -230,7 +238,8 @@ def test_top_level_pages_all_exist(site):
 
 
 def test_the_navigation_points_only_at_pages_that_exist(site):
-    nav = (REPO_ROOT / "mkdocs.yml").read_text().split("nav:", 1)[1].split("not_in_nav:", 1)[0]
+    config = (site.parent / "mkdocs.yml").read_text()
+    nav = config.split("nav:", 1)[1].split("not_in_nav:", 1)[0]
 
     for target in re.findall(r"([\w./-]+\.md)", nav):
         assert (site / target).exists(), f"nav points at missing page {target}"
@@ -242,12 +251,12 @@ def test_the_navigation_points_only_at_pages_that_exist(site):
 
 @pytest.fixture(scope="session")
 def html(site, tmp_path_factory):
-    """Build the real site. Skipped where mkdocs is not installed."""
+    """Render the real site from the temporary build. Needs the docs extra."""
     pytest.importorskip("mkdocs", reason="site rendering needs the docs extra")
     import subprocess
 
     out = tmp_path_factory.mktemp("site")
-    config = REPO_ROOT / "mkdocs.yml"
+    config = site.parent / "mkdocs.yml"
     result = subprocess.run(
         [
             sys.executable,

@@ -18,8 +18,17 @@ TRACES = REPO_ROOT / "data" / "traces"
 
 @pytest.fixture(scope="module")
 def built(tmp_path_factory):
-    docs = tmp_path_factory.mktemp("docs")
-    pages = build_module.build(REPO_ROOT, docs, TRACES, verify_links=False)
+    """Build into a temporary directory, config included.
+
+    Writing mkdocs.yml into the repository as a side effect of running tests is
+    both impolite and a hidden dependency: it made these tests pass locally
+    while CI, which has no generated docs/, failed.
+    """
+    root = tmp_path_factory.mktemp("build")
+    docs = root / "docs"
+    pages = build_module.build(
+        REPO_ROOT, docs, TRACES, verify_links=False, config_path=root / "mkdocs.yml"
+    )
     return docs, pages
 
 
@@ -83,7 +92,8 @@ def test_version_picker_covers_every_rendered_version(built, builds):
 
 
 def test_nav_lists_groups_but_not_aliases(built, builds):
-    mkdocs = (REPO_ROOT / "mkdocs.yml").read_text()
+    docs, _ = built
+    mkdocs = (docs.parent / "mkdocs.yml").read_text()
     nav = mkdocs.split("nav:")[1].split("not_in_nav:")[0]
 
     for item in builds:
@@ -313,4 +323,4 @@ def test_the_filter_script_is_written_and_registered(built):
     script = (docs / "assets" / "filter.js").read_text()
     assert "document$" in script, "must use Material's hook, not DOMContentLoaded"
     assert "ha-hook-table" in script
-    assert "assets/filter.js" in (REPO_ROOT / "mkdocs.yml").read_text()
+    assert "assets/filter.js" in (docs.parent / "mkdocs.yml").read_text()

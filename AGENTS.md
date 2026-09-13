@@ -128,11 +128,17 @@ repoint a published URL at different content.
   the place for it - that is what it is for, and the changelog links to it.
 - **Explain *why* in comments**, not what. Most non-obvious code here exists
   because something failed in a specific way; say which.
-- **Test in an environment that matches CI.** A local venv usually has the
-  `docs` extra installed; the test job does not. A test importing something
-  that only arrives with mkdocs passes locally and fails in CI. When adding a
-  test dependency, declare it in the `dev` extra and check with a clean
-  `pip install -e ".[dev]"`.
+- **Test in an environment that matches CI**, which means a *clean clone*.
+  `docs/` and `mkdocs.yml` are generated and gitignored, so a working copy has
+  them and CI does not. Tests that read either passed here and failed there.
+  Tests must also write nothing into the repository - `build()` takes a
+  `config_path` for exactly that reason. Verify with:
+
+  ```bash
+  git clone . /tmp/check && cd /tmp/check
+  python -m venv .venv && ./.venv/bin/pip install -e ".[dev,docs]"
+  ./.venv/bin/pytest && git status --short   # must be empty
+  ```
 - **Verify against reality, not against your own output.** Two bugs here
   survived a green build: a stylesheet whose selectors matched nothing, and a
   preview script that rendered a picture proving nothing. "Tests pass and the

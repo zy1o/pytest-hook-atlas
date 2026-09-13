@@ -41,6 +41,9 @@ built or presented, never what was observed.
 - A `conftest.py` is labelled by its path, since every conftest imports as the
   module `conftest`.
 - Long hook names no longer break mid-word in tables.
+- Tests no longer depend on, or write into, generated files in the repository.
+  `build()` takes a config path, so a build into a temporary directory is
+  self-contained.
 
 ## [1.0.0] - 2026-09-10
 

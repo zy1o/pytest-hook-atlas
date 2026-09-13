@@ -66,7 +66,9 @@ def test_build_writes_pages_and_assets(captured, tmp_path):
     _, traces_root = _one_build(tmp_path, scenario, trace)
 
     docs = tmp_path / "docs"
-    pages = build.build(REPO_ROOT, docs, traces_root, verify_links=False)
+    pages = build.build(
+        REPO_ROOT, docs, traces_root, verify_links=False, config_path=tmp_path / "mkdocs.yml"
+    )
 
     assert (docs / "index.md").exists()
     assert (docs / "design-notes.md").exists()
