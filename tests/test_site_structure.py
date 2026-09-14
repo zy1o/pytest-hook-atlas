@@ -212,7 +212,7 @@ def test_hook_table_names_implementers_rather_than_counting_them(built, builds):
 
 def test_implementers_that_changed_mid_range_are_footnoted(built, builds):
     """Showing only the newest release's answer would misdescribe the rest."""
-    from pytest_hook_atlas import implementers
+    from hook_atlas import implementers
 
     docs, _ = built
     item = builds[0]
@@ -235,7 +235,7 @@ def test_implementers_that_changed_mid_range_are_footnoted(built, builds):
 
 
 def test_stable_groups_carry_no_footnotes(built, builds):
-    from pytest_hook_atlas import implementers
+    from hook_atlas import implementers
 
     docs, _ = built
     for item in builds:

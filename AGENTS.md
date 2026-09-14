@@ -9,6 +9,26 @@ A site that shows the order and nesting of pytest's hooks, built from traces of
 *real pytest runs*. It is documentation, not a library. Nothing is published to
 PyPI.
 
+## Two repositories
+
+The engine lives in [hook-atlas](https://github.com/zy1o/hook-atlas) and knows
+nothing about pytest: capture, the flow model, grouping, implementers and the
+renderers. This repository is the pytest wrapper - phases, documentation links,
+scenarios, page copy - plus the traces and the site.
+
+Work on both at once with editable installs:
+
+```bash
+pip install -e ../hook-atlas -e ".[dev,docs]"
+```
+
+The rule for deciding where something belongs: if it mentions pytest, or a
+pytest hook name, it belongs here. `hook-atlas` has a test that fails if the
+package imports pytest at all.
+
+**The acceptance test for anything moved across is that the generated site is
+byte-identical.** Snapshot `docs/`, rebuild, `diff -rq`.
+
 ## The pipeline, and why it is separate
 
 ```

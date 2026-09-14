@@ -9,6 +9,14 @@ built or presented, never what was observed.
 
 ## [Unreleased]
 
+### Changed
+
+- The tracing and drawing move to [hook-atlas](https://github.com/zy1o/hook-atlas),
+  a package that knows nothing about pytest and can be pointed at tox, devpi or
+  anything else built on pluggy. What stays here is what makes this pytest's
+  atlas: the four phases, the documentation links, the scenarios and the pages.
+  The generated site is byte-identical across the move.
+
 ## [1.1.0] - 2026-09-13
 
 ### Added

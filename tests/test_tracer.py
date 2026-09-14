@@ -5,13 +5,16 @@ from __future__ import annotations
 import ast
 import json
 import os
+import shutil
 import subprocess
 import sys
+import types
 from pathlib import Path
 
 import pytest
+from hook_atlas import tracer
 
-from pytest_hook_atlas import tracer
+from pytest_hook_atlas import scenarios
 
 SAMPLE_PROJECT = """
 import pytest
@@ -38,12 +41,21 @@ def _walk(nodes):
         yield from _walk(node.get("children", []))
 
 
+def _install_tracer(directory: Path) -> None:
+    """Put the tracer and its pytest shim beside a project, as capture does."""
+    shutil.copyfile(Path(tracer.__file__), directory / f"{scenarios.TRACER_MODULE}.py")
+    (directory / f"{scenarios.PLUGIN_MODULE}.py").write_text(scenarios.TRACER_PLUGIN)
+
+
 @pytest.fixture(scope="module")
 def trace(tmp_path_factory) -> dict:
     """Run a real pytest session under the tracer and return the parsed trace."""
     project = tmp_path_factory.mktemp("project")
     (project / "test_sample.py").write_text(SAMPLE_PROJECT)
     destination = project / "trace.json"
+    # the same two files capture copies in: the tracer knows nothing about
+    # pytest, and the shim beside it is what makes it a pytest plugin
+    _install_tracer(project)
 
     result = subprocess.run(
         [
@@ -51,7 +63,7 @@ def trace(tmp_path_factory) -> dict:
             "-m",
             "pytest",
             "-p",
-            "pytest_hook_atlas.tracer",
+            scenarios.PLUGIN_MODULE,
             str(project),
             "-q",
             "-p",
@@ -72,7 +84,7 @@ def trace(tmp_path_factory) -> dict:
 
 def test_trace_records_environment_and_scenario(trace):
     assert trace["schema_version"] == tracer.SCHEMA_VERSION
-    assert trace["environment"]["pytest"] == pytest.__version__
+    assert trace["environment"]["application"] == "pytest"
     assert trace["scenario"]["id"] == "unit-test"
 
 
@@ -118,7 +130,7 @@ def test_prologue_matches_documented_boundary(trace):
     """Guards the documented capture boundary against pytest upgrades."""
     traced = {node["name"] for node in _walk(trace["calls"])}
 
-    for hook in tracer.PROLOGUE_HOOKS:
+    for hook in scenarios.PROLOGUE_HOOKS:
         assert hook not in traced, f"{hook} is capturable now; shrink PROLOGUE_HOOKS"
 
     # the earliest hooks we *do* capture - these bound the prologue from above
@@ -137,6 +149,7 @@ def test_historic_hooks_replay_for_late_registered_plugins(tmp_path):
         "def pytest_addoption(parser, pluginmanager):\n    pass\n"
     )
     destination = tmp_path / "trace.json"
+    _install_tracer(tmp_path)
 
     subprocess.run(
         [
@@ -144,7 +157,7 @@ def test_historic_hooks_replay_for_late_registered_plugins(tmp_path):
             "-m",
             "pytest",
             "-p",
-            "pytest_hook_atlas.tracer",
+            scenarios.PLUGIN_MODULE,
             str(tmp_path),
             "-q",
             "-p",
@@ -158,7 +171,7 @@ def test_historic_hooks_replay_for_late_registered_plugins(tmp_path):
     replayed = {node["name"] for node in _walk(json.loads(destination.read_text())["calls"])}
 
     assert "pytest_addoption" in replayed
-    assert "pytest_addoption" in tracer.PROLOGUE_HOOKS
+    assert "pytest_addoption" in scenarios.PROLOGUE_HOOKS
 
 
 class FakeSpec:
@@ -203,7 +216,7 @@ def test_hookspec_metadata_reads_the_live_plugin_manager():
             "pytest_made_up_hook": (
                 lambda session: None,
                 {"historic": False, "firstresult": True},
-                type("somepluginhooks", (), {"__name__": "somepluginhooks"}),
+                types.ModuleType("somepluginhooks"),
             ),
         }
     )
@@ -318,13 +331,14 @@ def test_traces_are_reproducible_as_whole_files(tmp_path):
         for name in ("conftest.py", "test_x.py"):
             (workdir / name).write_text((tmp_path / name).read_text())
         destination = workdir / "trace.json"
+        _install_tracer(workdir)
         subprocess.run(
             [
                 sys.executable,
                 "-m",
                 "pytest",
                 "-p",
-                "pytest_hook_atlas.tracer",
+                scenarios.PLUGIN_MODULE,
                 str(workdir),
                 "-q",
                 "-p",
@@ -405,7 +419,7 @@ def test_hookspec_sources_record_which_plugin_declared_what(trace):
     """
     sources = trace["environment"]["hookspec_sources"]
 
-    assert sources["_pytest.hookspec"] == trace["environment"]["pytest"]
+    assert sources["_pytest.hookspec"] == pytest.__version__
 
 
 def test_hookspec_sources_skip_what_they_cannot_determine():

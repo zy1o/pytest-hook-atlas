@@ -15,7 +15,8 @@ import venv
 from dataclasses import dataclass
 from pathlib import Path
 
-from .pypi import Release
+from hook_atlas.pypi import Release
+
 from .scenarios import Scenario, capture
 
 CURRENT_PYTHON = f"{sys.version_info.major}.{sys.version_info.minor}"

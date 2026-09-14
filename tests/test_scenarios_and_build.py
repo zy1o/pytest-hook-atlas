@@ -56,7 +56,7 @@ def test_capture_produces_a_usable_trace(captured):
 
 def _one_build(tmp_path, scenario, trace):
     """A ScenarioBuild for a single captured version, grouped as the site does."""
-    traces_dir = tmp_path / "traces" / trace["environment"]["pytest"]
+    traces_dir = tmp_path / "traces" / trace["environment"]["version"]
     traces_dir.mkdir(parents=True)
     (traces_dir / f"{scenario.id}.json").write_text(json.dumps(trace))
     return build, traces_dir.parent

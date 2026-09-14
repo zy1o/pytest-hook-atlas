@@ -21,8 +21,7 @@ classifiers = [
 ]
 dependencies = [
     "pytest>=8.0",
-    "graphviz>=0.20",
-    "packaging>=23",
+    "hook-atlas>=0.1",
 ]
 
 [project.optional-dependencies]

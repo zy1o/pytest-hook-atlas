@@ -9,7 +9,9 @@ import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
 
-from . import analysis, build, doclinks, matrix, pypi
+from hook_atlas import pypi
+
+from . import analysis, build, doclinks, matrix
 from .scenarios import discover
 
 TRACES_DIR = Path("data/traces")

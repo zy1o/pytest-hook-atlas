@@ -8,7 +8,14 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pytest_hook_atlas import grouping, matrix, scenarios
+from hook_atlas import grouping
+
+from pytest_hook_atlas import matrix, scenarios
+from pytest_hook_atlas.build import _fingerprint as fingerprint
+
+#: Grouping is generic; what a fingerprint *means* is pytest's business - its
+#: phases and its bookkeeping hooks. These assert pytest's answer, so they go
+#: through the same helper the build does.
 
 
 def trace(calls, hookspecs=None):
@@ -36,12 +43,12 @@ def protocol(children):
 def test_fingerprint_is_stable_for_identical_traces():
     calls = [protocol([node("pytest_runtest_setup")])]
 
-    assert grouping.fingerprint(trace(calls)) == grouping.fingerprint(trace(calls))
+    assert fingerprint(trace(calls)) == fingerprint(trace(calls))
 
 
 def test_fingerprint_changes_when_the_flow_changes():
-    a = grouping.fingerprint(trace([protocol([node("pytest_runtest_setup")])]))
-    b = grouping.fingerprint(trace([protocol([node("pytest_runtest_call")])]))
+    a = fingerprint(trace([protocol([node("pytest_runtest_setup")])]))
+    b = fingerprint(trace([protocol([node("pytest_runtest_call")])]))
 
     assert a != b
 
@@ -65,25 +72,27 @@ def test_bookkeeping_hooks_do_not_change_the_fingerprint():
         ]
     )
 
-    assert grouping.fingerprint(plain) == grouping.fingerprint(noisy)
+    assert fingerprint(plain) == fingerprint(noisy)
 
 
 def test_bookkeeping_count_differences_are_ignored():
     def with_count(n):
         return trace([protocol([*repeat("pytest_plugin_registered", n), node("x")])])
 
-    assert grouping.fingerprint(with_count(34)) == grouping.fingerprint(with_count(33))
+    assert fingerprint(with_count(34)) == fingerprint(with_count(33))
 
 
 def test_non_bookkeeping_counts_still_matter():
     def with_count(n):
         return trace([protocol(repeat("pytest_runtest_setup", n))])
 
-    assert grouping.fingerprint(with_count(1)) != grouping.fingerprint(with_count(2))
+    assert fingerprint(with_count(1)) != fingerprint(with_count(2))
 
 
 def test_consecutive_versions_with_one_fingerprint_form_a_group():
-    groups = grouping.group_versions({"8.0.0": "a", "8.0.1": "a", "8.0.2": "a"})
+    groups = grouping.group_versions(
+        {"8.0.0": "a", "8.0.1": "a", "8.0.2": "a"}, application="pytest"
+    )
 
     assert len(groups) == 1
     assert groups[0].versions == ("8.0.0", "8.0.1", "8.0.2")
@@ -165,7 +174,7 @@ def test_real_traces_group_into_stable_urls():
     from pytest_hook_atlas import analysis
 
     fingerprints = {
-        d.name: grouping.fingerprint(analysis.load_trace(d / "baseline.json"))
+        d.name: fingerprint(analysis.load_trace(d / "baseline.json"))
         for d in root.iterdir()
         if (d / "baseline.json").exists()
     }

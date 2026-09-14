@@ -6,7 +6,7 @@ only containment, which turned a sequence into an unordered fan-out.
 
 from __future__ import annotations
 
-from pytest_hook_atlas import flow
+from hook_atlas import flow
 
 
 def raw(name, children=()):
@@ -196,6 +196,6 @@ def test_folding_stays_out_of_the_fingerprint():
     """
     import inspect
 
-    from pytest_hook_atlas import grouping
+    from hook_atlas import grouping
 
     assert "fold_repetitive" not in inspect.getsource(grouping)

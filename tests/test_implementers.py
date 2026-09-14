@@ -10,8 +10,9 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+from hook_atlas import implementers
 
-from pytest_hook_atlas import analysis, implementers
+from pytest_hook_atlas import analysis
 from pytest_hook_atlas import build as build_module
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
