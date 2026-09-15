@@ -129,6 +129,10 @@ def _process_of(trace_path: Path, scenario_id: str) -> str:
 #: is a property of the pytest release being documented.
 BOOKKEEPING_HOOKS = frozenset({"pytest_plugin_registered", "pytest_warning_recorded"})
 
+#: What counts as pytest implementing a hook itself, for the "hide internal
+#: plugins" toggle. pytest keeps its own under `_pytest`.
+INTERNAL_PREFIXES = implementers.internal_prefixes("pytest")
+
 
 def _fingerprint(trace: dict[str, Any]) -> str:
     """A trace's flow identity, as pytest defines it."""
@@ -529,7 +533,9 @@ def _process_section(
         f"{sub} Every hook observed ({process})\n" if distributed else "## Every hook observed\n"
     )
     parts.append(heading)
-    implemented = implementers.reconcile(build.per_version(process), group.versions)
+    implemented = implementers.reconcile(
+        build.per_version(process), group.versions, internal=INTERNAL_PREFIXES
+    )
     # wrapped so the filter script can find this table specifically; markdown="1"
     # keeps the table inside it rendered as markdown
     parts.append('<div class="ha-hook-table" markdown="1">\n')

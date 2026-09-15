@@ -216,13 +216,25 @@ def test_deltas_name_the_module_not_just_the_plugin():
 
 
 def test_pytest_own_plugins_are_classified_as_internal():
-    internal = implementers.Implementation(plugin="runner", owner="_pytest.runner")
+    """Which prefixes are "internal" is the application's to say - pytest keeps
+    its own under `_pytest`, so the build passes that in."""
+    internal = implementers.Implementation(
+        plugin="runner", owner="_pytest.runner", internal_prefixes=build_module.INTERNAL_PREFIXES
+    )
     nested = implementers.Implementation(
-        plugin="capturemanager", owner="_pytest.capture.CaptureManager"
+        plugin="capturemanager",
+        owner="_pytest.capture.CaptureManager",
+        internal_prefixes=build_module.INTERNAL_PREFIXES,
     )
 
     assert internal.internal
     assert nested.internal
+
+
+def test_nothing_is_internal_without_knowing_the_application():
+    """The honest default: with no prefixes supplied, nothing is the
+    application's own code, so the filter offers to hide nothing."""
+    assert not implementers.Implementation(plugin="runner", owner="_pytest.runner").internal
 
 
 def test_a_conftest_and_third_party_plugins_are_external():

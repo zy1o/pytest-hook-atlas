@@ -10,9 +10,17 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from hook_atlas import pypi
+from packaging.version import Version
 
 from . import analysis, build, doclinks, matrix
 from .scenarios import discover
+
+#: What this site documents, and where it starts. pytest 6.0 predates the
+#: hookspec layout the diagrams are built around; older releases are not worth
+#: a page.
+PACKAGE = "pytest"
+FLOOR = Version("6.0")
+
 
 TRACES_DIR = Path("data/traces")
 DOCS_DIR = Path("docs")
@@ -99,12 +107,12 @@ def _write_heartbeat(checked: int, captured: list[str]) -> None:
 
 def cmd_targets(args: argparse.Namespace) -> int:
     """Show what PyPI offers and what we have already captured."""
-    releases = pypi.releases(detailed=args.detailed)
+    releases = pypi.releases(PACKAGE, floor=FLOOR, detailed=args.detailed)
     scenarios = discover(Path("scenarios"))
     already = matrix.captured_versions(TRACES_DIR, scenarios)
     python = args.python or matrix.CURRENT_PYTHON
 
-    print(f"{len(releases)} pytest releases >= {pypi.FLOOR}; python {python}\n")
+    print(f"{len(releases)} pytest releases >= {FLOOR}; python {python}\n")
     print(f"{'version':10} {'released':12} {'state'}")
     for release in releases:
         if release.yanked:
@@ -124,7 +132,7 @@ def cmd_targets(args: argparse.Namespace) -> int:
 
 def cmd_capture_missing(args: argparse.Namespace) -> int:
     """Capture any pytest release we do not have yet and can run here."""
-    releases = pypi.releases(detailed=args.detailed)
+    releases = pypi.releases(PACKAGE, floor=FLOOR, detailed=args.detailed)
     scenarios = discover(Path(args.scenarios))
     python = args.python or matrix.CURRENT_PYTHON
     outstanding = matrix.outstanding(
