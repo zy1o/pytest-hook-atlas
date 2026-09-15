@@ -215,6 +215,21 @@ repoint a published URL at different content.
   paragraph. Entries had drifted into three-paragraph explanations nobody was
   going to read. If a change genuinely needs more room, the commit message is
   the place for it - that is what it is for, and the changelog links to it.
+- **The version number is the user's call.** Never bump, tag or publish because
+  it seems due. Before agreeing to a proposed number, read the `[Unreleased]`
+  entries: they say whether what has accumulated is breaking, a feature or a
+  fix. If the number disagrees with them - a patch bump over a renamed command,
+  say - say so once, plainly, and ask. Departing from semver deliberately is
+  fine; departing from it by accident is not. Keep `version` in
+  `pyproject.toml` and `__version__` in `src/pytest_hook_atlas/__init__.py` in
+  step; a test enforces it.
+- **Changing an interface means changing what documents it, in the same
+  commit.** The site is generated, but `README.md`, this file, and the page copy
+  in `build.py` are not, and a renamed command leaves all three wrong. The same
+  goes for anything that changes what a capture records or how pages are
+  grouped: `docs/design-notes.md` comes from `DESIGN_NOTES` in `build.py` and
+  explains decisions, so a decision that has changed and is still described the
+  old way is worse than no explanation.
 - **Explain *why* in comments**, not what. Most non-obvious code here exists
   because something failed in a specific way; say which.
 - **Test in an environment that matches CI**, which means a *clean clone*.
