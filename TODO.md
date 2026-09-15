@@ -56,6 +56,37 @@ A scenario under a splitting scheduler would document that common controller,
 and would be the only place the site shows more than one worker flow. Today
 that path exists and is covered by tests, but no page exercises it.
 
+## Trace pytest's own test suite
+
+A scenario whose subject is pytest testing itself. Interesting because it is the
+most demanding thing we could point this at: a real suite with real plugins and
+a conftest that does genuine work, rather than the small projects the other
+scenarios use.
+
+Expect it to go wrong, and in ways worth knowing about:
+
+- **Self-reference.** hook-atlas already hits this tracing its own tests - the
+  tests exercising the tracer manipulate the same module-level recorder the
+  outer trace uses, and fail when traced. pytest's suite runs pytest in
+  subprocesses constantly (`pytester`), and those are separate processes that
+  will not be traced, so what comes back may be a trace of the outer run only.
+  That is worth knowing either way, but it is not what someone would assume the
+  page was showing.
+- **Size.** Thousands of tests is a trace far larger than anything committed
+  here, and a diagram far taller. Folding helps; it will not be enough on its
+  own, and a scenario that produces an unreadable page is not worth hosting.
+- **Reproducibility.** Traces are committed and must be identical across runs.
+  A suite that large has more opportunities to differ - ordering, timing,
+  whatever happens to be installed.
+
+So: capture it once as an experiment and look at what comes back before
+deciding whether it becomes a scenario. The failure modes are the interesting
+part even if the page never ships.
+
+A cheaper first step in the same direction: datasette's test suite, which
+hook-atlas already traces in CI, and which brings several hookspec sources with
+it.
+
 ## Conftest scoping is flattened
 
 A conftest's hook implementations only apply to items **below its directory**,
