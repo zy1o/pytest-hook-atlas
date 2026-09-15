@@ -95,7 +95,7 @@ tolerate older traces so a half-migrated state still builds.
 
 These releases need older interpreters than the watcher runs, so they need a
 workflow with a Python matrix. The matrix can be derived from
-`hook-atlas targets --detailed`, which already knows which Python each release
+`pytest-hook-atlas targets --detailed`, which already knows which Python each release
 supports - no hand-maintained table.
 
 ## Smaller things

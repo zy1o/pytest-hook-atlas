@@ -11,6 +11,10 @@ built or presented, never what was observed.
 
 ### Changed
 
+- The command is now `pytest-hook-atlas build` rather than `hook-atlas build`.
+  `hook-atlas` belongs to the generic tool, which gained its own `trace`,
+  `draw` and `check`; both were previously called the same thing, so installing
+  both at once was undefined.
 - The tracing and drawing move to [hook-atlas](https://github.com/zy1o/hook-atlas),
   a package that knows nothing about pytest and can be pointed at tox, devpi or
   anything else built on pluggy. What stays here is what makes this pytest's

@@ -73,4 +73,4 @@ jobs:
       - run: pip install "hook-atlas @ git+https://github.com/zy1o/hook-atlas@extract-engine"
       - run: pip install -e .
       # reads the committed traces; no capture needed
-      - run: hook-atlas linkcheck
+      - run: pytest-hook-atlas linkcheck

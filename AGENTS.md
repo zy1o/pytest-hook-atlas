@@ -22,6 +22,11 @@ Work on both at once with editable installs:
 pip install -e ../hook-atlas -e ".[dev,docs]"
 ```
 
+The two commands are `hook-atlas` (the generic tool: `trace`, `draw`, `check`)
+and `pytest-hook-atlas` (this one: `build`, `capture-missing`, `linkcheck`,
+`targets`). They were both called `hook-atlas` until 2026-09-15, which made
+installing both in one environment undefined.
+
 The rule for deciding where something belongs: if it mentions pytest, or a
 pytest hook name, it belongs here. `hook-atlas` has a test that fails if the
 package imports pytest at all.
@@ -33,16 +38,16 @@ byte-identical.** Snapshot `docs/`, rebuild, `diff -rq`.
 
 ```
 scenarios/        small pytest projects + how to invoke them        committed
-    |  hook-atlas capture-missing      (only the watcher runs this)
+    |  pytest-hook-atlas capture-missing      (only the watcher runs this)
 data/traces/<pytest-version>/<scenario>.json                        committed
-    |  hook-atlas build
+    |  pytest-hook-atlas build
 docs/  +  mkdocs.yml                                                generated
     |  mkdocs build
 site/                                                               generated
 ```
 
 **Each arrow runs independently, and that is deliberate.** Changing how diagrams
-look, how versions group, or what the pages say is a `hook-atlas build` away and
+look, how versions group, or what the pages say is a `pytest-hook-atlas build` away and
 needs no pytest run. The deploy workflow renders from committed traces and
 never captures.
 
@@ -98,7 +103,7 @@ worth seeing rather than something to summarise away.
 3. Capture it across every pytest version:
 
    ```bash
-   hook-atlas capture-missing --detailed --keep-going
+   pytest-hook-atlas capture-missing --detailed --keep-going
    ```
 
    A new scenario makes every existing version incomplete, so this backfills
@@ -107,7 +112,7 @@ worth seeing rather than something to summarise away.
    diff. If unrelated traces show up as modified, something non-deterministic
    has crept into the trace — find it rather than committing the churn.
 
-4. `hook-atlas build && mkdocs serve` to look at it.
+4. `pytest-hook-atlas build && mkdocs serve` to look at it.
 
 **Changing an existing scenario invalidates every trace for it.** The project is
 part of the measurement apparatus; alter it and the old traces describe a
@@ -247,10 +252,10 @@ repoint a published URL at different content.
 ```bash
 pip install -e ".[dev,docs]"     # needs Python 3.11+ and Graphviz (`dot`)
 
-hook-atlas targets --detailed    # what PyPI has, and what is captured
-hook-atlas capture-missing       # trace releases not yet recorded
-hook-atlas build                 # render docs/ and mkdocs.yml from traces
-hook-atlas linkcheck             # verify every hook -> docs anchor resolves
+pytest-hook-atlas targets --detailed    # what PyPI has, and what is captured
+pytest-hook-atlas capture-missing       # trace releases not yet recorded
+pytest-hook-atlas build                 # render docs/ and mkdocs.yml from traces
+pytest-hook-atlas linkcheck             # verify every hook -> docs anchor resolves
 
 mkdocs serve                     # preview
 pytest && ruff check .           # the CI jobs

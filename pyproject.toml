@@ -36,7 +36,7 @@ Homepage = "https://zy1o.github.io/pytest-hook-atlas/"
 Source = "https://github.com/zy1o/pytest-hook-atlas"
 
 [project.scripts]
-hook-atlas = "pytest_hook_atlas.console_scripts:main"
+pytest-hook-atlas = "pytest_hook_atlas.console_scripts:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -164,7 +164,7 @@ def cmd_capture_missing(args: argparse.Namespace) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="hook-atlas", description=__doc__)
+    parser = argparse.ArgumentParser(prog="pytest-hook-atlas", description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     build_parser = subparsers.add_parser("build", help="generate the docs tree")
