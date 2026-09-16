@@ -102,3 +102,37 @@ def test_provision_builds_from_the_interpreter_it_is_given(tmp_path, monkeypatch
     matrix.provision("6.0.0", tmp_path, (), base_python="/usr/bin/python3.9")
 
     assert seen[0][:3] == ["/usr/bin/python3.9", "-m", "venv"]
+
+
+# --------------------------------------------------------------------------
+# rendering fewer majors than are kept
+
+
+def test_retention_governs_rendering_not_storage(tmp_path):
+    """Every trace stays committed. Widening the window and rebuilding brings
+    older releases back with no re-capture, which is the point of keeping them."""
+    from hook_atlas.grouping import Group
+
+    from pytest_hook_atlas import build
+
+    groups = [
+        Group("a", ("6.0.0",), "pytest"),
+        Group("b", ("7.0.0",), "pytest"),
+        Group("c", ("8.0.0",), "pytest"),
+        Group("d", ("9.0.0",), "pytest"),
+    ]
+    item = build.ScenarioBuild(scenario=None, traces={}, groups=groups, majors=2)
+
+    assert [g.versions[0] for g in item.rendered] == ["8.0.0", "9.0.0"]
+    assert len(item.groups) == 4, "storage is untouched"
+
+
+def test_zero_majors_renders_everything(tmp_path):
+    from hook_atlas.grouping import Group
+
+    from pytest_hook_atlas import build
+
+    groups = [Group("a", ("6.0.0",), "pytest"), Group("b", ("9.0.0",), "pytest")]
+    item = build.ScenarioBuild(scenario=None, traces={}, groups=groups, majors=0)
+
+    assert len(item.rendered) == 2

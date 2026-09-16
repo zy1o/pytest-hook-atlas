@@ -163,10 +163,16 @@ def provision(
 def _confirm_pytest(python: Path, wanted: str, requires: tuple[str, ...]) -> None:
     """Refuse to capture an environment holding a different pytest than asked.
 
-    pip resolves the whole command at once, so a plugin with a floor on pytest
-    silently upgrades it: asking for pytest 6.0.0 alongside pytest-xdist 3.8.0
-    installs pytest 8.4.2, and the capture would be filed under 6.0.0 while
-    describing 8.4.2. Nothing downstream could tell.
+    Belt and braces rather than a fix for anything observed. pip's resolver
+    handles the obvious case correctly: `pytest==6.0.0` alongside a plugin
+    needing pytest 7 is refused outright with ResolutionImpossible, not
+    quietly resolved into a newer pytest. What this catches is the unobvious
+    case - anything that changes the environment after the install, or a
+    requirement that satisfies the pin in a way we did not anticipate.
+
+    It is cheap, and the failure it guards against is silent: a trace filed
+    under one version while describing another, where the directory says one
+    thing, the trace says another, and no page shows both.
     """
     result = subprocess.run(
         [str(python), "-c", "import pytest; print(pytest.__version__)"],

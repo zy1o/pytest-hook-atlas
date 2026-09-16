@@ -66,11 +66,12 @@ class Scenario:
     #: Which pytest releases this scenario can be captured against, as a PEP 440
     #: specifier. Empty means all of them.
     #:
-    #: A scenario bringing a plugin is limited by what that plugin supports, and
-    #: the limit has to be declared rather than discovered: pip resolves the
-    #: whole install at once, so asking for an old pytest alongside a plugin
-    #: that needs a new one quietly upgrades pytest instead of failing. Saying
-    #: so here turns "captured the wrong thing" into "deliberately not captured".
+    #: A scenario bringing a plugin is limited by what that plugin supports.
+    #: pip refuses an impossible combination correctly, but an undeclared
+    #: scenario then fails on every run, is reported as an error, and leaves
+    #: those releases looking permanently incomplete - so they are retried
+    #: forever. Declaring the limit turns a recurring failure into a deliberate
+    #: skip that says why.
     pytest_versions: str = ""
 
     def applies_to(self, pytest_version: str) -> bool:

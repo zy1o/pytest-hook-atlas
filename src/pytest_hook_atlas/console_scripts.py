@@ -48,8 +48,11 @@ def cmd_build(args: argparse.Namespace) -> int:
         print("no traces captured yet; run 'hook-atlas capture-missing'", file=sys.stderr)
         return 1
 
-    pages = build.build(Path("."), DOCS_DIR, TRACES_DIR, verify_links=not args.no_verify_links)
-    print(f"built {len(pages)} pages from {len(versions)} captured releases")
+    pages = build.build(
+        Path("."), DOCS_DIR, TRACES_DIR, verify_links=not args.no_verify_links, majors=args.majors
+    )
+    scope = "every major" if not args.majors else f"the last {args.majors} majors"
+    print(f"built {len(pages)} pages from {len(versions)} captured releases ({scope})")
     return 0
 
 
@@ -192,6 +195,13 @@ def main(argv: list[str] | None = None) -> int:
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     build_parser = subparsers.add_parser("build", help="generate the docs tree")
+    build_parser.add_argument(
+        "--majors",
+        type=int,
+        default=build.RETAINED_MAJORS,
+        help="how many pytest majors to render; 0 for all of them. "
+        "Traces are never dropped, so this can be widened and rebuilt at any time.",
+    )
     build_parser.add_argument(
         "--no-verify-links",
         action="store_true",

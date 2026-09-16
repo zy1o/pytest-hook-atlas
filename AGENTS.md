@@ -215,6 +215,13 @@ repoint a published URL at different content.
   paragraph. Entries had drifted into three-paragraph explanations nobody was
   going to read. If a change genuinely needs more room, the commit message is
   the place for it - that is what it is for, and the changelog links to it.
+- **Traces are kept, not pruned.** Retention governs what is *rendered* -
+  `build --majors N`, default four - and every capture stays committed
+  regardless, so widening the window and rebuilding brings old releases back
+  with no re-capture. The working tree is large and that is fine: it is
+  repetitive JSON, and the whole history packs to well under a megabyte, which
+  is what a clone actually transfers. Measure `git count-objects -vH` before
+  worrying about it.
 - **The version number is the user's call.** Never bump, tag or publish because
   it seems due. Before agreeing to a proposed number, read the `[Unreleased]`
   entries: they say whether what has accumulated is breaking, a feature or a

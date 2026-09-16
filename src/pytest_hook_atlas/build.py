@@ -43,6 +43,11 @@ def heading_anchor(title: str) -> str:
 
 #: Render the last N pytest majors. Retention governs rendering only - every
 #: trace stays committed, so raising this and rebuilding brings them back.
+#: How many pytest majors get pages. Every trace stays committed regardless -
+#: this governs what is *rendered*, so widening it and rebuilding brings older
+#: releases back with no re-capture. Four currently means 6.x through 9.x, which
+#: is everything; the day pytest 10 ships, 6.x stops rendering unless this is
+#: raised. Zero renders every group.
 RETAINED_MAJORS = 4
 
 
@@ -62,6 +67,8 @@ class ScenarioBuild:
     #: process "main"; a distributed one has "controller" and a worker each.
     traces: dict[str, dict[str, dict[str, Any]]]
     groups: list[Group] = field(default_factory=list)
+    #: Majors to render. Zero means all of them. See :data:`RETAINED_MAJORS`.
+    majors: int = RETAINED_MAJORS
 
     def processes(self, version: str) -> list[str]:
         """Processes captured for a version, controller first then workers.
@@ -104,7 +111,9 @@ class ScenarioBuild:
 
     @property
     def rendered(self) -> list[Group]:
-        return grouping.retain(self.groups, RETAINED_MAJORS)
+        if not self.majors:
+            return self.groups
+        return grouping.retain(self.groups, self.majors)
 
     @property
     def latest(self) -> Group | None:
@@ -154,7 +163,9 @@ def _combined_fingerprint(captured: dict[str, dict[str, Any]]) -> str:
     return "+".join([lead, *rest])
 
 
-def collect(repo_root: Path, traces_dir: Path) -> list[ScenarioBuild]:
+def collect(
+    repo_root: Path, traces_dir: Path, majors: int = RETAINED_MAJORS
+) -> list[ScenarioBuild]:
     """Load every trace, fingerprint it, and group the versions per scenario.
 
     A distributed scenario contributes several traces per version. Versions are
@@ -179,7 +190,10 @@ def collect(repo_root: Path, traces_dir: Path) -> list[ScenarioBuild]:
         }
         builds.append(
             ScenarioBuild(
-                scenario, traces, grouping.group_versions(fingerprints, application="pytest")
+                scenario,
+                traces,
+                grouping.group_versions(fingerprints, application="pytest"),
+                majors=majors,
             )
         )
     return builds
@@ -961,6 +975,7 @@ def build(
     traces_dir: Path,
     verify_links: bool = True,
     config_path: Path | None = None,
+    majors: int = RETAINED_MAJORS,
 ) -> list[Path]:
     """Render every scenario's groups into ``docs_dir``. Returns pages written."""
     if docs_dir.exists():
@@ -972,7 +987,7 @@ def build(
     )
     (docs_dir / "assets" / "filter.js").write_text(FILTER_SCRIPT)
 
-    builds = collect(repo_root, traces_dir)
+    builds = collect(repo_root, traces_dir, majors)
     written: list[Path] = []
 
     for item in builds:

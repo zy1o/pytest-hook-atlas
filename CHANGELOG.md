@@ -15,6 +15,9 @@ built or presented, never what was observed.
   from 6.0 onward. They need an interpreter older than this package can run
   on - 6.0 tops out at Python 3.9 - so `capture-missing` takes a
   `--base-python` to build capture environments from.
+- `build --majors N` chooses how many pytest majors get pages, with `0` for all
+  of them. Traces are never dropped, so the window can be widened and the site
+  rebuilt at any time without re-capturing anything.
 - Scenarios declare which pytest releases they support. The xdist scenario
   needs pytest 7, and is now skipped for older releases deliberately and
   visibly rather than by accident.
@@ -22,9 +25,8 @@ built or presented, never what was observed.
 ### Fixed
 
 - A capture is refused when the environment does not hold the pytest that was
-  asked for. pip resolves an install in one go, so `pytest==6.0.0` alongside a
-  plugin needing pytest 7 quietly installed pytest 8 instead of failing, and
-  the trace would have been filed under 6.0.0 while describing 8.4.2.
+  asked for. Cheap insurance against a trace filed under one version while
+  describing another - pip itself refuses the obvious version conflicts.
 - `linkcheck` read the pytest version from a trace field that only schema 2
   traces have.
 
