@@ -2,47 +2,27 @@
 
 Rough order of value, not a commitment. Anything here is fair game to pick up.
 
-## Point it at your own project
+Pointing this at your own project - the idea most of this list used to circle -
+is [hook-atlas](https://zy1o.github.io/hook-atlas/), and is done. What is left
+here is about the hosted site.
 
-`hook-atlas trace <path>` — run the tracer against an arbitrary test suite and
-build a local atlas of *its* hook flow, plugins and all.
+## Capture the three hooks we attach too late to see
 
-This is the idea the project has been circling. The reference site shows how
-pytest behaves in scenarios we chose; this would show how it behaves in *your*
-project, with your conftests and your plugins interacting. `--debug` already
-gives you the log; the value here is the picture, and a picture of the thing
-you actually run.
+Every hook pytest declares is observed on the site except `pytest_cmdline_parse`
+- and that is no longer a fact about pytest, which is how this entry used to
+read. It is a fact about how *we* attach.
 
-Most of the machinery exists. The tracer is standalone and copied in place
-precisely so it can run anywhere. What is missing:
+Capture loads a pytest plugin, so the earliest it can reach the plugin manager
+is `pytest_addoption`, by which time `pytest_cmdline_parse`, `pytest_addhooks`
+and `pytest_addoption` itself have already been called. hook-atlas's `watch()`
+wraps `PluginManager.__init__` instead, which is before pytest calls anything,
+and it records all three - verified.
 
-- capture without a `scenario.toml`, against the project's own environment
-  rather than a provisioned virtualenv
-- a build path that copes with a single capture (grouping across one version
-  is trivial, but untested)
-- a **manual**: how to check the project out, point it at a suite, and read
-  the result
-
-Hookspec discovery is done: the tracer reads them from the live plugin
-manager, so a project's own hooks arrive with their semantics and no list
-has to be supplied. Only documentation *links* need a per-project answer,
-and `DOCUMENTED_NAMESPACES` in `doclinks.py` is where that goes.
-
-Worth checking early: a large suite traces a lot of calls. Consecutive-repeat
-collapsing should handle it well - a thousand tests should collapse to a
-handful of variants - but nobody has measured it.
-
-## The last hook
-
-Every hook pytest declares is observed somewhere on the site except one, and
-that one is structural rather than a gap worth closing:
-
-- `pytest_cmdline_parse` - structurally unobservable. Monitoring can only be
-  installed once a plugin manager exists, and plugins are loaded *inside* this
-  call. Confirmed for both `-p` and `pytest11` entry-point plugins.
-
-The two report-serialization hooks pytest never calls itself arrived with the
-xdist scenario, which is where reports actually cross a process boundary.
+Switching capture to `watch()` would take the site to every hook pytest
+declares. What makes it a decision rather than a patch: it changes every trace,
+so it needs a re-capture of all 52 releases and a schema bump, and the new
+hooks appear at a level no phase currently anchors. Worth doing together with
+the caller capture below, which forces the same re-capture.
 
 ## A second distributed scenario
 
@@ -125,29 +105,10 @@ Two constraints established while evaluating it:
   precision nobody needs. Module and function only.
 - **it must not reach the fingerprint**, or grouping fragments.
 
-Needs `schema_version` 3 and a re-capture of every release. The builder must
-tolerate older traces so a half-migrated state still builds.
-
-## Backfill pytest 6.0 - 7.3
-
-**Done.** Every release from 6.0 is captured.
-
-It did not need the Python matrix this entry used to call for. Every missing
-release supports 3.7, 3.8 and 3.9, so one interpreter covers all of them -
-`capture-missing --python 3.9 --base-python <path>`, with the interpreter
-fetched by `uv python install 3.9` since distributions no longer ship one.
-
-Two things had to change to make it safe rather than merely possible:
-
-- `provision` builds the capture virtualenv from a named interpreter. It used
-  to use the one running this package, which needs 3.11 and therefore cannot
-  install pytest 6.
-- A capture is refused when the environment does not hold the pytest that was
-  asked for. pip resolves the whole install at once, so `pytest==6.0.0` next to
-  `pytest-xdist==3.8.0` installs pytest 8.4.2 and succeeds - the trace would
-  have been filed under 6.0.0 while describing 8.4.2, and nothing downstream
-  could have told. Scenarios now declare which releases they support, so xdist
-  is skipped for pytest 6 deliberately and said out loud.
+Needs a schema bump - 3 is already spent on recording the traced application
+and its version - and a re-capture of every release. The builder must tolerate
+older traces so a half-migrated state still builds. Best done in the same pass
+as the prologue hooks above, which force the same re-capture.
 
 ## Smaller things
 
