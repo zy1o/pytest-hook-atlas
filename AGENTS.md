@@ -27,9 +27,15 @@ and `pytest-hook-atlas` (this one: `build`, `capture-missing`, `linkcheck`,
 `targets`). They were both called `hook-atlas` until 2026-09-15, which made
 installing both in one environment undefined.
 
-The rule for deciding where something belongs: if it mentions pytest, or a
-pytest hook name, it belongs here. `hook-atlas` has a test that fails if the
-package imports pytest at all.
+The rule for deciding where something belongs: if it is *about* pytest - its
+phases, its hooks, its releases, its documentation - it belongs here. If it
+would be just as true of tox or datasette, it belongs upstream. That applies to
+tests as much as to code: the flow model, the renderers and the stylesheet are
+tested in hook-atlas, against its own palette, because nothing in them is
+pytest's. What is tested here is what this repository decides - pytest's four
+phases, its documented namespaces, its scenarios and the pages built from them.
+
+`hook-atlas` has a test that fails if the package imports pytest at all.
 
 **The acceptance test for anything moved across is that the generated site is
 byte-identical.** Snapshot `docs/`, rebuild, `diff -rq`.
@@ -235,10 +241,9 @@ differences deliberately have no colour; they are surfaced by grouping instead.
 
 The palette was chosen by simulating dichromatic vision, and every colour
 carrying text or a border is pushed until it clears WCAG AA in both themes.
-`tests/test_css.py` fails if a palette change breaks either - it runs here
-rather than upstream because what must stay readable is *pytest's* four phases,
-and upstream has no opinion about those. Do not hand-pick hues to taste without
-re-running it.
+`tests/test_css.py` upstream fails if a palette change breaks either, across
+every hue the palette can hand out rather than only the four pytest uses. Do
+not hand-pick hues to taste without re-running it.
 
 Colours are emitted as **CSS classes**, never baked into the SVG, so one
 rendered diagram serves both themes.

@@ -9,6 +9,13 @@ built or presented, never what was observed.
 
 ## [Unreleased]
 
+### Changed
+
+- The flow, renderer and stylesheet tests move to
+  [hook-atlas](https://github.com/zy1o/hook-atlas), which is where that code
+  lives. They were left behind by the extraction, so this project was testing
+  somebody else's package while that package shipped nearly untested.
+
 ### Added
 
 - The site and the README point at
