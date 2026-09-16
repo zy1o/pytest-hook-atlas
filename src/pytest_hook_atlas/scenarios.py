@@ -16,7 +16,9 @@ import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 
-from . import hookspec_generator, tracer
+from hook_atlas import tracer
+
+from . import hookspec_generator
 
 REPO_URL = "https://github.com/zy1o/pytest-hook-atlas"
 SCENARIO_FILE = "scenario.toml"
@@ -106,6 +108,27 @@ def discover(root: Path) -> list[Scenario]:
 
 #: Name the standalone tracer takes once copied beside a test project.
 TRACER_MODULE = "hook_atlas_tracer"
+PLUGIN_MODULE = "hook_atlas_pytest"
+
+#: Attaches at pytest_addoption, the earliest hook that is handed the plugin
+#: manager. Hooks called before it - pytest_cmdline_parse among them - are not
+#: recorded. hook_atlas.tracer.watch() would catch those by wrapping the
+#: PluginManager constructor; switching to it changes every trace, so it waits
+#: for the re-capture that is planned with the next schema bump.
+#: Hooks pytest calls before a plugin can be handed the plugin manager, so
+#: capture cannot see them. A consequence of attaching at pytest_addoption, not
+#: of pytest: hook_atlas.tracer.watch() wraps the PluginManager constructor and
+#: records all three. They are documented as the trace prologue rather than
+#: silently missing, and this set shrinks to nothing when capture moves.
+PROLOGUE_HOOKS = frozenset({"pytest_cmdline_parse", "pytest_addhooks", "pytest_addoption"})
+
+TRACER_PLUGIN = """\
+import hook_atlas_tracer
+
+
+def pytest_addoption(parser, pluginmanager):
+    hook_atlas_tracer.attach(pluginmanager)
+"""
 
 
 def _write_generated_conftest(project: Path, interpreter: str) -> None:
@@ -154,7 +177,12 @@ def capture(
         shutil.rmtree(project)
     shutil.copytree(scenario.path, project)
 
+    # The tracer is copied in rather than imported: the capture interpreter has
+    # neither this package nor hook-atlas installed, and on the Pythons old
+    # pytest needs it could not have them. The shim beside it is the pytest
+    # plugin - the tracer itself knows nothing about pytest.
     shutil.copyfile(Path(tracer.__file__), project / f"{TRACER_MODULE}.py")
+    (project / f"{PLUGIN_MODULE}.py").write_text(TRACER_PLUGIN)
 
     if scenario.generated_conftest:
         _write_generated_conftest(project, interpreter)
@@ -176,7 +204,7 @@ def capture(
             "-m",
             "pytest",
             "-p",
-            TRACER_MODULE,
+            PLUGIN_MODULE,
             str(project),
             *scenario.args,
             "-p",

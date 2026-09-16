@@ -5,11 +5,14 @@ from __future__ import annotations
 import re
 
 import pytest
+from hook_atlas.flow import FlowNode
+from hook_atlas.render import dot
 
-from pytest_hook_atlas.flow import FlowNode
-from pytest_hook_atlas.render import dot
+from pytest_hook_atlas.doclinks import links_for
 
-BASE = "https://docs.pytest.org/en/stable/reference/reference.html"
+#: Renderers take a DocLinks now, not a bare URL - an application that has no
+#: documentation is the default, and must not be spelled as an empty string.
+BASE = links_for("https://docs.pytest.org/en/stable/reference/reference.html")
 
 HOOKSPECS = {
     "pytest_runtest_protocol": {"firstresult": True, "historic": False},

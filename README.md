@@ -27,7 +27,7 @@ set of diagrams.
 scenarios/           small pytest projects + how to invoke them   (committed)
    |  hook-atlas capture
 data/traces/<pytest-version>/<scenario>.json                       (committed)
-   |  hook-atlas build
+   |  pytest-hook-atlas build
 docs/                generated MkDocs sources                      (generated)
    |  mkdocs build
 site/                                                              (generated)
@@ -38,7 +38,7 @@ reviewable diff rather than a silently different picture.
 
 Each arrow is a separate step. Rendering reads only the committed traces, so
 changing how diagrams look — or how versions are grouped — means re-running
-`hook-atlas build` alone. Capture is never needed to change the output.
+`pytest-hook-atlas build` alone. Capture is never needed to change the output.
 
 ## Running it locally
 
@@ -51,10 +51,10 @@ with your platform's package manager (`brew install graphviz`,
 pip install -e ".[dev,docs]"
 
 hook-atlas capture     # run every scenario under the tracer
-hook-atlas build       # render docs/ from the captured traces
+pytest-hook-atlas build       # render docs/ from the captured traces
 mkdocs serve           # preview at http://127.0.0.1:8000
 
-hook-atlas linkcheck   # verify every hook -> docs anchor still resolves
+pytest-hook-atlas linkcheck   # verify every hook -> docs anchor still resolves
 pytest                 # the project's own tests
 ```
 

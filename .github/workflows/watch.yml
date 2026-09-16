@@ -43,7 +43,7 @@ jobs:
       # --keep-going lets one bad release pass without losing the others.
       - name: Capture any pytest release we do not have yet
         run: >
-          hook-atlas capture-missing
+          pytest-hook-atlas capture-missing
           --detailed
           --keep-going
           --limit ${{ github.event.inputs.limit || 0 }}

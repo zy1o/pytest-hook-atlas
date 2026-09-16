@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pytest-hook-atlas"
-version = "1.1.0"
+version = "1.2.0"
 description = "A versioned, multi-scenario visual reference for pytest's hook execution flow"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -21,8 +21,7 @@ classifiers = [
 ]
 dependencies = [
     "pytest>=8.0",
-    "graphviz>=0.20",
-    "packaging>=23",
+    "hook-atlas>=0.1.0",
 ]
 
 [project.optional-dependencies]
@@ -37,7 +36,7 @@ Homepage = "https://zy1o.github.io/pytest-hook-atlas/"
 Source = "https://github.com/zy1o/pytest-hook-atlas"
 
 [project.scripts]
-hook-atlas = "pytest_hook_atlas.console_scripts:main"
+pytest-hook-atlas = "pytest_hook_atlas.console_scripts:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

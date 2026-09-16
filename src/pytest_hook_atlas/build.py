@@ -20,11 +20,12 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from hook_atlas import flow, grouping, implementers
+from hook_atlas.grouping import Group
+from hook_atlas.render import css, dot
 from packaging.version import Version
 
-from . import analysis, doclinks, flow, grouping, implementers
-from .grouping import Group
-from .render import css, dot
+from . import analysis, doclinks
 from .scenarios import Scenario, discover
 
 OUTLINE_DEPTH = 2
@@ -122,6 +123,22 @@ def _process_of(trace_path: Path, scenario_id: str) -> str:
     return stem[len(scenario_id) :].lstrip(".") or "main"
 
 
+#: Hooks kept out of the fingerprint. pytest_plugin_registered fires whenever
+#: anything registers, and pytest_warning_recorded is replayed in a batch whose
+#: position marks a phase boundary rather than where a warning arose - neither
+#: is a property of the pytest release being documented.
+BOOKKEEPING_HOOKS = frozenset({"pytest_plugin_registered", "pytest_warning_recorded"})
+
+#: What counts as pytest implementing a hook itself, for the "hide internal
+#: plugins" toggle. pytest keeps its own under `_pytest`.
+INTERNAL_PREFIXES = implementers.internal_prefixes("pytest")
+
+
+def _fingerprint(trace: dict[str, Any]) -> str:
+    """A trace's flow identity, as pytest defines it."""
+    return grouping.fingerprint(trace, analysis.PHASES, BOOKKEEPING_HOOKS)
+
+
 def _combined_fingerprint(captured: dict[str, dict[str, Any]]) -> str:
     """One fingerprint for a version across all its processes.
 
@@ -132,8 +149,8 @@ def _combined_fingerprint(captured: dict[str, dict[str, Any]]) -> str:
     """
     primary = [name for name in captured if name in ("main", "controller")]
     workers = sorted(set(captured) - set(primary))
-    lead = "+".join(grouping.fingerprint(captured[name]) for name in sorted(primary))
-    rest = sorted(grouping.fingerprint(captured[name]) for name in workers)
+    lead = "+".join(_fingerprint(captured[name]) for name in sorted(primary))
+    rest = sorted(_fingerprint(captured[name]) for name in workers)
     return "+".join([lead, *rest])
 
 
@@ -160,14 +177,18 @@ def collect(repo_root: Path, traces_dir: Path) -> list[ScenarioBuild]:
         fingerprints = {
             version: _combined_fingerprint(captured) for version, captured in traces.items()
         }
-        builds.append(ScenarioBuild(scenario, traces, grouping.group_versions(fingerprints)))
+        builds.append(
+            ScenarioBuild(
+                scenario, traces, grouping.group_versions(fingerprints, application="pytest")
+            )
+        )
     return builds
 
 
 def _diagram(
     nodes: list[flow.FlowNode],
     hookspecs: dict[str, Any],
-    base_url: str,
+    links: doclinks.DocLinks,
     phase: str,
     totals: dict[str, int],
 ) -> str:
@@ -175,7 +196,7 @@ def _diagram(
     if not nodes:
         return ""
     drawn = flow.fold_repetitive(nodes)
-    svg = dot.render_inline_svg(drawn, hookspecs, base_url, phase, totals)
+    svg = dot.render_inline_svg(drawn, hookspecs, links, phase, totals)
     diagram = f'<div class="ha-diagram">\n{svg}\n</div>\n'
     if _has_summary(drawn):
         diagram += (
@@ -193,7 +214,7 @@ def _has_summary(nodes: list[flow.FlowNode]) -> bool:
 
 def _overview(
     trace: dict[str, Any],
-    base_url: str,
+    links: doclinks.DocLinks,
     totals: dict[str, int],
     anchors: dict[str, str] | None = None,
 ) -> str:
@@ -205,18 +226,18 @@ def _overview(
     pytest's complexity is, and the picture should say so.
     """
     columns = []
-    links = {}
+    jumps = {}
     for phase in analysis.PHASES:
         variants = flow.phase_variants(analysis.phase_subtrees(trace, phase))
         if variants:
             # fold first: pruning depth does nothing about ninety siblings
             outline = flow.prune(flow.fold_repetitive(variants[0].flow), OUTLINE_DEPTH)
             columns.append((phase.key, phase.title, outline))
-            links[phase.key] = (anchors or {}).get(phase.key, f"#{heading_anchor(phase.title)}")
+            jumps[phase.key] = (anchors or {}).get(phase.key, f"#{heading_anchor(phase.title)}")
     if not columns:
         return ""
     svg = dot.to_inline_svg(
-        dot.build_columns(columns, trace["hookspecs"], base_url, totals, anchors=links)
+        dot.build_columns(columns, trace["hookspecs"], links, totals, anchors=jumps)
     )
     return f'<div class="ha-diagram">\n{svg}\n</div>\n'
 
@@ -298,7 +319,7 @@ SEMANTIC_LABELS = {
 
 def _hook_table(
     graph: analysis.HookGraph,
-    base_url: str,
+    links: doclinks.DocLinks,
     implemented: dict[str, implementers.HookImplementers],
     hookspecs: dict[str, Any],
 ) -> str:
@@ -315,7 +336,7 @@ def _hook_table(
     ]
     for name in sorted(graph.hooks):
         hook = graph.hooks[name]
-        url = doclinks.hook_url(name, base_url, hookspecs.get(name, {}).get("declared_in"))
+        url = links.url_for(name, hookspecs.get(name, {}).get("declared_in"))
         label = f"[`{name}`]({url})" if url else f"`{name}`"
         info = implemented.get(name)
         if info and info.current:
@@ -439,7 +460,7 @@ def _process_section(
     build: ScenarioBuild,
     group: Group,
     process: str,
-    base_url: str,
+    links: doclinks.DocLinks,
     heading_level: str,
     shared: WorkerFlow | None = None,
 ) -> list[str]:
@@ -470,7 +491,7 @@ def _process_section(
         phase.key: f"#{heading_anchor(_phase_heading(phase, process, distributed))}"
         for phase in analysis.PHASES
     }
-    parts.append(_overview(trace, base_url, totals, anchors))
+    parts.append(_overview(trace, links, totals, anchors))
 
     sub = heading_level + "#" if distributed else heading_level
     for phase in analysis.PHASES:
@@ -479,7 +500,7 @@ def _process_section(
             continue
         parts.append(f"{sub} {_phase_heading(phase, process, distributed)}\n")
         parts.append(f"{phase.description}\n")
-        parts.append(_diagram(variants[0].flow, hookspecs, base_url, phase.key, totals))
+        parts.append(_diagram(variants[0].flow, hookspecs, links, phase.key, totals))
 
         total = sum(variant.count for variant in variants)
         if total > 1:
@@ -503,8 +524,7 @@ def _process_section(
                 "below the level the hook applies to.\n"
             )
             parts.extend(
-                f"- [`{name}`]({doclinks.hook_url(name, base_url, '_pytest.hookspec')})"
-                for name in blind
+                f"- [`{name}`]({links.url_for(name, '_pytest.hookspec')})" for name in blind
             )
             parts.append("")
 
@@ -513,11 +533,13 @@ def _process_section(
         f"{sub} Every hook observed ({process})\n" if distributed else "## Every hook observed\n"
     )
     parts.append(heading)
-    implemented = implementers.reconcile(build.per_version(process), group.versions)
+    implemented = implementers.reconcile(
+        build.per_version(process), group.versions, internal=INTERNAL_PREFIXES
+    )
     # wrapped so the filter script can find this table specifically; markdown="1"
     # keeps the table inside it rendered as markdown
     parts.append('<div class="ha-hook-table" markdown="1">\n')
-    parts.append(_hook_table(full, base_url, implemented, hookspecs) + "\n")
+    parts.append(_hook_table(full, links, implemented, hookspecs) + "\n")
     parts.append("</div>\n")
     parts.extend(_implementer_changes(implemented, group))
     return parts
@@ -553,7 +575,7 @@ def worker_flows(build: ScenarioBuild, version: str) -> list[WorkerFlow]:
     for worker in build.processes(version):
         if worker == "controller":
             continue
-        key = grouping.fingerprint(build.trace(version, worker))
+        key = _fingerprint(build.trace(version, worker))
         if key in flows:
             flows[key].workers.append(worker)
         else:
@@ -589,7 +611,7 @@ def group_page(build: ScenarioBuild, group: Group, verify_links: bool = True) ->
     """The canonical page for one distinct flow."""
     scenario = build.scenario
     # a group's links point at the newest pytest version it covers
-    base_url = doclinks.resolve_base_url(group.newest, verify=verify_links)
+    links = doclinks.links_for(doclinks.resolve_base_url(group.newest, verify=verify_links))
     processes = build.processes(group.newest)
 
     parts = [
@@ -608,12 +630,12 @@ def group_page(build: ScenarioBuild, group: Group, verify_links: bool = True) ->
 
     if not scenario.distributed:
         parts.append("## The whole run\n")
-        parts.extend(_process_section(build, group, processes[0], base_url, "##"))
+        parts.extend(_process_section(build, group, processes[0], links, "##"))
         return "\n".join(parts)
 
-    parts.extend(_process_section(build, group, "controller", base_url, "##"))
+    parts.extend(_process_section(build, group, "controller", links, "##"))
     for shared in worker_flows(build, group.newest):
-        parts.extend(_process_section(build, group, shared.drawn, base_url, "##", shared=shared))
+        parts.extend(_process_section(build, group, shared.drawn, links, "##", shared=shared))
     return "\n".join(parts)
 
 
@@ -944,7 +966,10 @@ def build(
     if docs_dir.exists():
         shutil.rmtree(docs_dir)
     (docs_dir / "assets").mkdir(parents=True, exist_ok=True)
-    (docs_dir / "assets" / "atlas.css").write_text(css.stylesheet())
+    # the stylesheet carries one rule set per phase, so it must be told which
+    (docs_dir / "assets" / "atlas.css").write_text(
+        css.stylesheet([phase.key for phase in analysis.PHASES])
+    )
     (docs_dir / "assets" / "filter.js").write_text(FILTER_SCRIPT)
 
     builds = collect(repo_root, traces_dir)

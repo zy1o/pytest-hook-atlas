@@ -45,7 +45,7 @@ jobs:
       # trace is a fact about one exact (pytest, pluggy, Python) triple, and
       # re-capturing it later against different dependencies would make the
       # version-to-version diffs untrustworthy. Capture belongs to the watcher.
-      - run: hook-atlas build
+      - run: pytest-hook-atlas build
       - run: mkdocs build --strict
 
       - uses: actions/upload-pages-artifact@v3

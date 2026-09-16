@@ -9,20 +9,45 @@ A site that shows the order and nesting of pytest's hooks, built from traces of
 *real pytest runs*. It is documentation, not a library. Nothing is published to
 PyPI.
 
+## Two repositories
+
+The engine lives in [hook-atlas](https://github.com/zy1o/hook-atlas) and knows
+nothing about pytest: capture, the flow model, grouping, implementers and the
+renderers. This repository is the pytest wrapper - phases, documentation links,
+scenarios, page copy - plus the traces and the site.
+
+Work on both at once with editable installs:
+
+```bash
+pip install -e ../hook-atlas -e ".[dev,docs]"
+```
+
+The two commands are `hook-atlas` (the generic tool: `trace`, `draw`, `check`)
+and `pytest-hook-atlas` (this one: `build`, `capture-missing`, `linkcheck`,
+`targets`). They were both called `hook-atlas` until 2026-09-15, which made
+installing both in one environment undefined.
+
+The rule for deciding where something belongs: if it mentions pytest, or a
+pytest hook name, it belongs here. `hook-atlas` has a test that fails if the
+package imports pytest at all.
+
+**The acceptance test for anything moved across is that the generated site is
+byte-identical.** Snapshot `docs/`, rebuild, `diff -rq`.
+
 ## The pipeline, and why it is separate
 
 ```
 scenarios/        small pytest projects + how to invoke them        committed
-    |  hook-atlas capture-missing      (only the watcher runs this)
+    |  pytest-hook-atlas capture-missing      (only the watcher runs this)
 data/traces/<pytest-version>/<scenario>.json                        committed
-    |  hook-atlas build
+    |  pytest-hook-atlas build
 docs/  +  mkdocs.yml                                                generated
     |  mkdocs build
 site/                                                               generated
 ```
 
 **Each arrow runs independently, and that is deliberate.** Changing how diagrams
-look, how versions group, or what the pages say is a `hook-atlas build` away and
+look, how versions group, or what the pages say is a `pytest-hook-atlas build` away and
 needs no pytest run. The deploy workflow renders from committed traces and
 never captures.
 
@@ -78,7 +103,7 @@ worth seeing rather than something to summarise away.
 3. Capture it across every pytest version:
 
    ```bash
-   hook-atlas capture-missing --detailed --keep-going
+   pytest-hook-atlas capture-missing --detailed --keep-going
    ```
 
    A new scenario makes every existing version incomplete, so this backfills
@@ -87,7 +112,7 @@ worth seeing rather than something to summarise away.
    diff. If unrelated traces show up as modified, something non-deterministic
    has crept into the trace — find it rather than committing the churn.
 
-4. `hook-atlas build && mkdocs serve` to look at it.
+4. `pytest-hook-atlas build && mkdocs serve` to look at it.
 
 **Changing an existing scenario invalidates every trace for it.** The project is
 part of the measurement apparatus; alter it and the old traces describe a
@@ -190,6 +215,21 @@ repoint a published URL at different content.
   paragraph. Entries had drifted into three-paragraph explanations nobody was
   going to read. If a change genuinely needs more room, the commit message is
   the place for it - that is what it is for, and the changelog links to it.
+- **The version number is the user's call.** Never bump, tag or publish because
+  it seems due. Before agreeing to a proposed number, read the `[Unreleased]`
+  entries: they say whether what has accumulated is breaking, a feature or a
+  fix. If the number disagrees with them - a patch bump over a renamed command,
+  say - say so once, plainly, and ask. Departing from semver deliberately is
+  fine; departing from it by accident is not. Keep `version` in
+  `pyproject.toml` and `__version__` in `src/pytest_hook_atlas/__init__.py` in
+  step; a test enforces it.
+- **Changing an interface means changing what documents it, in the same
+  commit.** The site is generated, but `README.md`, this file, and the page copy
+  in `build.py` are not, and a renamed command leaves all three wrong. The same
+  goes for anything that changes what a capture records or how pages are
+  grouped: `docs/design-notes.md` comes from `DESIGN_NOTES` in `build.py` and
+  explains decisions, so a decision that has changed and is still described the
+  old way is worse than no explanation.
 - **Explain *why* in comments**, not what. Most non-obvious code here exists
   because something failed in a specific way; say which.
 - **Test in an environment that matches CI**, which means a *clean clone*.
@@ -227,10 +267,10 @@ repoint a published URL at different content.
 ```bash
 pip install -e ".[dev,docs]"     # needs Python 3.11+ and Graphviz (`dot`)
 
-hook-atlas targets --detailed    # what PyPI has, and what is captured
-hook-atlas capture-missing       # trace releases not yet recorded
-hook-atlas build                 # render docs/ and mkdocs.yml from traces
-hook-atlas linkcheck             # verify every hook -> docs anchor resolves
+pytest-hook-atlas targets --detailed    # what PyPI has, and what is captured
+pytest-hook-atlas capture-missing       # trace releases not yet recorded
+pytest-hook-atlas build                 # render docs/ and mkdocs.yml from traces
+pytest-hook-atlas linkcheck             # verify every hook -> docs anchor resolves
 
 mkdocs serve                     # preview
 pytest && ruff check .           # the CI jobs

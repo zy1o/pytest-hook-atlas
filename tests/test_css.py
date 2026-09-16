@@ -3,16 +3,24 @@
 These are regression tests for a real defect: the original palette put two of
 its four hues at 3.9:1 under deuteranopia, and raw hues used as column titles
 scored 1.3:1 and 1.6:1 against the backgrounds they sat on - effectively
-invisible. Anyone changing PHASE_HUES should be told by a failing test rather
+invisible. Anyone changing the palette should be told by a failing test rather
 than by a reader who cannot read the diagram.
 """
 
 from __future__ import annotations
 
 import pytest
+from hook_atlas.render import css
+from hook_atlas.render.dot import SHADE_STEPS, hues_for
 
-from pytest_hook_atlas.render import css
-from pytest_hook_atlas.render.dot import PHASE_HUES, SHADE_STEPS
+from pytest_hook_atlas.analysis import PHASES
+from pytest_hook_atlas.doclinks import links_for
+
+#: The hues pytest's four phases actually get, derived the way the build does.
+#: This used to be a dict in the renderer; the renderer now assigns by position,
+#: so what is asserted here is that the colours *pytest* ends up with stay
+#: readable - which is the thing that matters to this site.
+PHASE_HUES = hues_for([phase.key for phase in PHASES])
 
 WCAG_AA = 4.5
 WCAG_LARGE = 3.0
@@ -68,7 +76,7 @@ def test_fills_run_from_background_toward_the_hue():
 
 
 def test_stylesheet_covers_every_phase_and_step_in_both_themes():
-    sheet = css.stylesheet()
+    sheet = css.stylesheet(list(PHASE_HUES))
 
     for phase in PHASE_HUES:
         for step in range(SHADE_STEPS):
@@ -82,11 +90,11 @@ def test_readable_on_returns_the_hue_unchanged_when_it_already_passes():
 
 
 def _rendered_svg():
-    from pytest_hook_atlas.flow import FlowNode
-    from pytest_hook_atlas.render import dot
+    from hook_atlas.flow import FlowNode
+    from hook_atlas.render import dot
 
     nodes = [FlowNode("pytest_configure", children=[FlowNode("pytest_plugin_registered")])]
-    return dot.render_inline_svg(nodes, {}, "https://example/ref.html", "startup", {})
+    return dot.render_inline_svg(nodes, {}, links_for("https://example/ref.html"), "startup", {})
 
 
 def test_shapes_are_wrapped_so_child_selectors_would_miss_them():
@@ -113,7 +121,7 @@ def test_shapes_are_wrapped_so_child_selectors_would_miss_them():
 
 
 def test_stylesheet_uses_descendant_selectors_for_shapes():
-    sheet = css.stylesheet()
+    sheet = css.stylesheet(list(PHASE_HUES))
 
     for line in sheet.splitlines():
         if ".ha-shade-" in line or ".ha-column" in line:
@@ -148,7 +156,7 @@ def test_stylesheet_fills_match_the_baked_renderer(theme):
     """
     import re
 
-    sheet = css.stylesheet()
+    sheet = css.stylesheet(list(PHASE_HUES))
     prefix = '[data-md-color-scheme="slate"] ' if theme == "dark" else ""
     background, ceiling = css.theme_settings(theme)
 
@@ -238,20 +246,20 @@ def test_filtering_actually_hides_internal_implementers():
     Checking that the stylesheet *contains* a hide rule was not enough; what
     matters is which declaration wins.
     """
-    sheet = css.stylesheet()
+    sheet = css.stylesheet(list(PHASE_HUES))
 
     assert winning_display(sheet, FILTERING, {"ha-impl", "ha-internal"}) == "none"
 
 
 def test_filtering_keeps_external_implementers_visible():
-    sheet = css.stylesheet()
+    sheet = css.stylesheet(list(PHASE_HUES))
     result = winning_display(sheet, FILTERING, {"ha-impl", "ha-external"})
 
     assert result != "none"
 
 
 def test_nothing_is_hidden_when_the_filter_is_off():
-    sheet = css.stylesheet()
+    sheet = css.stylesheet(list(PHASE_HUES))
     unfiltered = [{"ha-hook-table"}]
 
     assert winning_display(sheet, unfiltered, {"ha-impl", "ha-internal"}) != "none"

@@ -16,6 +16,8 @@ from __future__ import annotations
 import urllib.error
 import urllib.request
 
+from hook_atlas.doclinks import DocLinks
+
 DOCS_ROOT = "https://docs.pytest.org/en"
 FALLBACK_SLUG = "stable"
 ANCHOR_PREFIX = "pytest.hookspec"
@@ -45,17 +47,23 @@ def reference_url(slug: str) -> str:
 DOCUMENTED_NAMESPACES = {"_pytest.hookspec"}
 
 
-def hook_url(hook_name: str, base_url: str, declared_in: str | None = None) -> str | None:
-    """Documentation URL for a hook, or ``None`` if we have none.
+def links_for(base_url: str) -> DocLinks:
+    """Where pytest's hook documentation lives, for a resolved base URL.
 
-    ``declared_in`` is the module that declared the hookspec. Hooks that pytest
-    did not declare - xdist contributes twelve, and any project can add its own
-    - have no entry in pytest's reference, so linking them there would produce
-    exactly the dead anchors this module exists to prevent.
+    Hooks pytest did not declare - xdist contributes twelve, and any project can
+    add its own - have no entry in pytest's reference, so ``DOCUMENTED_NAMESPACES``
+    keeps them unlinked rather than pointing at an anchor that does not exist.
     """
-    if declared_in is not None and declared_in not in DOCUMENTED_NAMESPACES:
-        return None
-    return f"{base_url}#{ANCHOR_PREFIX}.{hook_name}"
+    return DocLinks(
+        base_url=base_url,
+        anchor_prefix=ANCHOR_PREFIX,
+        namespaces=frozenset(DOCUMENTED_NAMESPACES),
+    )
+
+
+def hook_url(hook_name: str, base_url: str, declared_in: str | None = None) -> str | None:
+    """Documentation URL for a hook, or ``None`` if we have none."""
+    return links_for(base_url).url_for(hook_name, declared_in)
 
 
 def _is_reachable(url: str, timeout: float) -> bool:

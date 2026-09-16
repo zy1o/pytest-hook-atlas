@@ -9,9 +9,10 @@ from __future__ import annotations
 from datetime import datetime
 from pathlib import Path
 
+from hook_atlas import pypi
 from packaging.version import Version
 
-from pytest_hook_atlas import matrix, pypi
+from pytest_hook_atlas import matrix
 
 
 def make_release(version, yanked=False, requires="", pythons=()):
