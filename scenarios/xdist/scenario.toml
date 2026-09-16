@@ -17,6 +17,11 @@ args = ["-q", "-n", "2", "--dist", "each"]
 # pytest releases it is missing, so a floating plugin would freeze at whatever
 # pip resolved and never be re-captured. See AGENTS.md before bumping it.
 requires = ["pytest-xdist==3.8.0"]
+# pytest-xdist 3.8 needs pytest 7 or newer. Declared rather than discovered:
+# pip resolves the whole install at once, so asking for pytest 6.0.0 alongside
+# it installs pytest 8.4.2 instead of refusing, and the capture would be filed
+# under 6.0.0 while describing 8.4.2.
+pytest_versions = ">=7.0"
 distributed = true
 min_hooks = 20
 expects = [

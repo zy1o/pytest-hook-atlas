@@ -130,10 +130,24 @@ tolerate older traces so a half-migrated state still builds.
 
 ## Backfill pytest 6.0 - 7.3
 
-These releases need older interpreters than the watcher runs, so they need a
-workflow with a Python matrix. The matrix can be derived from
-`pytest-hook-atlas targets --detailed`, which already knows which Python each release
-supports - no hand-maintained table.
+**Done.** Every release from 6.0 is captured.
+
+It did not need the Python matrix this entry used to call for. Every missing
+release supports 3.7, 3.8 and 3.9, so one interpreter covers all of them -
+`capture-missing --python 3.9 --base-python <path>`, with the interpreter
+fetched by `uv python install 3.9` since distributions no longer ship one.
+
+Two things had to change to make it safe rather than merely possible:
+
+- `provision` builds the capture virtualenv from a named interpreter. It used
+  to use the one running this package, which needs 3.11 and therefore cannot
+  install pytest 6.
+- A capture is refused when the environment does not hold the pytest that was
+  asked for. pip resolves the whole install at once, so `pytest==6.0.0` next to
+  `pytest-xdist==3.8.0` installs pytest 8.4.2 and succeeds - the trace would
+  have been filed under 6.0.0 while describing 8.4.2, and nothing downstream
+  could have told. Scenarios now declare which releases they support, so xdist
+  is skipped for pytest 6 deliberately and said out loud.
 
 ## Smaller things
 

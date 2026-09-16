@@ -145,7 +145,19 @@ def test_every_scenario_reaches_the_hooks_it_exists_for(builds):
                 for process in item.processes(version)
                 for hook in analysis.full_graph(item.trace(version, process)).hooks
             }
-            missing = [hook for hook in item.scenario.expects if hook not in observed]
+            # A hook the release does not declare cannot be reached, and
+            # expecting it means nothing: pytest_markeval_namespace arrived in
+            # 6.2.0, so the edge-cases scenario cannot exercise it on 6.1. The
+            # trace says which hooks its release had, so nothing needs
+            # declaring twice.
+            declared = {
+                hook
+                for process in item.processes(version)
+                for hook in item.trace(version, process).get("hookspecs", {})
+            }
+            missing = [
+                hook for hook in item.scenario.expects if hook in declared and hook not in observed
+            ]
             assert not missing, f"{item.scenario.id} on pytest {version} never reached {missing}"
 
 

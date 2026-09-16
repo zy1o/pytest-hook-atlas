@@ -11,8 +11,7 @@ from __future__ import annotations
 import platform
 import subprocess
 import sys
-import venv
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from hook_atlas.pypi import Release
@@ -29,6 +28,8 @@ class CaptureResult:
     version: str
     traces: list[Path]
     error: str | None = None
+    #: Scenarios deliberately not captured for this release, and why.
+    skipped: list[str] = field(default_factory=list)
 
     @property
     def ok(self) -> bool:
@@ -71,11 +72,18 @@ def captured_versions(traces_dir: Path, scenarios: list[Scenario] | None = None)
     if scenarios is None:
         return {version for version, _ in pairs}
 
-    wanted = {scenario.id for scenario in scenarios}
     by_version: dict[str, set[str]] = {}
     for version, scenario_id in pairs:
         by_version.setdefault(version, set()).add(scenario_id)
-    return {version for version, found in by_version.items() if wanted <= found}
+
+    # A scenario that cannot run against a release is not missing from it. The
+    # xdist scenario needs pytest 7, so counting it against pytest 6.0 would
+    # leave that release permanently incomplete and re-attempted forever.
+    return {
+        version
+        for version, found in by_version.items()
+        if {s.id for s in scenarios if s.applies_to(version)} <= found
+    }
 
 
 def outstanding(
@@ -104,15 +112,33 @@ def outstanding(
     ]
 
 
-def provision(pytest_version: str, workdir: Path, requires: tuple[str, ...] = ()) -> Path:
+class WrongPytest(RuntimeError):
+    """A virtualenv did not end up holding the pytest that was asked for."""
+
+
+def provision(
+    pytest_version: str,
+    workdir: Path,
+    requires: tuple[str, ...] = (),
+    base_python: str | None = None,
+) -> Path:
     """Build a virtualenv holding ``pytest_version`` and whatever a scenario needs.
 
     ``requires`` is how a scenario brings its own plugin - pytest-xdist, say.
     The environment is otherwise bare, so a scenario's traces show its plugin
     and nothing else that happens to be installed here.
+
+    ``base_python`` is the interpreter to build it from. Old pytest needs an old
+    interpreter - 6.0 tops out at Python 3.9 - and the interpreter running this
+    package cannot be that old, because the package needs 3.11.
     """
     environment = workdir / f"venv-{pytest_version}-{'-'.join(requires) or 'bare'}"
-    venv.create(environment, with_pip=True, clear=True)
+    subprocess.run(
+        [base_python or sys.executable, "-m", "venv", "--clear", str(environment)],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
     python = environment / ("Scripts" if platform.system() == "Windows" else "bin") / "python"
 
     subprocess.run(
@@ -130,11 +156,38 @@ def provision(pytest_version: str, workdir: Path, requires: tuple[str, ...] = ()
         text=True,
         check=True,
     )
+    _confirm_pytest(python, pytest_version, requires)
     return python
 
 
+def _confirm_pytest(python: Path, wanted: str, requires: tuple[str, ...]) -> None:
+    """Refuse to capture an environment holding a different pytest than asked.
+
+    pip resolves the whole command at once, so a plugin with a floor on pytest
+    silently upgrades it: asking for pytest 6.0.0 alongside pytest-xdist 3.8.0
+    installs pytest 8.4.2, and the capture would be filed under 6.0.0 while
+    describing 8.4.2. Nothing downstream could tell.
+    """
+    result = subprocess.run(
+        [str(python), "-c", "import pytest; print(pytest.__version__)"],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    installed = result.stdout.strip()
+    if installed != wanted:
+        raise WrongPytest(
+            f"asked for pytest {wanted} but the environment holds {installed}"
+            + (f"; {' '.join(requires)} forced it up" if requires else "")
+        )
+
+
 def capture_release(
-    release: Release, scenarios: list[Scenario], traces_dir: Path, workdir: Path
+    release: Release,
+    scenarios: list[Scenario],
+    traces_dir: Path,
+    workdir: Path,
+    base_python: str | None = None,
 ) -> CaptureResult:
     """Capture every scenario against one pytest release.
 
@@ -146,18 +199,25 @@ def capture_release(
     """
     destination = traces_dir / release.version
     written: list[Path] = []
+    skipped: list[str] = []
 
     by_requirements: dict[tuple[str, ...], list[Scenario]] = {}
     for scenario in scenarios:
+        if not scenario.applies_to(release.version):
+            skipped.append(f"{scenario.id}: needs pytest {scenario.pytest_versions}")
+            continue
         by_requirements.setdefault(tuple(sorted(scenario.requires)), []).append(scenario)
 
     for requires, group in sorted(by_requirements.items()):
         try:
-            python = provision(release.version, workdir, requires)
-        except subprocess.CalledProcessError as error:
-            return CaptureResult(
-                release.version, written, f"install failed: {error.stderr.strip()[:400]}"
-            )
+            python = provision(release.version, workdir, requires, base_python)
+        except (subprocess.CalledProcessError, WrongPytest) as error:
+            # One unsatisfiable set of requirements must not cost the release
+            # its other scenarios - under an old pytest that is most of them.
+            detail = getattr(error, "stderr", None) or str(error)
+            for scenario in group:
+                skipped.append(f"{scenario.id}: {str(detail).strip()[:200]}")
+            continue
         for scenario in group:
             try:
                 written.extend(
@@ -169,5 +229,5 @@ def capture_release(
                     )
                 )
             except Exception as error:  # noqa: BLE001 - one bad scenario must not stop the run
-                return CaptureResult(release.version, written, f"{scenario.id}: {error}")
-    return CaptureResult(release.version, written)
+                return CaptureResult(release.version, written, f"{scenario.id}: {error}", skipped)
+    return CaptureResult(release.version, written, None, skipped)

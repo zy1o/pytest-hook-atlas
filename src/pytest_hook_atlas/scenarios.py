@@ -17,6 +17,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from hook_atlas import tracer
+from packaging.specifiers import InvalidSpecifier, SpecifierSet
+from packaging.version import InvalidVersion, Version
 
 from . import hookspec_generator
 
@@ -61,6 +63,25 @@ class Scenario:
     #: This is a statement about what *we* host, not a rule the tool enforces.
     min_hooks: int = 0
 
+    #: Which pytest releases this scenario can be captured against, as a PEP 440
+    #: specifier. Empty means all of them.
+    #:
+    #: A scenario bringing a plugin is limited by what that plugin supports, and
+    #: the limit has to be declared rather than discovered: pip resolves the
+    #: whole install at once, so asking for an old pytest alongside a plugin
+    #: that needs a new one quietly upgrades pytest instead of failing. Saying
+    #: so here turns "captured the wrong thing" into "deliberately not captured".
+    pytest_versions: str = ""
+
+    def applies_to(self, pytest_version: str) -> bool:
+        """Can this scenario be captured against that pytest release?"""
+        if not self.pytest_versions:
+            return True
+        try:
+            return Version(pytest_version) in SpecifierSet(self.pytest_versions)
+        except (InvalidVersion, InvalidSpecifier):
+            return True
+
     @property
     def source_url(self) -> str:
         """Where a reader can go to read the code behind a diagram."""
@@ -88,6 +109,7 @@ def load_scenario(directory: Path) -> Scenario:
         distributed=data.get("distributed", False),
         complete_run=data.get("complete_run", True),
         min_hooks=data.get("min_hooks", 0),
+        pytest_versions=data.get("pytest_versions", ""),
         path=directory,
     )
 

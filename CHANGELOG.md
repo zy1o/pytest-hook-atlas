@@ -9,6 +9,25 @@ built or presented, never what was observed.
 
 ## [Unreleased]
 
+### Added
+
+- pytest 6.0 through 7.3 are captured, so the atlas now covers every release
+  from 6.0 onward. They need an interpreter older than this package can run
+  on - 6.0 tops out at Python 3.9 - so `capture-missing` takes a
+  `--base-python` to build capture environments from.
+- Scenarios declare which pytest releases they support. The xdist scenario
+  needs pytest 7, and is now skipped for older releases deliberately and
+  visibly rather than by accident.
+
+### Fixed
+
+- A capture is refused when the environment does not hold the pytest that was
+  asked for. pip resolves an install in one go, so `pytest==6.0.0` alongside a
+  plugin needing pytest 7 quietly installed pytest 8 instead of failing, and
+  the trace would have been filed under 6.0.0 while describing 8.4.2.
+- `linkcheck` read the pytest version from a trace field that only schema 2
+  traces have.
+
 ## [1.2.0] - 2026-09-16
 
 ### Changed
