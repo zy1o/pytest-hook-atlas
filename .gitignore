@@ -124,3 +124,7 @@ prototypes/
 
 # generated from mkdocs.base.yml by `hook-atlas build`
 mkdocs.yml
+
+# editor/IDE state
+.idea/
+.vscode/
