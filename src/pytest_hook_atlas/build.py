@@ -677,6 +677,26 @@ def latest_page(scenario: Scenario, group: Group) -> str:
     )
 
 
+def _coverage_note(build: ScenarioBuild) -> list[str]:
+    """Say why a scenario starts later than the rest, when it does.
+
+    A scenario whose plugin needs a recent pytest simply has no pages for the
+    older releases. Unexplained, that reads as something broken rather than as
+    a fact about the plugin - and the reader has no way to tell which.
+    """
+    scenario = build.scenario
+    if not scenario.pytest_versions or not build.traces:
+        return []
+    earliest = min(build.traces, key=Version)
+    plugins = ", ".join(f"`{name}`" for name in scenario.requires) or "its plugin"
+    return [
+        f"Captured from pytest {earliest} onward rather than from the oldest "
+        f"release on the site: this scenario needs pytest {scenario.pytest_versions}, "
+        f"because {plugins} does. Earlier releases are not missing - they are "
+        "outside what this scenario can run against.\n"
+    ]
+
+
 def scenario_index(build: ScenarioBuild) -> str:
     scenario = build.scenario
     parts = [
@@ -686,6 +706,7 @@ def scenario_index(build: ScenarioBuild) -> str:
         "[**Latest pytest**](latest.md) - or pick a flow below.\n",
         "## Distinct flows\n",
         f"{len(build.traces)} captured releases produce {len(build.groups)} distinct flows.\n",
+        *_coverage_note(build),
         "| Flow | Releases | |",
         "| --- | --: | --- |",
     ]

@@ -334,3 +334,26 @@ def test_the_filter_script_is_written_and_registered(built):
     assert "document$" in script, "must use Material's hook, not DOMContentLoaded"
     assert "ha-hook-table" in script
     assert "assets/filter.js" in (docs.parent / "mkdocs.yml").read_text()
+
+
+def test_a_scenario_that_starts_late_says_why(built, builds):
+    """The xdist scenario has no pages before pytest 7, because the pytest-xdist
+    it pins needs pytest 7. Unexplained that reads as breakage, and the reader
+    has no way to tell which it is."""
+    docs, _ = built
+    limited = [item for item in builds if item.scenario.pytest_versions]
+    assert limited, "expected at least one scenario with a declared floor"
+
+    for item in limited:
+        page = (docs / "scenarios" / item.scenario.id / "index.md").read_text()
+        assert item.scenario.pytest_versions in page, item.scenario.id
+        assert "are not missing" in page, item.scenario.id
+
+
+def test_a_scenario_without_a_floor_explains_nothing(built, builds):
+    docs, _ = built
+    for item in builds:
+        if item.scenario.pytest_versions:
+            continue
+        page = (docs / "scenarios" / item.scenario.id / "index.md").read_text()
+        assert "are not missing" not in page, item.scenario.id

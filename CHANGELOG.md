@@ -18,6 +18,9 @@ built or presented, never what was observed.
 
 ### Added
 
+- A scenario with no pages for the oldest releases says why on its index. The
+  xdist scenario starts at pytest 7.0 because the pytest-xdist it pins needs
+  it; unexplained, that read as a gap rather than a limit.
 - The site and the README point at
   [hook-atlas](https://github.com/zy1o/hook-atlas) for tracing your own project.
   This repository is the pytest-specific half - scenarios, traces and pages -
