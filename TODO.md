@@ -58,34 +58,40 @@ that path exists and is covered by tests, but no page exercises it.
 
 ## Trace pytest's own test suite
 
-A scenario whose subject is pytest testing itself. Interesting because it is the
-most demanding thing we could point this at: a real suite with real plugins and
-a conftest that does genuine work, rather than the small projects the other
-scenarios use.
+Tried on 2026-09-16 against pytest 9.1.1's own `testing/` tree, seven modules,
+about a thousand tests. It does not go belly up: the capture completed, the
+trace validated, no desyncs, and the overhead was a few percent of wall clock.
+So the question is not whether it works.
 
-Expect it to go wrong, and in ways worth knowing about:
+What it showed instead:
 
-- **Self-reference.** hook-atlas already hits this tracing its own tests - the
-  tests exercising the tracer manipulate the same module-level recorder the
-  outer trace uses, and fail when traced. pytest's suite runs pytest in
-  subprocesses constantly (`pytester`), and those are separate processes that
-  will not be traced, so what comes back may be a trace of the outer run only.
-  That is worth knowing either way, but it is not what someone would assume the
-  page was showing.
-- **Size.** Thousands of tests is a trace far larger than anything committed
-  here, and a diagram far taller. Folding helps; it will not be enough on its
-  own, and a scenario that produces an unreadable page is not worth hosting.
-- **Reproducibility.** Traces are committed and must be identical across runs.
-  A suite that large has more opportunities to differ - ordering, timing,
-  whatever happens to be installed.
+- **The flat default is useless at this scale.** Drawn with no config, a
+  thousand tests is a diagram deep into six figures of pixels - nearly two
+  hundred screens. It renders, which is the guarantee, but nobody can read it.
+- **Phases are what make it readable**, and dramatically so. The same trace
+  drawn with pytest's config is four diagrams, the largest of them collection,
+  and the run-test protocol is small because variant grouping collapses a
+  thousand near-identical protocols into the shapes that actually differ. This
+  is the clearest evidence so far that the phase config earns its keep.
+- **Memory is the ceiling.** The whole call tree is held until the process
+  exits, and it scales with calls. A thousand tests was comfortable; the full
+  suite is several times that, and the trace file grows with it. Streaming
+  capture stops being an optimisation and becomes the thing that decides whether
+  this is possible at all.
+- **`pytester` subprocesses are invisible.** Much of pytest's suite runs pytest
+  in a child process, and those are not traced - the tracer is process-local.
+  What comes back is the outer run only. Honest, but not what a reader would
+  assume a page titled "pytest testing itself" was showing, so that would have
+  to be said plainly on the page.
 
-So: capture it once as an experiment and look at what comes back before
-deciding whether it becomes a scenario. The failure modes are the interesting
-part even if the page never ships.
+To redo the measurement: clone pytest at a tag, `pip install ".[dev]"` alongside
+`hook-atlas`, then `hook-atlas trace -- pytest -q testing/test_mark.py ...` over
+a few modules, and `hook-atlas draw` the result with and without
+`hook-atlas config --example pytest`. Compare the diagram heights.
 
-A cheaper first step in the same direction: datasette's test suite, which
-hook-atlas already traces in CI, and which brings several hookspec sources with
-it.
+**So: not a scenario yet.** Streaming capture first, then decide - and if it
+does become one, it should be a named subset rather than the whole suite, with
+the subprocess caveat on the page.
 
 ## Conftest scoping is flattened
 
