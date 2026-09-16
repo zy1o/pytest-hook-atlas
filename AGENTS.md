@@ -121,6 +121,36 @@ different experiment. Re-capture with `--force`.
 Scenarios deliberately contain failing and skipped tests: the run-test protocol
 takes visibly different paths for those, and the diagrams show it.
 
+## Lay out the choice, then do what is chosen
+
+When a request is vague, or clear but carries consequences that are not visible
+from where it was asked, stop before building and lay out the options: what each
+costs, what it rules out later, which you would pick and why. Then let the
+person choose.
+
+This is **not** a veto, and not a hurdle to clear before you will cooperate. If
+they have heard the tradeoff and still want the thing, build it properly and
+build it well - not a hedged version, not a lesser version to make a point. It
+is their project. Someone who has weighed a cost and accepted it has done the
+thinking; arguing again wastes their time and yours.
+
+The failure this prevents is not "a choice was made that I would not have
+made". It is "a choice was made without anyone realising there was one". Two
+real examples from this repository:
+
+- `--dist=each` against a splitting scheduler for the xdist scenario. Both are
+  defensible, they document different things, and the tradeoff was invisible
+  until someone measured which worker drew which tests.
+- Renaming the console script. Obviously right in isolation, and a breaking
+  change for anyone with it in a script - worth saying out loud, and then
+  worth doing.
+
+Keep it short. Options, consequences, a recommendation. Not an essay, and not a
+list of every possibility - two or three real ones, honestly compared.
+
+This is a different pause from "Stop and ask" below. That one is about actions
+that cannot be undone. This one is about decisions whose cost lands later.
+
 ## The tool imposes no minimums
 
 Nothing in capture or build requires a run to reach a certain number of hooks,
@@ -169,16 +199,30 @@ Unpinned is right for the *standalone tool*, where someone pointing it at their
 own project should get whatever they already have installed. Pinning applies to
 the scenarios hosted here.
 
-## The tracer is standalone on purpose
+## Capture runs somewhere this package cannot
 
-`src/pytest_hook_atlas/tracer.py` must not import from its own package and must
-not use syntax newer than Python 3.8. Capturing pytest 6.0 means running on
-Python 3.9, where the rest of this package — which needs 3.11 and `tomllib` —
-cannot be installed. Capture copies that one file next to the test project.
+The tracer is `hook_atlas.tracer`, upstream, and capture copies it as a single
+file next to the scenario rather than installing it. That is what lets an old
+pytest be captured at all: pytest 6.0 tops out at Python 3.9, and this package
+needs 3.11 and `tomllib`.
 
-A test enforces both constraints.
+So `capture-missing` takes `--base-python`, the interpreter to build capture
+virtualenvs from. The 6.0 - 7.3 range was captured with a 3.9 fetched by
+`uv python install 3.9`, since no current distribution ships one:
+
+```bash
+pytest-hook-atlas capture-missing --python 3.9 --base-python "$(uv python find 3.9)"
+```
+
+`--python` says which releases to consider; `--base-python` says what to build
+them with. A release whose scenarios cannot all run is captured for the ones
+that can - see `pytest_versions` under "Adding a scenario".
 
 ## Diagrams
+
+The renderer is upstream in `hook_atlas.render`; what follows is the design it
+implements, which this site is the reason for. Changing any of it means
+changing hook-atlas and checking the site is unmoved.
 
 One visual channel per dimension, and no more:
 
@@ -191,8 +235,10 @@ differences deliberately have no colour; they are surfaced by grouping instead.
 
 The palette was chosen by simulating dichromatic vision, and every colour
 carrying text or a border is pushed until it clears WCAG AA in both themes.
-`tests/test_css.py` fails if a palette change breaks either. Do not hand-pick
-hues to taste without re-running it.
+`tests/test_css.py` fails if a palette change breaks either - it runs here
+rather than upstream because what must stay readable is *pytest's* four phases,
+and upstream has no opinion about those. Do not hand-pick hues to taste without
+re-running it.
 
 Colours are emitted as **CSS classes**, never baked into the SVG, so one
 rendered diagram serves both themes.
@@ -230,13 +276,21 @@ repoint a published URL at different content.
   fine; departing from it by accident is not. Keep `version` in
   `pyproject.toml` and `__version__` in `src/pytest_hook_atlas/__init__.py` in
   step; a test enforces it.
-- **Changing an interface means changing what documents it, in the same
-  commit.** The site is generated, but `README.md`, this file, and the page copy
-  in `build.py` are not, and a renamed command leaves all three wrong. The same
-  goes for anything that changes what a capture records or how pages are
-  grouped: `docs/design-notes.md` comes from `DESIGN_NOTES` in `build.py` and
-  explains decisions, so a decision that has changed and is still described the
-  old way is worse than no explanation.
+- **After a change, go and read what describes it.** Not "update the docs if
+  you think of it" - open them and check. The prose here does not fail a test
+  when it becomes untrue; it just quietly starts lying, and the person it lies
+  to is whoever arrives next.
+
+  The hand-written surfaces are `README.md`, this file, `TODO.md`, and the page
+  copy and `DESIGN_NOTES` inside `build.py` (which become `docs/design-notes.md`).
+  Everything else under `docs/` is generated and needs no attention.
+
+  What triggers a read-through: renaming or removing a command or flag; moving
+  code between this repository and hook-atlas; changing what a capture records,
+  how versions group, or what a page shows; anything that makes a sentence
+  somewhere start with "this repository contains" and be wrong. The whole
+  engine moved out and `README.md` still described the old arrangement for
+  days, which is exactly the shape of it.
 - **Explain *why* in comments**, not what. Most non-obvious code here exists
   because something failed in a specific way; say which.
 - **Test in an environment that matches CI**, which means a *clean clone*.

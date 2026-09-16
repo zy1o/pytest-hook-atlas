@@ -11,6 +11,10 @@ built or presented, never what was observed.
 
 ### Added
 
+- The site and the README point at
+  [hook-atlas](https://github.com/zy1o/hook-atlas) for tracing your own project.
+  This repository is the pytest-specific half - scenarios, traces and pages -
+  and is worth reading rather than installing.
 - pytest 6.0 through 7.3 are captured, so the atlas now covers every release
   from 6.0 onward. They need an interpreter older than this package can run
   on - 6.0 tops out at Python 3.9 - so `capture-missing` takes a

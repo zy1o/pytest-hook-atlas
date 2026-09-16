@@ -764,6 +764,18 @@ def site_index(builds: list[ScenarioBuild]) -> str:
         "Every diagram is traced with pluggy's hook monitoring, so it shows "
         "what pytest actually did: the sequence, what ran inside what, and "
         "which plugin supplied each implementation.\n",
+        "## Want this for your own project?\n",
+        "These pages show pytest running scenarios chosen to be instructive. "
+        "For *your* suite - your plugins, your `conftest.py`, your layout - "
+        "use [hook-atlas](https://github.com/zy1o/hook-atlas), which traces and "
+        "draws any [pluggy](https://pluggy.readthedocs.io/)-based application "
+        "and is what these diagrams are drawn with.\n",
+        "```bash\n"
+        "pip install hook-atlas\n"
+        "hook-atlas trace -- pytest -q tests/\n"
+        "hook-atlas draw          # then open hook-flow.html\n"
+        "```\n",
+        "It works on anything built on pluggy, not only pytest - tox and datasette included.\n",
         "## Scenarios\n",
         "The flow genuinely changes with your project layout. Each scenario "
         "links back to the code it was traced from.\n",
