@@ -9,12 +9,16 @@ built or presented, never what was observed.
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-09-16
+
 ### Changed
 
-- The command is now `pytest-hook-atlas build` rather than `hook-atlas build`.
-  `hook-atlas` belongs to the generic tool, which gained its own `trace`,
-  `draw` and `check`; both were previously called the same thing, so installing
-  both at once was undefined.
+- **Breaking:** the command is now `pytest-hook-atlas build` rather than
+  `hook-atlas build`. `hook-atlas` belongs to the generic tool, which gained its
+  own `trace`, `draw` and `check`; both packages previously declared the same
+  console script, so installing them together left which one you got undefined.
+  A minor rather than a major version because nothing here has ever been
+  published - the rename reaches no installed copy but our own.
 - The tracing and drawing move to [hook-atlas](https://github.com/zy1o/hook-atlas),
   a package that knows nothing about pytest and can be pointed at tox, devpi or
   anything else built on pluggy. What stays here is what makes this pytest's
@@ -160,6 +164,7 @@ single flat SVG from a scraped pytest log and had been dormant five years.
 - Cookiecutter scaffolding: `setup.py`, `setup.cfg`, `MANIFEST.in`, `tox.ini`,
   `Makefile`, and the unused Sphinx tree.
 
-[Unreleased]: https://github.com/zy1o/pytest-hook-atlas/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/zy1o/pytest-hook-atlas/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/zy1o/pytest-hook-atlas/releases/tag/v1.2.0
 [1.1.0]: https://github.com/zy1o/pytest-hook-atlas/releases/tag/v1.1.0
 [1.0.0]: https://github.com/zy1o/pytest-hook-atlas/releases/tag/v1.0.0
