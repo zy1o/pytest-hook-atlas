@@ -9,6 +9,41 @@ built or presented, never what was observed.
 
 ## [Unreleased]
 
+### Changed
+
+- The flow, renderer and stylesheet tests move to
+  [hook-atlas](https://github.com/zy1o/hook-atlas), which is where that code
+  lives. They were left behind by the extraction, so this project was testing
+  somebody else's package while that package shipped nearly untested.
+
+### Added
+
+- A scenario with no pages for the oldest releases says why on its index. The
+  xdist scenario starts at pytest 7.0 because the pytest-xdist it pins needs
+  it; unexplained, that read as a gap rather than a limit.
+- The site and the README point at
+  [hook-atlas](https://github.com/zy1o/hook-atlas) for tracing your own project.
+  This repository is the pytest-specific half - scenarios, traces and pages -
+  and is worth reading rather than installing.
+- pytest 6.0 through 7.3 are captured, so the atlas now covers every release
+  from 6.0 onward. They need an interpreter older than this package can run
+  on - 6.0 tops out at Python 3.9 - so `capture-missing` takes a
+  `--base-python` to build capture environments from.
+- `build --majors N` chooses how many pytest majors get pages, with `0` for all
+  of them. Traces are never dropped, so the window can be widened and the site
+  rebuilt at any time without re-capturing anything.
+- Scenarios declare which pytest releases they support. The xdist scenario
+  needs pytest 7, and is now skipped for older releases deliberately and
+  visibly rather than by accident.
+
+### Fixed
+
+- A capture is refused when the environment does not hold the pytest that was
+  asked for. Cheap insurance against a trace filed under one version while
+  describing another - pip itself refuses the obvious version conflicts.
+- `linkcheck` read the pytest version from a trace field that only schema 2
+  traces have.
+
 ## [1.2.0] - 2026-09-16
 
 ### Changed

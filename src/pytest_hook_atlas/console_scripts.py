@@ -48,8 +48,11 @@ def cmd_build(args: argparse.Namespace) -> int:
         print("no traces captured yet; run 'hook-atlas capture-missing'", file=sys.stderr)
         return 1
 
-    pages = build.build(Path("."), DOCS_DIR, TRACES_DIR, verify_links=not args.no_verify_links)
-    print(f"built {len(pages)} pages from {len(versions)} captured releases")
+    pages = build.build(
+        Path("."), DOCS_DIR, TRACES_DIR, verify_links=not args.no_verify_links, majors=args.majors
+    )
+    scope = "every major" if not args.majors else f"the last {args.majors} majors"
+    print(f"built {len(pages)} pages from {len(versions)} captured releases ({scope})")
     return 0
 
 
@@ -68,7 +71,11 @@ def cmd_linkcheck(args: argparse.Namespace) -> int:
     for version_dir in versions:
         for trace_path in sorted(version_dir.glob("*.json")):
             trace = analysis.load_trace(trace_path)
-            base = doclinks.resolve_base_url(trace["environment"]["pytest"])
+            # The directory is the pytest version, and is the one place it is
+            # recorded the same way in every trace: schema 2 put it in
+            # environment.pytest, schema 3 records the traced application and
+            # its version generically instead.
+            base = doclinks.resolve_base_url(version_dir.name)
             page = doclinks.fetch(base)
             hookspecs = trace.get("hookspecs", {})
             for name in sorted(analysis.full_graph(trace).hooks):
@@ -111,6 +118,14 @@ def cmd_targets(args: argparse.Namespace) -> int:
     scenarios = discover(Path("scenarios"))
     already = matrix.captured_versions(TRACES_DIR, scenarios)
     python = args.python or matrix.CURRENT_PYTHON
+    base_python = args.base_python or (sys.executable if python == matrix.CURRENT_PYTHON else None)
+    if base_python is None:
+        print(
+            f"capturing releases for python {python} needs a {python} interpreter; "
+            f"pass --base-python /path/to/python{python}",
+            file=sys.stderr,
+        )
+        return 2
 
     print(f"{len(releases)} pytest releases >= {FLOOR}; python {python}\n")
     print(f"{'version':10} {'released':12} {'state'}")
@@ -135,6 +150,14 @@ def cmd_capture_missing(args: argparse.Namespace) -> int:
     releases = pypi.releases(PACKAGE, floor=FLOOR, detailed=args.detailed)
     scenarios = discover(Path(args.scenarios))
     python = args.python or matrix.CURRENT_PYTHON
+    base_python = args.base_python or (sys.executable if python == matrix.CURRENT_PYTHON else None)
+    if base_python is None:
+        print(
+            f"capturing releases for python {python} needs a {python} interpreter; "
+            f"pass --base-python /path/to/python{python}",
+            file=sys.stderr,
+        )
+        return 2
     outstanding = matrix.outstanding(
         releases, TRACES_DIR, python, force=args.force, scenarios=scenarios
     )
@@ -150,10 +173,14 @@ def cmd_capture_missing(args: argparse.Namespace) -> int:
     captured, failed = [], []
     with tempfile.TemporaryDirectory(prefix="hook-atlas-matrix-") as workdir:
         for release in outstanding:
-            result = matrix.capture_release(release, scenarios, TRACES_DIR, Path(workdir))
+            result = matrix.capture_release(
+                release, scenarios, TRACES_DIR, Path(workdir), base_python
+            )
+            for note in result.skipped:
+                print(f"    skipped {note}")
             if result.ok:
                 captured.append(result.version)
-                print(f"  captured pytest {result.version} ({len(result.traces)} scenarios)")
+                print(f"  captured pytest {result.version} ({len(result.traces)} traces)")
             else:
                 failed.append(result.version)
                 print(f"  FAILED pytest {result.version}: {result.error}", file=sys.stderr)
@@ -168,6 +195,13 @@ def main(argv: list[str] | None = None) -> int:
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     build_parser = subparsers.add_parser("build", help="generate the docs tree")
+    build_parser.add_argument(
+        "--majors",
+        type=int,
+        default=build.RETAINED_MAJORS,
+        help="how many pytest majors to render; 0 for all of them. "
+        "Traces are never dropped, so this can be widened and rebuilt at any time.",
+    )
     build_parser.add_argument(
         "--no-verify-links",
         action="store_true",
@@ -189,7 +223,14 @@ def main(argv: list[str] | None = None) -> int:
         "capture-missing", help="capture pytest releases not yet recorded"
     )
     missing_parser.add_argument("--scenarios", default="scenarios")
-    missing_parser.add_argument("--python", default=None)
+    missing_parser.add_argument(
+        "--python", default=None, help='which python the releases must support, e.g. "3.9"'
+    )
+    missing_parser.add_argument(
+        "--base-python",
+        default=None,
+        help="interpreter to build capture virtualenvs from; needed when --python is not this one",
+    )
     missing_parser.add_argument("--limit", type=int, default=0, help="0 means no limit")
     missing_parser.add_argument("--detailed", action="store_true")
     missing_parser.add_argument(

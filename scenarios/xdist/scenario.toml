@@ -17,6 +17,13 @@ args = ["-q", "-n", "2", "--dist", "each"]
 # pytest releases it is missing, so a floating plugin would freeze at whatever
 # pip resolved and never be re-captured. See AGENTS.md before bumping it.
 requires = ["pytest-xdist==3.8.0"]
+# pytest-xdist 3.8 needs pytest 7 or newer, so this scenario cannot be captured
+# against pytest 6. Declared rather than left to fail: pip refuses the
+# combination correctly, but an undeclared scenario fails on every run, is
+# reported as an error, and leaves those releases looking permanently
+# incomplete - so the watcher retries them forever. Saying so turns a recurring
+# failure into a deliberate skip.
+pytest_versions = ">=7.0"
 distributed = true
 min_hooks = 20
 expects = [
