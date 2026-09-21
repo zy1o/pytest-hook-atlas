@@ -67,7 +67,7 @@ def cmd_linkcheck(args: argparse.Namespace) -> int:
         print("no traces captured yet", file=sys.stderr)
         return 1
 
-    failures = 0
+    failures = unreachable = 0
     for version_dir in versions:
         for trace_path in sorted(version_dir.glob("*.json")):
             trace = analysis.load_trace(trace_path)
@@ -76,16 +76,34 @@ def cmd_linkcheck(args: argparse.Namespace) -> int:
             # environment.pytest, schema 3 records the traced application and
             # its version generically instead.
             base = doclinks.resolve_base_url(version_dir.name)
-            page = doclinks.fetch(base)
-            hookspecs = trace.get("hookspecs", {})
+            # Ask exactly what the build asks. Checking every hook in the
+            # namespace instead would report links the site does not emit -
+            # a release whose own documentation is gone falls back to `stable`,
+            # and hooks pytest has removed since are deliberately left unlinked.
+            links = doclinks.links_for(base, verify=True)
+            try:
+                page = doclinks.fetch(base)
+            except OSError as error:
+                # A network failure is not a dead link, and treating it as one
+                # would make this job fail for reasons that have nothing to do
+                # with the site.
+                print(f"  {trace_path} -> {base} UNREACHABLE: {error}", file=sys.stderr)
+                unreachable += 1
+                continue
+
             for name in sorted(analysis.full_graph(trace).hooks):
                 # only hooks we actually link are worth checking; a project's
                 # own hooks have no pytest anchor and are rendered unlinked
-                url = doclinks.hook_url(name, base, hookspecs.get(name, {}).get("declared_in"))
+                url = links.url_for(
+                    name, trace.get("hookspecs", {}).get(name, {}).get("declared_in")
+                )
                 if url and not doclinks.anchor_exists(page, name):
                     print(f"DEAD  {trace_path.name}  {url}")
                     failures += 1
             print(f"  {trace_path} -> {base} ok")
+
+    if unreachable:
+        print(f"{unreachable} pages could not be fetched", file=sys.stderr)
     if failures:
         print(f"{failures} dead links", file=sys.stderr)
     return 1 if failures else 0

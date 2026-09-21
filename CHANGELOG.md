@@ -38,6 +38,13 @@ built or presented, never what was observed.
 
 ### Fixed
 
+- Pages no longer link hooks their reference does not document. pytest 6.0 and
+  6.1 have no published documentation, so those pages fall back to `stable`,
+  where hooks pytest has removed since do not exist - and the links 404ed.
+  `linkcheck` now asks the same question the build asks, rather than checking
+  links the site does not emit, and treats an unreachable page as a fetch
+  failure rather than a dead link.
+
 - A capture is refused when the environment does not hold the pytest that was
   asked for. Cheap insurance against a trace filed under one version while
   describing another - pip itself refuses the obvious version conflicts.

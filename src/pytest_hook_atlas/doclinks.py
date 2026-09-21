@@ -13,6 +13,7 @@ So a pinned URL is *verified* before use, with a documented fallback, and
 
 from __future__ import annotations
 
+import re
 import urllib.error
 import urllib.request
 
@@ -47,17 +48,24 @@ def reference_url(slug: str) -> str:
 DOCUMENTED_NAMESPACES = {"_pytest.hookspec"}
 
 
-def links_for(base_url: str) -> DocLinks:
+def links_for(base_url: str, verify: bool = False) -> DocLinks:
     """Where pytest's hook documentation lives, for a resolved base URL.
 
     Hooks pytest did not declare - xdist contributes twelve, and any project can
     add its own - have no entry in pytest's reference, so ``DOCUMENTED_NAMESPACES``
     keeps them unlinked rather than pointing at an anchor that does not exist.
+
+    With ``verify``, the page is read and only the hooks it actually documents
+    are linked. That matters where a release's own documentation is gone -
+    pytest 6.0 and 6.1 are not published at all, so those pages fall back to
+    `stable`, and a hook pytest has since removed is in the right namespace but
+    absent from the page it would point at.
     """
     return DocLinks(
         base_url=base_url,
         anchor_prefix=ANCHOR_PREFIX,
         namespaces=frozenset(DOCUMENTED_NAMESPACES),
+        documented=documented_at(base_url) if verify else None,
     )
 
 
@@ -108,3 +116,31 @@ def fetch(url: str, timeout: float = 30.0) -> str:
 
 def anchor_exists(page: str, hook_name: str) -> bool:
     return f'id="{ANCHOR_PREFIX}.{hook_name}"' in page
+
+
+_ANCHOR = re.compile(rf'id="{re.escape(ANCHOR_PREFIX)}\.([a-zA-Z_][a-zA-Z0-9_]*)"')
+
+
+def documented_hooks(page: str) -> frozenset[str]:
+    """Every hook the reference page has an anchor for."""
+    return frozenset(_ANCHOR.findall(page))
+
+
+_documented_cache: dict[str, frozenset[str] | None] = {}
+
+
+def documented_at(base_url: str, timeout: float = 30.0) -> frozenset[str] | None:
+    """Which hooks that reference page documents, or ``None`` if unreachable.
+
+    Cached per URL: the site resolves a handful of base URLs and asks each the
+    same question for every hook on every page.
+    """
+    if base_url not in _documented_cache:
+        try:
+            _documented_cache[base_url] = documented_hooks(fetch(base_url, timeout))
+        except (urllib.error.URLError, urllib.error.HTTPError, OSError, ValueError):
+            # Unreachable is not the same as "documents nothing". Withholding
+            # every link because a fetch failed would be a worse answer than
+            # linking optimistically, which is what None asks for.
+            _documented_cache[base_url] = None
+    return _documented_cache[base_url]
