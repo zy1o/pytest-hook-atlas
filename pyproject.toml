@@ -21,7 +21,7 @@ classifiers = [
 ]
 dependencies = [
     "pytest>=8.0",
-    "hook-atlas>=0.1.0",
+    "hook-atlas>=0.2.0",
 ]
 
 [project.optional-dependencies]

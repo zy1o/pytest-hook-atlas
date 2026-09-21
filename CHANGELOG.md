@@ -40,6 +40,8 @@ built or presented, never what was observed.
 
 ### Fixed
 
+- Requires hook-atlas 0.2, for the `DocLinks.documented` field the fix below
+  needs.
 - Pages no longer link hooks their reference does not document. pytest 6.0 and
   6.1 have no published documentation, so those pages fall back to `stable`,
   where hooks pytest has removed since do not exist - and the links 404ed.
