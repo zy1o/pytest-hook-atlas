@@ -129,6 +129,22 @@ def documented_hooks(page: str) -> frozenset[str]:
 _documented_cache: dict[str, frozenset[str] | None] = {}
 
 
+_page_cache: dict[str, str] = {}
+
+
+def fetch_cached(url: str, timeout: float = 30.0) -> str:
+    """``fetch``, remembering each page for the life of the process.
+
+    The site resolves a handful of reference URLs and asks each the same
+    question for every trace. Fetching once per trace meant hundreds of
+    downloads of the same page, which is slow and is how a transient connection
+    reset came to fail a whole run.
+    """
+    if url not in _page_cache:
+        _page_cache[url] = fetch(url, timeout)
+    return _page_cache[url]
+
+
 def documented_at(base_url: str, timeout: float = 30.0) -> frozenset[str] | None:
     """Which hooks that reference page documents, or ``None`` if unreachable.
 
@@ -137,7 +153,7 @@ def documented_at(base_url: str, timeout: float = 30.0) -> frozenset[str] | None
     """
     if base_url not in _documented_cache:
         try:
-            _documented_cache[base_url] = documented_hooks(fetch(base_url, timeout))
+            _documented_cache[base_url] = documented_hooks(fetch_cached(base_url, timeout))
         except (urllib.error.URLError, urllib.error.HTTPError, OSError, ValueError):
             # Unreachable is not the same as "documents nothing". Withholding
             # every link because a fetch failed would be a worse answer than

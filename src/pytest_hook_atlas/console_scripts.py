@@ -82,7 +82,7 @@ def cmd_linkcheck(args: argparse.Namespace) -> int:
             # and hooks pytest has removed since are deliberately left unlinked.
             links = doclinks.links_for(base, verify=True)
             try:
-                page = doclinks.fetch(base)
+                page = doclinks.fetch_cached(base)
             except OSError as error:
                 # A network failure is not a dead link, and treating it as one
                 # would make this job fail for reasons that have nothing to do

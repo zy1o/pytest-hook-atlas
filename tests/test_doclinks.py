@@ -129,3 +129,25 @@ def test_an_unreachable_page_does_not_withhold_every_link(monkeypatch):
     links = doclinks.links_for("https://example/ref.html", verify=True)
 
     assert links.url_for("pytest_configure", "_pytest.hookspec")
+
+
+def test_a_reference_page_is_fetched_once_per_url(monkeypatch):
+    """linkcheck asks the same handful of pages about hundreds of traces.
+
+    Fetching per trace made a run take minutes and gave a transient connection
+    reset hundreds of chances to land - which is how one failed.
+    """
+    calls = []
+
+    def counting(url, timeout=30.0):
+        calls.append(url)
+        return SAMPLE_PAGE
+
+    monkeypatch.setattr(doclinks, "_page_cache", {})
+    monkeypatch.setattr(doclinks, "fetch", counting)
+
+    for _ in range(5):
+        doclinks.fetch_cached("https://example/ref.html")
+    doclinks.fetch_cached("https://example/other.html")
+
+    assert calls == ["https://example/ref.html", "https://example/other.html"]
