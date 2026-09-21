@@ -625,7 +625,12 @@ def group_page(build: ScenarioBuild, group: Group, verify_links: bool = True) ->
     """The canonical page for one distinct flow."""
     scenario = build.scenario
     # a group's links point at the newest pytest version it covers
-    links = doclinks.links_for(doclinks.resolve_base_url(group.newest, verify=verify_links))
+    # Verifying resolves two different things: which page to point at, and
+    # which hooks that page actually documents. The second only differs from
+    # the namespace filter when a release's own docs are gone - see links_for.
+    links = doclinks.links_for(
+        doclinks.resolve_base_url(group.newest, verify=verify_links), verify=verify_links
+    )
     processes = build.processes(group.newest)
 
     parts = [

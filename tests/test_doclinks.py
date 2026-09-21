@@ -76,3 +76,78 @@ def test_an_unknown_origin_still_links():
     base = doclinks.reference_url("stable")
 
     assert doclinks.hook_url("pytest_runtest_setup", base) is not None
+
+
+# --------------------------------------------------------------------------
+# linking only what a page actually documents
+
+
+SAMPLE_PAGE = """
+<dl><dt id="pytest.hookspec.pytest_configure">configure</dt></dl>
+<dl><dt id="pytest.hookspec.pytest_runtest_setup">setup</dt></dl>
+"""
+
+
+def test_documented_hooks_reads_the_anchors_a_page_has():
+    assert doclinks.documented_hooks(SAMPLE_PAGE) == {
+        "pytest_configure",
+        "pytest_runtest_setup",
+    }
+
+
+def test_a_hook_the_page_does_not_document_is_not_linked(monkeypatch):
+    """pytest 6.0 and 6.1 have no published documentation, so their pages fall
+    back to `stable` - where hooks pytest has removed since do not exist. The
+    namespace still allows them, which is how the site came to emit links that
+    404ed."""
+    monkeypatch.setattr(doclinks, "_documented_cache", {})
+    monkeypatch.setattr(doclinks, "fetch", lambda url, timeout=30.0: SAMPLE_PAGE)
+
+    links = doclinks.links_for("https://example/ref.html", verify=True)
+
+    assert links.url_for("pytest_configure", "_pytest.hookspec")
+    assert links.url_for("pytest_warning_captured", "_pytest.hookspec") is None
+
+
+def test_without_verification_everything_in_the_namespace_still_links(monkeypatch):
+    """Offline builds cannot read the page, and withholding every link would be
+    a worse answer than the one the namespace gives."""
+    links = doclinks.links_for("https://example/ref.html")
+
+    assert links.url_for("pytest_warning_captured", "_pytest.hookspec")
+
+
+def test_an_unreachable_page_does_not_withhold_every_link(monkeypatch):
+    """A failed fetch is not evidence that a page documents nothing."""
+    monkeypatch.setattr(doclinks, "_documented_cache", {})
+
+    def unreachable(url, timeout=30.0):
+        raise OSError("connection reset by peer")
+
+    monkeypatch.setattr(doclinks, "fetch", unreachable)
+
+    links = doclinks.links_for("https://example/ref.html", verify=True)
+
+    assert links.url_for("pytest_configure", "_pytest.hookspec")
+
+
+def test_a_reference_page_is_fetched_once_per_url(monkeypatch):
+    """linkcheck asks the same handful of pages about hundreds of traces.
+
+    Fetching per trace made a run take minutes and gave a transient connection
+    reset hundreds of chances to land - which is how one failed.
+    """
+    calls = []
+
+    def counting(url, timeout=30.0):
+        calls.append(url)
+        return SAMPLE_PAGE
+
+    monkeypatch.setattr(doclinks, "_page_cache", {})
+    monkeypatch.setattr(doclinks, "fetch", counting)
+
+    for _ in range(5):
+        doclinks.fetch_cached("https://example/ref.html")
+    doclinks.fetch_cached("https://example/other.html")
+
+    assert calls == ["https://example/ref.html", "https://example/other.html"]

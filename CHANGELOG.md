@@ -9,6 +9,8 @@ built or presented, never what was observed.
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-09-21
+
 ### Changed
 
 - The flow, renderer and stylesheet tests move to
@@ -37,6 +39,16 @@ built or presented, never what was observed.
   visibly rather than by accident.
 
 ### Fixed
+
+- Requires hook-atlas 0.2, for the `DocLinks.documented` field the fix below
+  needs.
+- Pages no longer link hooks their reference does not document. pytest 6.0 and
+  6.1 have no published documentation, so those pages fall back to `stable`,
+  where hooks pytest has removed since do not exist - and the links 404ed.
+  `linkcheck` now asks the same question the build asks, rather than checking
+  links the site does not emit, treats an unreachable page as a fetch failure
+  rather than a dead link, and reads each reference page once instead of once
+  per trace.
 
 - A capture is refused when the environment does not hold the pytest that was
   asked for. Cheap insurance against a trace filed under one version while
@@ -199,7 +211,8 @@ single flat SVG from a scraped pytest log and had been dormant five years.
 - Cookiecutter scaffolding: `setup.py`, `setup.cfg`, `MANIFEST.in`, `tox.ini`,
   `Makefile`, and the unused Sphinx tree.
 
-[Unreleased]: https://github.com/zy1o/pytest-hook-atlas/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/zy1o/pytest-hook-atlas/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/zy1o/pytest-hook-atlas/releases/tag/v1.3.0
 [1.2.0]: https://github.com/zy1o/pytest-hook-atlas/releases/tag/v1.2.0
 [1.1.0]: https://github.com/zy1o/pytest-hook-atlas/releases/tag/v1.1.0
 [1.0.0]: https://github.com/zy1o/pytest-hook-atlas/releases/tag/v1.0.0
