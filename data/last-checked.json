@@ -1,5 +1,7 @@
 {
-  "checked_at": "2026-10-24T12:03:57+00:00",
-  "releases_seen": 53,
-  "captured_this_run": []
+  "checked_at": "2026-10-31T13:43:49+00:00",
+  "releases_seen": 54,
+  "captured_this_run": [
+    "9.2.0"
+  ]
 }
